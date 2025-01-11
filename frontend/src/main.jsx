@@ -36,7 +36,7 @@ import FeeReport from "./components/BranchAdmin/Students/FeeReport.jsx";
 import StudentEdit from "./components/BranchAdmin/Students/StudentEdit.jsx";
 import CreateTimeTable from "./components/BranchAdmin/Exams/CreateTimeTable.jsx";
 import ViewTimeTable from "./components/BranchAdmin/Exams/ViewTimeTable.jsx";
-
+import FetchReceipts from  "./components/BranchAdmin/Students/Fee-Reciepts.jsx"
 import EnterMarks from "./components/BranchAdmin/Marks/EnterMarks.jsx";
 import ViewMarks from "./components/BranchAdmin/Marks/ViewMarks.jsx";
 import CreateSyllabus from "./components/BranchAdmin/Syllabus/CreateSyllabus.jsx";
@@ -202,6 +202,10 @@ const Router = createBrowserRouter([
           {
             path: "",
             element: <Bdashboard />,
+          },
+          {
+            path: "fee-reciepts/:academicYearID",
+            element: <FetchReceipts/>,
           },
           {
             path: "exam",

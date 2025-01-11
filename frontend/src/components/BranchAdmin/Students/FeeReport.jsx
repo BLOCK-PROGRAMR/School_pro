@@ -481,15 +481,21 @@
 
 // export default FeeReport;
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useContext} from "react";
+
+
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import Allapi from "../../../common"; // Adjust according to your API utility file
+import { mycon } from "../../../store/Mycontext";
 
 const FeeReport = () => {
   const [student, setStudent] = useState(null);
   const { sid } = useParams();
   const [selectedTerm, setSelectedTerm] = useState(null);
+  const [numTerms, setNumTerms] = useState(null);
+    const { branchdet } = useContext(mycon);
+  const [acid,setAcid]=useState(null)
   const [studentDataForm, setStudentDataForm] = useState({
     padiFee: [],
     paymentType: "",
@@ -497,6 +503,9 @@ const FeeReport = () => {
 
   useEffect(() => {
     if (sid) fetchStudentById(sid);
+    // if(branchdet.academicYears) setAcid(branchdet.academicYears[0])
+    // console.log(student)
+    // console.log(mycon)
   }, [sid]);
 
   const fetchStudentById = async (sid) => {
@@ -512,25 +521,38 @@ const FeeReport = () => {
 
       const result = await response.json();
       if (result.success) {
+        console.log(result.data.feeDetails);
+        const maxTerms = Math.max(
+          ...result.data.feeDetails.map((fee) => parseInt(fee.terms, 10))
+        );
+
+        // Set the numTerms state to the highest term value
+        setNumTerms(maxTerms);
+        alert(maxTerms);
         const initialPaidFee = result.data.feeDetails.map((fee) => {
-          const finalAmount = fee.concession ? fee.finalAmount : fee.amount;
+          // Ensure paidFee is set to 0 if it's missing
+          const paidAmount = fee.paidFee ? fee.paidFee : 0;
+          const finalAmount = fee.finalAmount; // Fix: define finalAmount here
           return {
             name: fee.name,
-            finalAmount,
+            amount: fee.amount,
             terms: fee.terms,
+            concession: fee.concession,
+            finalAmount, // Use finalAmount here
             extractedAmount: finalAmount / fee.terms,
-            paidAmount: 0,
-            due: finalAmount,
-            enteredAmount: 0,
+            paidAmount, // Set to 0 if no paidFee is provided
+            due: finalAmount - paidAmount, // Adjust due based on paidAmount
+            enteredAmount: 0, // Initialize enteredAmount to 0
           };
         });
-
+        console.log(initialPaidFee);
         setStudentDataForm((prev) => ({
           ...prev,
           padiFee: initialPaidFee,
         }));
 
         setStudent(result.data);
+  
       } else {
         toast.error(result.message || "Failed to fetch student data.");
       }
@@ -544,14 +566,21 @@ const FeeReport = () => {
     setSelectedTerm(term);
     setStudentDataForm((prev) => {
       const updatedPadiFee = prev.padiFee.map((fee) => {
-        const termValue = parseInt(term.split("-")[1], 10);
-        const dueAmount = fee.extractedAmount * termValue;
+        let termValue = parseInt(term.split("-")[1], 10);
+        // Fix typo
+        console.log(termValue);
+        termValue > fee.terms
+          ? (termValue = fee.terms)
+          : (termValue = termValue);
+        console.log("termvalue ,", fee.terms);
+        const dueAmount =
+          termValue * fee.extractedAmount - fee.paidAmount > 0
+            ? termValue * fee.extractedAmount - fee.paidAmount
+            : 0;
+        // Ensure due calculation considers the correct term
         return {
           ...fee,
-          due:
-            dueAmount > fee.finalAmount
-              ? fee.finalAmount
-              : dueAmount - fee.paidAmount,
+          due: dueAmount, // Adjusted the formula
         };
       });
       return {
@@ -583,38 +612,89 @@ const FeeReport = () => {
       };
     });
   };
-
   const handleSubmit = async (e) => {
+    console.log(studentDataForm.padiFee, "padi"); // Check the value of padiFee
     e.preventDefault();
-    const paymentDetails = studentDataForm.padiFee.filter(
-      (fee) => fee.enteredAmount > 0
-    );
+    const paymentDetails = studentDataForm.padiFee;
+
     if (paymentDetails.length === 0 || !studentDataForm.paymentType) {
       toast.error("Please enter payment details and select a payment type.");
       return;
     }
 
     try {
+      // Update the fee details for the student
       const token = localStorage.getItem("token");
-      const response = await fetch(Allapi.payFee.url, {
-        method: "POST",
+
+      // Log the payment details to see if enteredAmount and padiFee exist
+      console.log(paymentDetails, "paymentDetails before update");
+
+      const updatedFeeDetails = paymentDetails.map((fee) => {
+        console.log(fee, "fee before update");
+
+        const updatedFee = {
+          name: fee.name,
+          amount: fee.amount,
+          terms: fee.terms,
+          concession: fee.concession || 0,
+          finalAmount: fee.finalAmount,
+          // Ensure enteredAmount and padiFee are added correctly
+          paidFee: fee.enteredAmount + fee.paidAmount, // Add padiFee if available, otherwise 0
+        };
+
+        console.log(updatedFee, "updatedFee");
+        return updatedFee;
+      });
+
+      console.log(updatedFeeDetails, "updatedFeeDetails");
+
+      const feeResponse = await fetch(Allapi.payFeeById.url(sid), {
+        method: Allapi.payFeeById.method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          sid,
-          paymentDetails,
-          paymentType: studentDataForm.paymentType,
+          feeDetails: updatedFeeDetails,
         }),
       });
 
-      const result = await response.json();
-      if (result.success) {
-        toast.success("Fee Paid Successfully!");
+      const feeResult = await feeResponse.json();
+
+      if (!feeResult.success) {
+        toast.error(feeResult.message || "Failed to update fee details.");
+        return;
+      }
+
+      // Create the receipt
+      const receiptResponse = await fetch(Allapi.addReciepts.url, {
+        method: Allapi.addReciepts.method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          academicYearID: student.academic_id,
+          studentID: student.idNo,
+          date: new Date(),
+          rcNo: `RC-${Date.now()}`, // Generate a unique receipt number
+          feeLedger: paymentDetails.map((fee) => ({
+            name: fee.name,
+            amount: fee.enteredAmount,
+          })),
+        }),
+      }); 
+      console.log(student,"t")
+
+      const receiptResult = await receiptResponse.json();
+
+      if (receiptResult.success) {
+        toast.success("Fee Paid Successfully and Receipt Created!");
+        console.log(receiptResult);
+        window.location.reload();
         fetchStudentById(sid); // Refresh data
       } else {
-        toast.error(result.message || "Payment submission failed.");
+        toast.error(receiptResult.message || "Failed to create receipt.");
       }
     } catch (error) {
       console.error("Error submitting payment:", error);
@@ -672,7 +752,7 @@ const FeeReport = () => {
             onChange={(e) => handleTermChange(e.target.value)}
           >
             <option value="">Select Term</option>
-            {Array.from({ length: 4 }, (_, i) => `Term-${i + 1}`).map(
+            {Array.from({ length: numTerms }, (_, i) => `Term-${i + 1}`).map(
               (term) => (
                 <option key={term} value={term}>
                   {term}

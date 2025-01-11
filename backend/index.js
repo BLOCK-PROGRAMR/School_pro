@@ -17,13 +17,13 @@ const busroutes = require("./routers/BusRoutes");
 const studentRoutes = require("./routers/studentRoutes");
 const examRoutes = require("./routers/ExamRoutes");
 const marksRoutes = require("./routers/MarksRoutes");
-const syllabusRoutes = require("./routers/SyllabusRoutes.js")
+const syllabusRoutes = require("./routers/SyllabusRoutes.js");
 const teacherRoutes = require("./routers/TeacherRoutes");
 const teacherAssignRoutes = require("./routers/TeacherAssignRoutes.js");
 const workingdays = require("./routers/WorkingDaysRoutes.js")
 const attendanceRoutes = require("./routers/AttendanceRoutes.js")
 const homeworkroutes = require("./routers/HomeWorkRoutes.js")
-
+const receiptRoutes = require("./routers/RecieptsRoutes.js");
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
@@ -40,15 +40,13 @@ app.use("/api/buses", protect.authMiddleware, busroutes);
 app.use("/api/students", protect.authMiddleware, studentRoutes);
 app.use("/api/exams", protect.authMiddleware, examRoutes);
 app.use("/api/marks", protect.authMiddleware, marksRoutes);
-app.use("/api/syllabus", protect.authMiddleware, syllabusRoutes)
+app.use("/api/syllabus", protect.authMiddleware, syllabusRoutes);
 app.use("/api/teachers", protect.authMiddleware, teacherRoutes);
 app.use("/api/teachersassingn", protect.authMiddleware, teacherAssignRoutes);
 app.use("/api/workingdays",protect.authMiddleware,workingdays);
 app.use("/api/attendance",protect.authMiddleware,attendanceRoutes);
-app.use("/api/homework",protect.authMiddleware,homeworkroutes);
 
-
-
+app.use("/api/receipts", protect.authMiddleware, receiptRoutes);
 database().then(
   app.listen(process.env.PORT, () => {
     console.log("server is running");

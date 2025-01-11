@@ -296,6 +296,12 @@ const Sidebar = () => {
                     >
                       View All
                     </MenuItem>
+                     <MenuItem 
+                      to={`/branch-admin/fee-reciepts/${currentAcademicYear}`} 
+                      icon={FileText}
+                    >
+                      Fee-Reciepts
+                    </MenuItem>
                   </div>
                 </div>
               </div>

@@ -216,14 +216,15 @@ const Allapi = {
   },
   updateMarks: {
     url: (id, bid) => `${backapi}/api/marks/${id}/${bid}`,
-    method: "PUT"
+    method: "PUT",
   },
   getAllMarks: {
     url: (branchId) => `${backapi}/api/marks/${branchId}`,
     method: "GET",
   },
   getMarksByStudent: {
-    url: (studentId, branchId) => `${backapi}/api/marks/${studentId}/${branchId}`,
+    url: (studentId, branchId) =>
+      `${backapi}/api/marks/${studentId}/${branchId}`,
     method: "GET",
   },
   getMarksReport: {
@@ -233,111 +234,113 @@ const Allapi = {
   },
   addSyllabus: {
     url: (bid) => `${backapi}/api/syllabus/${bid}/syllabus`,
-    method: "POST"
+    method: "POST",
   },
   getAllSyllabus: {
     url: (bid, acid) => `${backapi}/api/syllabus/${bid}/syllabus/${acid}`,
-    method: "GET"
+    method: "GET",
   },
   updateSyllabus: {
     url: (bid, sid) => `${backapi}/api/syllabus/${bid}/syllabus/${sid}`,
-    method: "PUT"
+    method: "PUT",
   },
   deleteSyllabus: {
     url: (id) => `${backapi}/api/syllabus/${id}`,
-    method: "DELETE"
+    method: "DELETE",
   },
   getExamById: {
     url: (exid, bid) => `${backapi}/api/marks/exam/${exid}/${bid}`,
-    method: "GET"
+    method: "GET",
   },
 
   // Teacher endpoints
   addTeacher: {
     url: `${backapi}/api/teachers/add-teacher`,
-    method: "POST"  // Make sure method is uppercase
+    method: "POST", // Make sure method is uppercase
   },
   getTeachers: {
     url: (academicId) => `${backapi}/api/teachers/all-teachers/${academicId}`,
-    method: "GET"
+    method: "GET",
   },
   getTeacherById: {
     url: (teacherId) => `${backapi}/api/teachers/get-teacher/${teacherId}`,
-    method: "GET"
+    method: "GET",
   },
   updateTeacher: {
     url: (teacherId) => `${backapi}/api/teachers/edit-teacher/${teacherId}`,
-    method: 'PUT'
+    method: "PUT",
   },
   deleteTeacher: {
     url: (teacherId) => `${backapi}/api/teachers/delete-teacher/${teacherId}`,
-    method: "DELETE"
+    method: "DELETE",
   },
 
   addEnquiry: {
     url: `${backapi}/api/enquiry`,
-    method: "POST"
+    method: "POST",
   },
   getEnquiries: {
     url: (branchId) => `${backapi}/api/enquiry/branch/${branchId}`,
-    method: "GET"
+    method: "GET",
   },
   getEnquiry: {
     url: (id) => `${backapi}/api/enquiry/${id}`,
-    method: "GET"
+    method: "GET",
   },
   updateEnquiryStatus: {
     url: (id) => `${backapi}/api/enquiry/${id}/status`,
-    method: "PATCH"
-  }
-  ,
+    method: "PATCH",
+  },
   assignTeacher: {
     url: `${backapi}/api/teachersassingn/assign`,
-    method: "POST"
+    method: "POST",
   },
   getTeacherAssignments: {
-    url: (academicYear) => `${backapi}/api/teachersassingn/assignments?academicYear=${academicYear}`,
-    method: "GET"
+    url: (academicYear) =>
+      `${backapi}/api/teachersassingn/assignments?academicYear=${academicYear}`,
+    method: "GET",
   },
   updateTeacherAssignment: {
-    url: (assignmentId) => `${backapi}/api/teachersassingn/assignment/${assignmentId}`,
-    method: "PUT"
+    url: (assignmentId) =>
+      `${backapi}/api/teachersassingn/assignment/${assignmentId}`,
+    method: "PUT",
   },
   removeTeacherAssignment: {
-    url: (assignmentId) => `${backapi}/api/teachersassingn/assignment/${assignmentId}`,
-    method: "DELETE"
+    url: (assignmentId) =>
+      `${backapi}/api/teachersassingn/assignment/${assignmentId}`,
+    method: "DELETE",
   },
   addWorkingDays: {
     url: `${backapi}/api/workingdays`,
-    method: "POST"
+    method: "POST",
   },
   getWorkingDays: {
     url: (bid, acid) => `${backapi}/api/workingdays/${bid}/${acid}`,
-    method: "GET"
+    method: "GET",
   },
   updateWorkingDays: {
     url: (bid, acid) => `${backapi}/api/workingdays/${bid}/${acid}`,
-    method: "PUT"
+    method: "PUT",
   },
   getVehicleStudents: {
     url: (busId) => `${backapi}/api/buses/vehicle-students/${busId}`,
-    method: "GET"
+    method: "GET",
   },
   addAttendance: {
     url: `${backapi}/api/attendance/add`,
-    method: "POST"
+    method: "POST",
   },
   getAbsentees: {
     url: `${backapi}/api/attendance/get-absentees`,
-    method: "GET"
+    method: "GET",
   },
   getMonthlyAbsents: {
     url: `${backapi}/api/attendance/monthly-absents`,
-    method: "GET"
+    method: "GET",
   },
   updateAbsentees: {
     url: `${backapi}/api/attendance/update-absentees`,
-    method: "PUT"
+    method: "PUT",
   },
   getMonthlyAbsents: {
     url: `${backapi}/api/attendance/monthly-absents`,
@@ -356,6 +359,19 @@ const Allapi = {
       url: `${backapi}/api/homework/`,
       method:"delete"
   }
+  ,payFeeById: {
+    url: (sid) => `${backapi}/api/students/pay-fee/${sid}`,
+    method: "PUT",
+  },
+  addReciepts: {
+    url: `${backapi}/api/receipts/create`,
+    method: "POST",
+  },
+  getReciepts: {
+    url: (acid) => `${backapi}/api/receipts/get-reciepts/${acid}`,
+    method: "GET",
+  },
+  
 
 
 };

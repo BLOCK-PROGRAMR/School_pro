@@ -179,3 +179,44 @@ exports.deleteStudent = async (req, res) => {
     });
   }
 };
+
+exports.updateFeeDetails = async (req, res) => {
+  try {
+    const { sid } = req.params; // Student ID from the request parameters
+    const { feeDetails } = req.body; // Fee details array from the request body
+
+    if (!feeDetails || !Array.isArray(feeDetails)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid fee details provided",
+      });
+    }
+
+    // Update the feeDetails array for the specific student
+    const student = await Student.findByIdAndUpdate(
+      sid,
+      { feeDetails }, // Replace the feeDetails array
+      { new: true, runValidators: true } // Return the updated document and run validators
+    );
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Fee details updated successfully",
+      data: student,
+    });
+  } catch (error) {
+    console.error("Error updating fee details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating fee details",
+      error: error.message,
+    });
+  }
+};

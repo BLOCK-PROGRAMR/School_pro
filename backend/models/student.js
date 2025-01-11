@@ -65,22 +65,7 @@ const studentSchema = new mongoose.Schema({
       terms: String,
       concession: Number,
       finalAmount: Number,
-    },
-  ],
-  paidFee: [
-    {
-      name: { type: String }, // e.g., "Bus", "ID Card"
-      terms: {
-        // Use Map to allow dynamic keys (e.g., "Term 1", "Term 2", etc.)
-        type: Map,
-        of: [
-          {
-            amountPaid: { type: Number },
-            dueAmount: { type: Number },
-            paidDate: { type: Date },
-          },
-        ],
-      },
+      paidFee: Number,
     },
   ],
 });
