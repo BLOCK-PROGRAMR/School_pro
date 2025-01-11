@@ -30,7 +30,7 @@ const TeacherDashboard = () => {
     const tokenData = parseJwt(token);
     if (tokenData.teacherData) {
       setTeacherData(tokenData.teacherData);
-      fetchTeacherAssignments(tokenData.teacherData._id);
+      fetchTeacherAssignments(tokenData.teacherData._id, tokenData.teacherData.academic_id);
     }
   }, [navigate]);
 
@@ -42,10 +42,10 @@ const TeacherDashboard = () => {
     }
   };
 
-  const fetchTeacherAssignments = async (teacherId) => {
+  const fetchTeacherAssignments = async (teacherId, academicId) => {
     try {
       const response = await fetch(
-        Allapi.getTeacherAssignments.url(teacherData?.academic_id),
+        Allapi.getTeacherAssignments.url(academicId),
         {
           method: Allapi.getTeacherAssignments.method,
           headers: {
@@ -55,16 +55,22 @@ const TeacherDashboard = () => {
         }
       );
       const result = await response.json();
-      
+
       if (result.success) {
         // Filter assignments for current teacher
         const teacherAssignments = result.data.find(t => t.teacherId === teacherId);
         if (teacherAssignments) {
           setAssignments(teacherAssignments.classAssignments);
+        } else {
+          setAssignments([]);
         }
+      } else {
+        toast.error(result.message || 'Error fetching assignments');
+        setAssignments([]);
       }
     } catch (error) {
       toast.error('Error fetching assignments');
+      setAssignments([]);
     } finally {
       setLoading(false);
     }
@@ -162,7 +168,7 @@ const TeacherDashboard = () => {
 
         {/* Class Assignments Section */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Class Assignments</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Subjects Assigned</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {assignments?.map((assignment, index) => (
               <div
