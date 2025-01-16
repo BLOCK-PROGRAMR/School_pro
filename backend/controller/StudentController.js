@@ -220,3 +220,33 @@ exports.updateFeeDetails = async (req, res) => {
     });
   }
 };
+// Get student details by idNo
+exports.getStudentByIdNo = async (req, res) => {
+  try {
+    const { idNo } = req.params; // Extract idNo from request parameters
+
+    // Find student with the matching idNo
+    const student = await Student.findOne({ idNo });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: student,
+    });
+  } catch (error) {
+    console.error("Error fetching student by idNo:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Error fetching student",
+      error: error.message,
+    });
+  }
+};
+

@@ -1,7 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import FeeReports from "./components/BranchAdmin/Students/Fee-reports.jsx"
 import "./index.css";
+import CashBook from "./components/BranchAdmin/FeeTypes/CashBook.jsx"
 import { ToastContainer } from "react-toastify";
 import React from "react";
 import Home from "./pages/Home.jsx";
@@ -206,6 +208,14 @@ const Router = createBrowserRouter([
           {
             path: "fee-reciepts/:academicYearID",
             element: <FetchReceipts/>,
+          },
+          {
+            path: "cash-book/:academicYearID",
+            element: <CashBook/>,
+          },
+          {
+            path: "fee-card/:academicYearID",
+            element: <FeeReports/>,
           },
           {
             path: "exam",

@@ -71,23 +71,29 @@ const getReceiptCountByPrefix = async (req, res) => {
   }
 };
 // Fetch receipts by academicYearID and studentID
+// Fetch receipts by academicYearID and optionally by studentID
 const getReceiptsByStudentAndYear = async (req, res) => {
   try {
     const { academicYearID } = req.params; // Get academicYearID from URL params
     const { studentID } = req.query; // Get studentID from query parameters
 
-    if (!academicYearID || !studentID) {
+    // Check if academicYearID is provided
+    if (!academicYearID) {
       return res.status(400).json({
         success: false,
-        message: "Both academicYearID and studentID are required",
+        message: "academicYearID is required",
       });
     }
 
-    // Fetch receipts
-    const receipts = await StudentFeeReceipt.find({
-      academicYearID,
-      studentID,
-    });
+    // Build query based on the presence of studentID
+    let query = { academicYearID };
+
+    if (studentID) {
+      query.studentID = studentID; // Add studentID to the query if provided
+    }
+
+    // Fetch receipts based on the built query
+    const receipts = await StudentFeeReceipt.find(query);
 
     if (receipts.length === 0) {
       return res.status(404).json({
@@ -108,6 +114,7 @@ const getReceiptsByStudentAndYear = async (req, res) => {
     });
   }
 };
+
 
 
 

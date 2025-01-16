@@ -234,6 +234,24 @@ const Sidebar = () => {
                     >
                       Set Fee Types
                     </MenuItem>
+                    <MenuItem 
+                      to={`/branch-admin/fee-card/${currentAcademicYear}`} 
+                      icon={Plus}
+                    >
+                      FeeCards
+                    </MenuItem>
+                    <MenuItem 
+                      to={`/branch-admin/fee-reciepts/${currentAcademicYear}`} 
+                      icon={FileText}
+                    >
+                      Fee-Reciepts
+                    </MenuItem>
+                    <MenuItem 
+                      to={`/branch-admin/cash-book/${currentAcademicYear}`} 
+                      icon={Plus}
+                    >
+                      CashBook
+                    </MenuItem>
                   </div>
                 </div>
               </div>
@@ -296,12 +314,7 @@ const Sidebar = () => {
                     >
                       View All
                     </MenuItem>
-                     <MenuItem 
-                      to={`/branch-admin/fee-reciepts/${currentAcademicYear}`} 
-                      icon={FileText}
-                    >
-                      Fee-Reciepts
-                    </MenuItem>
+                   
                   </div>
                 </div>
               </div>

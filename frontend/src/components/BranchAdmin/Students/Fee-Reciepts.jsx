@@ -10,11 +10,6 @@ const FetchReceipts = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchReceipts = async () => {
-    if (!studentID) {
-      toast.error("Please enter a student ID.");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -26,16 +21,18 @@ const FetchReceipts = () => {
         return;
       }
 
-      const response = await fetch(
-        `${Allapi.getReciepts.url(academicYearID)}?studentID=${studentID}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // If studentID is provided, filter by both academicYearID and studentID
+      const url = studentID
+        ? `${Allapi.getReciepts.url(academicYearID)}?studentID=${studentID}`
+        : `${Allapi.getReciepts.url(academicYearID)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -45,7 +42,11 @@ const FetchReceipts = () => {
       }
 
       const data = await response.json();
-      setReceipts(data.receipts);
+
+      // Sort receipts by date in descending order (newest first)
+      const sortedReceipts = data.receipts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      setReceipts(sortedReceipts);
       toast.success("Receipts retrieved successfully!");
     } catch (error) {
       console.error("Error fetching receipts:", error);
@@ -66,7 +67,7 @@ const FetchReceipts = () => {
         <h2 className="text-xl font-bold text-gray-800 mb-4">Fetch Receipts</h2>
         <div className="mb-4">
           <label htmlFor="studentID" className="block text-gray-700 mb-2">
-            Student ID:
+            Student ID (Optional):
           </label>
           <input
             type="text"
@@ -74,7 +75,7 @@ const FetchReceipts = () => {
             value={studentID}
             onChange={(e) => setStudentID(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-lg"
-            placeholder="Enter Student ID"
+            placeholder="Enter Student ID (Optional)"
           />
         </div>
         <button
@@ -86,68 +87,61 @@ const FetchReceipts = () => {
         </button>
 
         {receipts.length > 0 && (
-          <div className="mt-6 overflow-x-auto">
+          <div className="mt-6">
             <h3 className="text-lg font-bold text-gray-800 mb-2">Receipts</h3>
-            <table className="table-auto w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-200 text-gray-800">
-                  <th className="border border-gray-300 p-2">RC No</th>
-                  <th className="border border-gray-300 p-2">Date</th>
-                  <th className="border border-gray-300 p-2">Fee Details</th>
-                  <th className="border border-gray-300 p-2">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {receipts.map((receipt) =>
-                  receipt.feeLedger
-                    .filter((fee) => fee.amount > 0) // Only include fees with amount > 0
-                    .map((fee, index) => (
-                      <tr key={fee._id}>
-                        {index === 0 && (
-                          <>
-                            <td
-                              className="border border-gray-300 p-2"
-                              rowSpan={
-                                receipt.feeLedger.filter(
-                                  (fee) => fee.amount > 0
-                                ).length
-                              }
-                            >
-                              {receipt.rcNo}
-                            </td>
-                            <td
-                              className="border border-gray-300 p-2"
-                              rowSpan={
-                                receipt.feeLedger.filter(
-                                  (fee) => fee.amount > 0
-                                ).length
-                              }
-                            >
-                              {new Date(receipt.date).toLocaleDateString()}
-                            </td>
-                          </>
-                        )}
-                        <td className="border border-gray-300 p-2">
-                          {fee.name}
-                        </td>
-                        <td className="border border-gray-300 p-2">
-                          ₹{fee.amount}
-                        </td>
-                      </tr>
-                    ))
-                )}
-              </tbody>
-              <tfoot>
-                <tr className="bg-gray-200 text-gray-800">
-                  <td colSpan="3" className="border border-gray-300 p-2 font-bold">
-                    Total
-                  </td>
-                  <td className="border border-gray-300 p-2 font-bold">
-                    ₹{calculateTotal()}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+            <div className="space-y-6">
+              {receipts.map((receipt) => (
+                <div
+                  key={receipt._id}
+                  className="bg-gradient-to-br from-white to-gray-100 shadow-xl rounded-lg p-6 relative"
+                  style={{
+                    backgroundColor: "#f9f9f9", // Simulating a paper background
+                    border: "1px solid #e1e1e1", // Paper-like border
+                    boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.1)", // Soft shadow
+                    width: "100%",
+                    marginBottom: "20px",
+                    padding: "20px",
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 opacity-10 rounded-lg"></div> {/* Subtle paper texture */}
+                  <h4 className="text-xl font-semibold text-gray-800 mb-4">
+                    Receipt No: {receipt.rcNo}
+                  </h4>
+                  <p className="text-gray-600 mb-4">
+                    Date: {new Date(receipt.date).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-600 mb-4">
+                    Student: {receipt.studentID}
+                  </p>
+
+                  <div>
+                    <h5 className="font-bold text-gray-700 mb-2">Fee Details:</h5>
+                    {receipt.feeLedger
+                      .filter((fee) => fee.amount > 0) // Only include fees with amount > 0
+                      .map((fee) => (
+                        <div
+                          key={fee._id}
+                          className="flex justify-between text-gray-800 mb-2"
+                        >
+                          <span>{fee.name}</span>
+                          <span>₹{fee.amount}</span>
+                        </div>
+                      ))}
+                  </div>
+
+                  <div className="mt-4 flex justify-between">
+                    <span className="text-lg font-semibold text-gray-700">Total</span>
+                    <span className="text-lg font-semibold text-blue-600">
+                      ₹{receipt.totalAmount}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 bg-gray-200 p-4 rounded-lg">
+              <h5 className="font-bold text-gray-700">Total for All Receipts: ₹{calculateTotal()}</h5>
+            </div>
           </div>
         )}
       </div>

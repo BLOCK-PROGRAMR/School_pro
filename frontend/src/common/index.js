@@ -185,6 +185,10 @@ const Allapi = {
     url: (sid) => `${backapi}/api/students/get-student/${sid}`,
     method: "GET",
   },
+  getstudentbyIdNo: {
+    url: (sid) => `${backapi}/api/students/get-studentById/${sid}`,
+    method: "GET",
+  },
   deletestudentbyId: {
     url: (sid) => `${backapi}/api/students/delete-student/${sid}`,
     method: "DELETE",
