@@ -32,7 +32,8 @@ import {
   UserPlus,
   ClipboardCheck,
   MapPin,
-  Bell
+  Bell,
+  Layers
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -86,6 +87,8 @@ const Sidebar = () => {
       <span>{children}</span>
     </Link>
   );
+
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
@@ -235,10 +238,16 @@ const Sidebar = () => {
                       Set Fee Types
                     </MenuItem>
                     <MenuItem 
+                      to={`/branch-admin/ledger-creation`} 
+                      icon={Plus}
+                    >
+                      Ledger Creation
+                    </MenuItem>
+                    <MenuItem 
                       to={`/branch-admin/fee-card/${currentAcademicYear}`} 
                       icon={Plus}
                     >
-                      FeeCards
+                      Fee Ledger
                     </MenuItem>
                     <MenuItem 
                       to={`/branch-admin/fee-reciepts/${currentAcademicYear}`} 
@@ -560,6 +569,8 @@ const Sidebar = () => {
                   </div>
                 </div>
               </div>
+
+           
             </div>
           </nav>
 

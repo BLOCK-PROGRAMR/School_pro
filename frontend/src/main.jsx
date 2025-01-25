@@ -80,34 +80,44 @@ import TeacherAttendance from "./components/Teacher/attendance/TeacherAttendance
 
 
 
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import LedgerCreation from "./components/BranchAdmin/Ledger/LedgerCreation.jsx";
+
 const Router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         path: "/",
         element: <Home />,
+        errorElement: <ErrorBoundary />
       },
       {
         path: "/about-us",
         element: <Aboutus />,
+        errorElement: <ErrorBoundary />
       },
       {
         path: "/contact-us",
         element: <Contactus />,
+        errorElement: <ErrorBoundary />
       },
       {
         path: "/fee-submission",
         element: <Feesubmission />,
+        errorElement: <ErrorBoundary />
       },
       {
         path: "/admission-enquiry",
         element: <AdmissionEnquiry />,
+        errorElement: <ErrorBoundary />
       },
       {
         path: "/login",
         element: <Login />,
+        errorElement: <ErrorBoundary />
       },
 
 
@@ -120,34 +130,42 @@ const Router = createBrowserRouter([
       {
         path: "/teacher",
         element: <TeacherLayout />,
+        errorElement: <ErrorBoundary />,
         children: [
           {
             path: "",
             element: <TeacherDashboard />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "portfolio",
             element: <EditPortfolio />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "attendance",
             element: <TeacherAttendance/>,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "classes/schedule",
             element: <ClassSchedule />,
+            errorElement: <ErrorBoundary />
           },
           {
             path:"homework",
-            element: <CreateHomeWork/>
+            element: <CreateHomeWork/>,
+            errorElement: <ErrorBoundary />
           },
           {
             path:"marks",
-            element: <MarksTeacher/>
+            element: <MarksTeacher/>,
+            errorElement: <ErrorBoundary />
           },
           {
             path:"viewhomework",
-            element: <ViewHomeWorks/>
+            element: <ViewHomeWorks/>,
+            errorElement: <ErrorBoundary />
           },
 
           // Add more teacher routes here
@@ -166,10 +184,12 @@ const Router = createBrowserRouter([
       {
         path: "/admin",
         element: <Adminlayout />,
+        errorElement: <ErrorBoundary />,
         children: [
           {
             path: "",
             element: <Dashboard />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "branch",
@@ -178,11 +198,13 @@ const Router = createBrowserRouter([
               {
                 path: "create",
                 element: <CreateBranch />,
+                errorElement: <ErrorBoundary />
               },
 
               {
                 path: "view",
                 element: <ViewBranches />,
+                errorElement: <ErrorBoundary />
               },
             ],
           },
@@ -192,6 +214,7 @@ const Router = createBrowserRouter([
               {
                 path: "view-all-admins",
                 element: <ViewBadmin />,
+                errorElement: <ErrorBoundary />
               },
             ],
           },
@@ -200,54 +223,65 @@ const Router = createBrowserRouter([
       {
         path: "/branch-admin",
         element: <BranchAdminlayout />,
+        errorElement: <ErrorBoundary />,
         children: [
           {
             path: "",
             element: <Bdashboard />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "fee-reciepts/:academicYearID",
             element: <FetchReceipts/>,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "cash-book/:academicYearID",
             element: <CashBook/>,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "fee-card/:academicYearID",
             element: <FeeReports/>,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "exam",
             children: [{
               path: "create-timetable",
-              element: <CreateTimeTable />
+              element: <CreateTimeTable />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "view-timetable",
-              element: <ViewTimeTable />
+              element: <ViewTimeTable />,
+              errorElement: <ErrorBoundary />
             }]
           },
           {
             path: "workingdays",
             children: [{
               path: "create",
-              element: <CreateWorkingDays />
+              element: <CreateWorkingDays />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "view",
-              element: <ViewWorkingDays />
+              element: <ViewWorkingDays />,
+              errorElement: <ErrorBoundary />
             }]
           },
           {
             path: "attendance",
             children: [{
               path: "add/:acid",
-              element: <AddAttendance />
+              element: <AddAttendance />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "view/:acid",
-              element: <ViewAttendance />
+              element: <ViewAttendance />,
+              errorElement: <ErrorBoundary />
             }]
           },
 
@@ -255,23 +289,26 @@ const Router = createBrowserRouter([
             path: "marks",
             children: [{
               path: "enter",
-              element: <EnterMarks />
+              element: <EnterMarks />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "update",
-              element: <UpdateMarks />
+              element: <UpdateMarks />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "view",
-              element: <ViewMarks />
+              element: <ViewMarks />,
+              errorElement: <ErrorBoundary />
             },
 
             {
 
 
               path: "create",
-              element: <CreateHallTicket />
-
+              element: <CreateHallTicket />,
+              errorElement: <ErrorBoundary />
             },
             ]
           },
@@ -280,22 +317,26 @@ const Router = createBrowserRouter([
             path: "enquiry",
             children: [{
               path: "create-enquiry",
-              element: <AddEnquiry />
+              element: <AddEnquiry />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "view-enquiry",
-              element: <ViewEnquiry />
+              element: <ViewEnquiry />,
+              errorElement: <ErrorBoundary />
             }]
           },
           {
             path: "syllabus",
             children: [{
               path: "create",
-              element: <CreateSyllabus />
+              element: <CreateSyllabus />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "view",
-              element: <ViewSyllabus />
+              element: <ViewSyllabus />,
+              errorElement: <ErrorBoundary />
             }]
 
           },
@@ -305,21 +346,24 @@ const Router = createBrowserRouter([
             path: "vehicle",
             children: [{
               path: "create",
-              element: <ShowReport />
+              element: <ShowReport />,
+              errorElement: <ErrorBoundary />
             }]
 
           }, {
             path: "strengthreports",
             children: [{
               path: "create",
-              element: <StrengthReports />
+              element: <StrengthReports />,
+              errorElement: <ErrorBoundary />
             }]
           }, {
             path: "progressreports",
             children: [
               {
                 path: "create",
-                element: <ProgressReport />
+                element: <ProgressReport />,
+                errorElement: <ErrorBoundary />
               },
             ]
           },
@@ -327,17 +371,21 @@ const Router = createBrowserRouter([
             path: "teachers",
             children: [{
               path: "add-teacher",
-              element: <AddTeacher />
+              element: <AddTeacher />,
+              errorElement: <ErrorBoundary />
             },
             {
               path: "view-teachers",
-              element: <ViewTeachers />
+              element: <ViewTeachers />,
+              errorElement: <ErrorBoundary />
             }, {
               path: "assign-teachers",
-              element: <AssignTeachers />
+              element: <AssignTeachers />,
+              errorElement: <ErrorBoundary />
             }, {
               path: "view-perfomance",
-              element: <ViewPerformance />
+              element: <ViewPerformance />,
+              errorElement: <ErrorBoundary />
             }]
           },
 
@@ -345,45 +393,64 @@ const Router = createBrowserRouter([
           {
             path: "class/view-all/:acid",
             element: <ViewAll />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "class/view-all",
             element: <Add />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "academic-year",
 
             children: [
               {
+                path: "",
+                element: <ViewAcademicYears />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
                 path: "add",
                 element: <Add />,
+                errorElement: <ErrorBoundary />
               },
 
               {
                 path: "view",
                 element: <ViewAcademicYears />,
+                errorElement: <ErrorBoundary />
               },
               {
                 path: "add-class/",
                 element: <AddAcademicYear />,
+                errorElement: <ErrorBoundary />
               },
               {
                 path: "add-class/:acid",
                 element: <AddClass />,
+                errorElement: <ErrorBoundary />
               },
               {
                 path: "add-section/:classId",
                 element: <Addsection />,
+                errorElement: <ErrorBoundary />
               },
               {
                 path: "view-sections",
                 element: <ViewSections />,
+                errorElement: <ErrorBoundary />
               },
             ],
           },
           {
-            path: "fee-type/:acid",
+            path: "fee-type/:academicYear",
             element: <AddFeeType />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "ledger-creation",
+            element: <LedgerCreation />,
+            errorElement: <ErrorBoundary />,
           },
           {
             path: "transport",
@@ -391,34 +458,41 @@ const Router = createBrowserRouter([
               {
                 path: "add-town",
                 element: <AddTown />,
+                errorElement: <ErrorBoundary />
               },
               {
                 path: "add-bus",
                 element: <AddBus />,
+                errorElement: <ErrorBoundary />
               },
             ],
           },
           {
             path: "add-student/:acid",
             element: <AddStudents />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "students-report/:acid",
             element: <StudentsReports />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "students/:sid",
             element: <StudentEdit />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "students-payfee/:sid",
             element: <FeeReport />,
+            errorElement: <ErrorBoundary />
           },
         ],
       },
     ],
   },
 ]);
+
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ToastContainer />
