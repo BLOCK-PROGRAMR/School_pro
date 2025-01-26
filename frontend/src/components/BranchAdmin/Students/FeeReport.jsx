@@ -481,7 +481,7 @@
 
 // export default FeeReport;
 
-import React, { useState, useEffect ,useContext} from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 
 import { toast } from "react-toastify";
@@ -494,8 +494,8 @@ const FeeReport = () => {
   const { sid } = useParams();
   const [selectedTerm, setSelectedTerm] = useState(null);
   const [numTerms, setNumTerms] = useState(null);
-    const { branchdet } = useContext(mycon);
-  const [acid,setAcid]=useState(null)
+  const { branchdet } = useContext(mycon);
+  const [acid, setAcid] = useState(null)
   const [studentDataForm, setStudentDataForm] = useState({
     padiFee: [],
     paymentType: "",
@@ -552,7 +552,7 @@ const FeeReport = () => {
         }));
 
         setStudent(result.data);
-  
+
       } else {
         toast.error(result.message || "Failed to fetch student data.");
       }
@@ -683,8 +683,8 @@ const FeeReport = () => {
             amount: fee.enteredAmount,
           })),
         }),
-      }); 
-      console.log(student,"t")
+      });
+      console.log(student, "t")
 
       const receiptResult = await receiptResponse.json();
 
@@ -817,8 +817,8 @@ const FeeReport = () => {
             >
               <option value="">Select Payment Type</option>
               <option value="Cash">Cash</option>
-              <option value="Card">Card</option>
-              <option value="Online">Online</option>
+              <option value="Card">BANK</option>
+
             </select>
           </div>
 
