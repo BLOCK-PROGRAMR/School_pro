@@ -26,6 +26,8 @@ const homeworkroutes = require("./routers/HomeWorkRoutes.js")
 const receiptRoutes = require("./routers/RecieptsRoutes.js");
 const ledgerRoutes = require("./routers/ledgerRoutes");
 const enquiryRoutes = require("./routers/enquiryRoutes");
+const voucherRoutes = require("./routers/voucherRoutes");
+const bookRoutes = require("./routers/bookRoutes");
 
 app.use(cors());
 app.use(cookieParser());
@@ -51,6 +53,8 @@ app.use("/api/attendance",protect.authMiddleware,attendanceRoutes);
 app.use("/api/ledger", protect.authMiddleware, ledgerRoutes);
 app.use("/api/receipts", protect.authMiddleware, receiptRoutes);
 app.use("/api/enquiry", protect.authMiddleware, enquiryRoutes);
+app.use("/api/vouchers", protect.authMiddleware, voucherRoutes);
+app.use("/api/books", protect.authMiddleware, bookRoutes);
 
 database().then(
   app.listen(process.env.PORT, () => {

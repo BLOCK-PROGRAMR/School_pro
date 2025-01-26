@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import FeeReports from "./components/BranchAdmin/Students/Fee-reports.jsx"
 import "./index.css";
-import CashBook from "./components/BranchAdmin/FeeTypes/CashBook.jsx"
+// import CashBook from "./components/BranchAdmin/FeeTypes/CashBook.jsx"
 import { ToastContainer } from "react-toastify";
 import React from "react";
 import Home from "./pages/Home.jsx";
@@ -83,6 +83,12 @@ import TeacherAttendance from "./components/Teacher/attendance/TeacherAttendance
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import LedgerCreation from "./components/BranchAdmin/Ledger/LedgerCreation.jsx";
 import VoucherBook from "./components/BranchAdmin/VoucherCreation/VoucherBook.jsx";
+
+
+
+
+import CashBook from "./components/BranchAdmin/Books/CashBook.jsx";
+import BankBook from "./components/BranchAdmin/Books/BankBook.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -236,9 +242,19 @@ const Router = createBrowserRouter([
             element: <FetchReceipts />,
             errorElement: <ErrorBoundary />
           },
+          // {
+          //   path: "cash-book/:academicYearID",
+          //   element: <CashBook />,
+          //   errorElement: <ErrorBoundary />
+          // },
           {
-            path: "cash-book/:academicYearID",
+            path: "cash/:academicYearID",
             element: <CashBook />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "bank/:academicYearID",
+            element: <BankBook/>,
             errorElement: <ErrorBoundary />
           },
           {

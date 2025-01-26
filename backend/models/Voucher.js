@@ -58,15 +58,12 @@ const voucherSchema = new mongoose.Schema({
     voucherNumber: {
         type: Number,
         required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
+}, {
+    timestamps: true
 });
 
-// Add indexes
-voucherSchema.index({ voucherTxId: 1 }, { unique: true });
-voucherSchema.index({ voucherType: 1, voucherNumber: 1 });
+// Add compound index for voucherType and voucherNumber
+voucherSchema.index({ voucherType: 1, voucherNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model('Voucher', voucherSchema);
