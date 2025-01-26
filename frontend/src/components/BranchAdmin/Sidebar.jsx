@@ -263,6 +263,33 @@ const Sidebar = () => {
                     >
                       CashBook
                     </MenuItem>
+
+
+
+                    <MenuItem
+                      to={`/branch-admin/cash/${currentAcademicYear}`}
+                      icon={Plus}
+                    >
+                      cash-Book
+                    </MenuItem>
+
+
+
+                    <MenuItem
+                      to={`/branch-admin/bank/${currentAcademicYear}`}
+                      icon={Plus}
+                    >
+                      BankBook
+                    </MenuItem>
+
+
+
+
+
+
+
+
+
                   </div>
                 </div>
               </div>
