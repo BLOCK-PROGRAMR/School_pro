@@ -67,15 +67,13 @@ const Sidebar = () => {
   const menuButton = "w-full flex items-center justify-between p-3 rounded-lg transition-colors";
 
   const getMenuButtonClasses = (menuName) => {
-    return `${menuButton} ${menuItemBase} ${menuItemHover} ${
-      activeMenu === menuName ? menuItemActive : ""
-    }`;
+    return `${menuButton} ${menuItemBase} ${menuItemHover} ${activeMenu === menuName ? menuItemActive : ""
+      }`;
   };
 
   const getSubmenuClasses = (menuName) => {
-    return `${submenuBase} ${
-      activeMenu === menuName ? submenuActive : submenuInactive
-    }`;
+    return `${submenuBase} ${activeMenu === menuName ? submenuActive : submenuInactive
+      }`;
   };
 
   const MenuItem = ({ to, icon: Icon, children }) => (
@@ -92,9 +90,8 @@ const Sidebar = () => {
 
   return (
     <>
-      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-blue-800">
@@ -104,7 +101,7 @@ const Sidebar = () => {
               </div>
               <span className="text-xl font-bold tracking-wider">Branch Admin</span>
             </div>
-            <button 
+            <button
               onClick={() => setSidebarOpen(!isSidebarOpen)}
               className="p-2 transition-colors rounded-lg hover:bg-blue-800"
             >
@@ -118,9 +115,8 @@ const Sidebar = () => {
               {/* Dashboard */}
               <Link
                 to="/branch-admin"
-                className={`${menuItemBase} ${menuItemHover} flex items-center p-3 rounded-lg ${
-                  location.pathname === "/branch-admin" ? menuItemActive : ""
-                }`}
+                className={`${menuItemBase} ${menuItemHover} flex items-center p-3 rounded-lg ${location.pathname === "/branch-admin" ? menuItemActive : ""
+                  }`}
               >
                 <Home className="w-5 h-5 mr-3" />
                 <span>Dashboard</span>
@@ -172,14 +168,14 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("classes")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem 
-                      to={`/branch-admin/academic-year/add-class/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/academic-year/add-class/${currentAcademicYear}`}
                       icon={Plus}
                     >
                       Add Class
                     </MenuItem>
-                    <MenuItem 
-                      to={`/branch-admin/class/view-all/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/class/view-all/${currentAcademicYear}`}
                       icon={FileText}
                     >
                       View All Classes
@@ -231,32 +227,38 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("fees")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem 
-                      to={`/branch-admin/fee-type/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/fee-type/${currentAcademicYear}`}
                       icon={Plus}
                     >
                       Set Fee Types
                     </MenuItem>
-                    <MenuItem 
-                      to={`/branch-admin/ledger-creation`} 
+                    <MenuItem
+                      to={`/branch-admin/ledger-creation`}
                       icon={Plus}
                     >
                       Ledger Creation
                     </MenuItem>
-                    <MenuItem 
-                      to={`/branch-admin/fee-card/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/voucher-creation`}
+                      icon={Plus}
+                    >
+                      Voucher Receipts
+                    </MenuItem>
+                    <MenuItem
+                      to={`/branch-admin/fee-card/${currentAcademicYear}`}
                       icon={Plus}
                     >
                       Fee Ledger
                     </MenuItem>
-                    <MenuItem 
-                      to={`/branch-admin/fee-reciepts/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/fee-reciepts/${currentAcademicYear}`}
                       icon={FileText}
                     >
                       Fee-Reciepts
                     </MenuItem>
-                    <MenuItem 
-                      to={`/branch-admin/cash-book/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/cash-book/${currentAcademicYear}`}
                       icon={Plus}
                     >
                       CashBook
@@ -311,19 +313,19 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("students")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem 
-                      to={`/branch-admin/add-student/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/add-student/${currentAcademicYear}`}
                       icon={UserPlus}
                     >
                       Add Student
                     </MenuItem>
-                    <MenuItem 
-                      to={`/branch-admin/students-report/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/students-report/${currentAcademicYear}`}
                       icon={FileText}
                     >
                       View All
                     </MenuItem>
-                   
+
                   </div>
                 </div>
               </div>
@@ -499,7 +501,7 @@ const Sidebar = () => {
                 <div className={getSubmenuClasses("workingdays")}>
                   <div className="pl-6 space-y-1">
                     <MenuItem to="/branch-admin/workingdays/create" icon={Plus}>
-                       Working Days
+                      Working Days
                     </MenuItem>
                   </div>
                 </div>
@@ -523,14 +525,14 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("attendance")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem 
-                      to={`/branch-admin/attendance/add/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/attendance/add/${currentAcademicYear}`}
                       icon={Plus}
                     >
                       Add Attendance
                     </MenuItem>
-                    <MenuItem 
-                      to={`/branch-admin/attendance/view/${currentAcademicYear}`} 
+                    <MenuItem
+                      to={`/branch-admin/attendance/view/${currentAcademicYear}`}
                       icon={FileText}
                     >
                       View Attendance
@@ -570,7 +572,7 @@ const Sidebar = () => {
                 </div>
               </div>
 
-           
+
             </div>
           </nav>
 
@@ -603,7 +605,7 @@ const Sidebar = () => {
           }
         `}</style>
       </aside>
-      
+
       {/* Main Content Margin */}
       <div className={`ml-64 transition-all duration-300 ${isSidebarOpen ? '' : 'ml-0'}`}>
         {/* Your main content goes here */}

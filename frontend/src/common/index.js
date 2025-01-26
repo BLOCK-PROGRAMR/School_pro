@@ -351,19 +351,19 @@ const Allapi = {
     method: "GET"
 
   },
-  createHomeWork:{
+  createHomeWork: {
     url: `${backapi}/api/homework/`,
-    method:"POST"
+    method: "POST"
   },
-  getHomeworks:{
+  getHomeworks: {
     url: `${backapi}/api/homework/`,
-    method:"GET"
+    method: "GET"
   },
-  deleteHomework:{
-      url: `${backapi}/api/homework/`,
-      method:"delete"
+  deleteHomework: {
+    url: `${backapi}/api/homework/`,
+    method: "delete"
   }
-  ,payFeeById: {
+  , payFeeById: {
     url: (sid) => `${backapi}/api/students/pay-fee/${sid}`,
     method: "PUT",
   },
@@ -375,7 +375,24 @@ const Allapi = {
     url: (acid) => `${backapi}/api/receipts/get-reciepts/${acid}`,
     method: "GET",
   },
-  
+
+  // //voucher
+  // createVoucher: {
+  //   url: `${backapi}/api/voucher/create`,
+  //   method: "POST"
+  // },
+  // getLatestVoucherNumber: {
+  //   url: (voucherType) => `${backapi}/api/voucher/latest/${voucherType}`,
+  //   method: "GET"
+  // },
+  // getVouchers: {
+  //   url: `${backapi}/api/voucher/all`,
+  //   method: "GET"
+  // },
+  // getLedgerTypes: {
+  //   url: `${backapi}/api/ledger/types`,
+  //   method: "GET"
+  // }
 
 
 };

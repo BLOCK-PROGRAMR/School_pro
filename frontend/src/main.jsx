@@ -38,7 +38,7 @@ import FeeReport from "./components/BranchAdmin/Students/FeeReport.jsx";
 import StudentEdit from "./components/BranchAdmin/Students/StudentEdit.jsx";
 import CreateTimeTable from "./components/BranchAdmin/Exams/CreateTimeTable.jsx";
 import ViewTimeTable from "./components/BranchAdmin/Exams/ViewTimeTable.jsx";
-import FetchReceipts from  "./components/BranchAdmin/Students/Fee-Reciepts.jsx"
+import FetchReceipts from "./components/BranchAdmin/Students/Fee-Reciepts.jsx"
 import EnterMarks from "./components/BranchAdmin/Marks/EnterMarks.jsx";
 import ViewMarks from "./components/BranchAdmin/Marks/ViewMarks.jsx";
 import CreateSyllabus from "./components/BranchAdmin/Syllabus/CreateSyllabus.jsx";
@@ -82,6 +82,7 @@ import TeacherAttendance from "./components/Teacher/attendance/TeacherAttendance
 
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import LedgerCreation from "./components/BranchAdmin/Ledger/LedgerCreation.jsx";
+import VoucherBook from "./components/BranchAdmin/VoucherCreation/VoucherBook.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -144,7 +145,7 @@ const Router = createBrowserRouter([
           },
           {
             path: "attendance",
-            element: <TeacherAttendance/>,
+            element: <TeacherAttendance />,
             errorElement: <ErrorBoundary />
           },
           {
@@ -153,18 +154,18 @@ const Router = createBrowserRouter([
             errorElement: <ErrorBoundary />
           },
           {
-            path:"homework",
-            element: <CreateHomeWork/>,
+            path: "homework",
+            element: <CreateHomeWork />,
             errorElement: <ErrorBoundary />
           },
           {
-            path:"marks",
-            element: <MarksTeacher/>,
+            path: "marks",
+            element: <MarksTeacher />,
             errorElement: <ErrorBoundary />
           },
           {
-            path:"viewhomework",
-            element: <ViewHomeWorks/>,
+            path: "viewhomework",
+            element: <ViewHomeWorks />,
             errorElement: <ErrorBoundary />
           },
 
@@ -180,7 +181,7 @@ const Router = createBrowserRouter([
 
 
 
-      
+
       {
         path: "/admin",
         element: <Adminlayout />,
@@ -232,17 +233,17 @@ const Router = createBrowserRouter([
           },
           {
             path: "fee-reciepts/:academicYearID",
-            element: <FetchReceipts/>,
+            element: <FetchReceipts />,
             errorElement: <ErrorBoundary />
           },
           {
             path: "cash-book/:academicYearID",
-            element: <CashBook/>,
+            element: <CashBook />,
             errorElement: <ErrorBoundary />
           },
           {
             path: "fee-card/:academicYearID",
-            element: <FeeReports/>,
+            element: <FeeReports />,
             errorElement: <ErrorBoundary />
           },
           {
@@ -450,6 +451,11 @@ const Router = createBrowserRouter([
           {
             path: "ledger-creation",
             element: <LedgerCreation />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "voucher-creation",
+            element: <VoucherBook />,
             errorElement: <ErrorBoundary />,
           },
           {
