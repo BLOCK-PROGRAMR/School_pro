@@ -257,12 +257,12 @@ const Sidebar = () => {
                     >
                       Fee-Reciepts
                     </MenuItem>
-                    <MenuItem
+                    {/* <MenuItem
                       to={`/branch-admin/cash-book/${currentAcademicYear}`}
                       icon={Plus}
                     >
                       CashBook
-                    </MenuItem>
+                    </MenuItem> */}
 
 
 
