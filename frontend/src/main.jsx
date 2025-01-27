@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
-import FeeReports from "./components/BranchAdmin/Students/Fee-reports.jsx"
+import FeeReports from "./components/BranchAdmin/Students/FeeReport.jsx"
 import "./index.css";
 // import CashBook from "./components/BranchAdmin/FeeTypes/CashBook.jsx"
 import { ToastContainer } from "react-toastify";
@@ -89,6 +89,7 @@ import VoucherBook from "./components/BranchAdmin/VoucherCreation/VoucherBook.js
 
 import CashBook from "./components/BranchAdmin/Books/CashBook.jsx";
 import BankBook from "./components/BranchAdmin/Books/BankBook.jsx";
+import FeeLedger from "./components/BranchAdmin/Ledger/FeeLedger.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -253,13 +254,13 @@ const Router = createBrowserRouter([
             errorElement: <ErrorBoundary />
           },
           {
-            path: "bank/:academicYearID",
+            path: "bank/:academicYearID", 
             element: <BankBook/>,
             errorElement: <ErrorBoundary />
           },
           {
             path: "fee-card/:academicYearID",
-            element: <FeeReports />,
+            element: <FeeLedger></FeeLedger>,
             errorElement: <ErrorBoundary />
           },
           {

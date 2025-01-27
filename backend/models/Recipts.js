@@ -29,6 +29,10 @@ const Reciepts = new mongoose.Schema({
           type: Number,
           required: true,
         },
+        terms: {
+          type: String,
+          required: true
+        }
       },
     ],
     required: true,
