@@ -6,7 +6,7 @@ import Allapi from "./../../../common/index"; // Adjust the path as needed
 import * as XLSX from "xlsx"; // Import xlsx library for Excel export
 import { useNavigate, Link } from "react-router-dom";
 
-import FeeReport from "./FeeReport";
+import FeeReport from "./FeeReport.jsx"; // Update the import statement for FeeReport
 
 const StudentsReports = () => {
   const navigate = useNavigate();
