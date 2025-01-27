@@ -376,29 +376,23 @@ const Allapi = {
     method: "GET",
   },
 
-  // //voucher
-  // createVoucher: {
-  //   url: `${backapi}/api/voucher/create`,
-  //   method: "POST"
-  // },
-  // getLatestVoucherNumber: {
-  //   url: (voucherType) => `${backapi}/api/voucher/latest/${voucherType}`,
-  //   method: "GET"
-  // },
-  // getVouchers: {
-  //   url: `${backapi}/api/voucher/all`,
-  //   method: "GET"
-  // },
-  // getLedgerTypes: {
-  //   url: `${backapi}/api/ledger/types`,
-  //   method: "GET"
-  // }
-
-
+  // Ledger endpoints
+  getLedgers: {
+    url: `${backapi}/api/ledger/all`,
+    method: "GET"
+  },
+  createLedger: {
+    url: `${backapi}/api/ledger/create`,
+    method: "POST"
+  },
+  updateLedger: {
+    url: (id) => `${backapi}/api/ledger/update/${id}`,
+    method: "PUT"
+  },
+  deleteLedger: {
+    url: (id) => `${backapi}/api/ledger/delete/${id}`,
+    method: "DELETE"
+  },
 };
-
-
-
-
 
 export default Allapi;

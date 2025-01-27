@@ -1,119 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import Allapi from "../../../common"; // Adjust according to your API utility file
 
 const FeeReport = () => {
   const [student, setStudent] = useState(null);
   const { sid } = useParams();
   const [selectedTerm, setSelectedTerm] = useState(null);
-  const [bankBranches, setBankBranches] = useState([]);
-  const [selectedBank, setSelectedBank] = useState("");
-  const [selectedBranch, setSelectedBranch] = useState("");
   const [studentDataForm, setStudentDataForm] = useState({
     padiFee: [],
     paymentType: "",
-    bankDetails: {
-      bankId: "",
-      bankName: "",
-      branchId: "",
-      branchName: ""
-    }
   });
 
   useEffect(() => {
     if (sid) fetchStudentById(sid);
   }, [sid]);
-
-  const fetchBankBranches = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(Allapi.getLedgers.url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.data.success) {
-        const bankLedgers = response.data.data.filter(
-          ledger => ledger.ledgerType === 'Bank'
-        );
-        console.log('Bank Ledgers:', bankLedgers);
-        const allBranches = bankLedgers.map(bank => ({
-          _id: bank._id,
-          name: bank.groupLedgerName,
-          branches: bank.subLedgers.map(branch => ({
-            _id: branch._id,
-            name: branch.name
-          }))
-        }));
-        console.log('Processed Branches:', allBranches);
-        setBankBranches(allBranches);
-      } else {
-        console.error('API Error:', response.data);
-        toast.error("Failed to fetch bank branches");
-      }
-    } catch (error) {
-      console.error("Error fetching bank branches:", error.response || error);
-      toast.error("Error fetching bank branches");
-    }
-  };
-
-  const handlePaymentTypeChange = (type) => {
-    setStudentDataForm(prev => ({
-      ...prev,
-      paymentType: type,
-      bankDetails: type === "Bank" ? prev.bankDetails : {
-        bankId: "",
-        branchId: "",
-        bankName: "",
-        branchName: ""
-      }
-    }));
-    setSelectedBank("");
-    setSelectedBranch("");
-
-    if (type === "Bank") {
-      fetchBankBranches();
-    }
-  };
-
-  const handleBankChange = (bankId) => {
-    const selectedBankData = bankBranches.find(bank => bank._id === bankId);
-    setSelectedBank(bankId);
-    setSelectedBranch("");
-    
-    if (selectedBankData) {
-      setStudentDataForm(prev => ({
-        ...prev,
-        bankDetails: {
-          ...prev.bankDetails,
-          bankId: selectedBankData._id,
-          bankName: selectedBankData.name,
-          branchId: "",
-          branchName: ""
-        }
-      }));
-    }
-  };
-
-  const handleBranchChange = (branchId) => {
-    const selectedBankData = bankBranches.find(bank => bank._id === selectedBank);
-    const selectedBranchData = selectedBankData?.branches.find(branch => branch._id === branchId);
-    setSelectedBranch(branchId);
-    
-    if (selectedBranchData) {
-      setStudentDataForm(prev => ({
-        ...prev,
-        bankDetails: {
-          ...prev.bankDetails,
-          branchId: selectedBranchData._id,
-          branchName: selectedBranchData.name
-        }
-      }));
-    }
-  };
 
   const fetchStudentById = async (sid) => {
     try {
@@ -222,7 +123,6 @@ const FeeReport = () => {
           sid,
           paymentDetails,
           paymentType: studentDataForm.paymentType,
-          bankDetails: studentDataForm.bankDetails
         }),
       });
 
@@ -343,8 +243,13 @@ const FeeReport = () => {
             <label className="block text-gray-700 mb-1">Payment Type</label>
             <select
               name="paymentType"
-              value={studentDataForm.paymentType}
-              onChange={(e) => handlePaymentTypeChange(e.target.value)}
+              value={studentDataForm.paymentType || ""}
+              onChange={(e) =>
+                setStudentDataForm({
+                  ...studentDataForm,
+                  paymentType: e.target.value,
+                })
+              }
               className="border p-2 rounded w-full"
             >
               <option value="">Select Payment Type</option>
@@ -352,46 +257,6 @@ const FeeReport = () => {
               <option value="Bank">Bank</option>
             
             </select>
-
-            {studentDataForm.paymentType === "Bank" && (
-              <>
-                <div className="mt-3">
-                  <label className="block text-gray-700 mb-1">Select Bank</label>
-                  <select
-                    value={selectedBank}
-                    onChange={(e) => handleBankChange(e.target.value)}
-                    className="border p-2 rounded w-full"
-                  >
-                    <option value="">Select Bank</option>
-                    {bankBranches.map((bank) => (
-                      <option key={bank._id} value={bank._id}>
-                        {bank.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {selectedBank && (
-                  <div className="mt-3">
-                    <label className="block text-gray-700 mb-1">Select Branch</label>
-                    <select
-                      value={selectedBranch}
-                      onChange={(e) => handleBranchChange(e.target.value)}
-                      className="border p-2 rounded w-full"
-                    >
-                      <option value="">Select Branch</option>
-                      {bankBranches
-                        .find(bank => bank._id === selectedBank)
-                        ?.branches.map((branch) => (
-                          <option key={branch._id} value={branch._id}>
-                            {branch.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                )}
-              </>
-            )}
           </div>
 
           <button

@@ -13,10 +13,44 @@ const bankBookSchema = new mongoose.Schema({
     ledgerType: {
         type: String,
         required: true,
-        enum: ['Expenses', 'Income', 'Loans', 'Assets', 'Liabilities', 'Equity']
+        enum: ['Expenses', 'Income', 'Loans', 'Bank Charges', 'Bank Interest', 'Capital', 'Withdrawal']
     },
+    // Add fields for group ledger info
+    groupLedger: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'Ledger'
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        type: {
+            type: String,
+            required: true,
+            enum: ['Expenses', 'Income', 'Loans']
+        }
+    },
+    // Add fields for sub-ledger info
+    subLedger: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        }
+    },
+    // Bank details
     bankName: {
-        type: String
+        type: String,
+        required: true
+    },
+    branchName: {
+        type: String,
+        required: true
     },
     amount: {
         type: Number,
@@ -39,5 +73,8 @@ const bankBookSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+// Create index on rcNo to ensure uniqueness
+bankBookSchema.index({ rcNo: 1 }, { unique: true });
 
 module.exports = mongoose.model('BankBook', bankBookSchema);

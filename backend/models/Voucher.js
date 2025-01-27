@@ -1,5 +1,44 @@
 const mongoose = require('mongoose');
 
+const bankBranchSchema = new mongoose.Schema({
+    bankId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    bankName: {
+        type: String,
+        required: true
+    },
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    branchName: {
+        type: String,
+        required: true
+    }
+}, { _id: false });
+
+// Schema for storing ledger info
+const groupLedgerInfoSchema = new mongoose.Schema({
+    groupLedgerName: {
+        type: String,
+        required: true
+    },
+    ledgerType: {
+        type: String,
+        required: true,
+        enum: ['Expenses', 'Income', 'Loans']
+    }
+}, { _id: false });
+
+const subLedgerInfoSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    }
+}, { _id: false });
+
 const voucherSchema = new mongoose.Schema({
     voucherTxId: {
         type: String,
@@ -23,6 +62,15 @@ const voucherSchema = new mongoose.Schema({
     },
     subLedgerId: {
         type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    // Add fields for storing ledger info
+    groupLedgerInfo: {
+        type: groupLedgerInfoSchema,
+        required: true
+    },
+    subLedgerInfo: {
+        type: subLedgerInfoSchema,
         required: true
     },
     date: {
@@ -55,6 +103,12 @@ const voucherSchema = new mongoose.Schema({
             return this.paymentMethod === 'bank';
         }
     },
+    bankBranch: {
+        type: bankBranchSchema,
+        required: function() {
+            return this.paymentMethod === 'bank';
+        }
+    },
     voucherNumber: {
         type: Number,
         required: true
@@ -63,7 +117,7 @@ const voucherSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Add compound index for voucherType and voucherNumber
+// Create compound index for voucherType and voucherNumber
 voucherSchema.index({ voucherType: 1, voucherNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model('Voucher', voucherSchema);

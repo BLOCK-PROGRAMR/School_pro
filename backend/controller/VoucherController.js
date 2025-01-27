@@ -9,12 +9,15 @@ const createVoucher = async (req, res) => {
             ledgerType,
             ledgerId,
             subLedgerId,
+            groupLedgerInfo,
+            subLedgerInfo,
             date,
             description,
             amount,
             paymentMethod,
             bankLedgerId,
             bankSubLedgerId,
+            bankBranch,
             voucherNumber,
             voucherTxId
         } = req.body;
@@ -43,6 +46,20 @@ const createVoucher = async (req, res) => {
             });
         }
 
+        if (!groupLedgerInfo || !groupLedgerInfo.groupLedgerName || !groupLedgerInfo.ledgerType) {
+            return res.status(400).json({
+                success: false,
+                message: 'Group ledger information is required'
+            });
+        }
+
+        if (!subLedgerInfo || !subLedgerInfo.name) {
+            return res.status(400).json({
+                success: false,
+                message: 'Sub-ledger information is required'
+            });
+        }
+
         if (!description || !amount || amount <= 0) {
             return res.status(400).json({
                 success: false,
@@ -65,11 +82,20 @@ const createVoucher = async (req, res) => {
         }
 
         // Validate bank details if payment method is bank
-        if (paymentMethod === 'bank' && (!bankLedgerId || !bankSubLedgerId)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Bank details are required for bank payment method'
-            });
+        if (paymentMethod === 'bank') {
+            if (!bankLedgerId || !bankSubLedgerId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Bank ledger and sub-ledger are required for bank payment method'
+                });
+            }
+            if (!bankBranch || !bankBranch.bankId || !bankBranch.bankName || 
+                !bankBranch.branchId || !bankBranch.branchName) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Complete bank branch details are required for bank payment method'
+                });
+            }
         }
 
         // Validate voucher transaction ID format
@@ -101,12 +127,15 @@ const createVoucher = async (req, res) => {
             ledgerType,
             ledgerId,
             subLedgerId,
+            groupLedgerInfo,
+            subLedgerInfo,
             date: date || new Date(),
             description,
             amount: parseFloat(amount),
             paymentMethod,
             bankLedgerId: paymentMethod === 'bank' ? bankLedgerId : undefined,
             bankSubLedgerId: paymentMethod === 'bank' ? bankSubLedgerId : undefined,
+            bankBranch: paymentMethod === 'bank' ? bankBranch : undefined,
             voucherNumber: parseInt(voucherNumber),
             voucherTxId
         });
@@ -127,37 +156,6 @@ const createVoucher = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating voucher:', error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || 'Internal server error'
-        });
-    }
-};
-
-// Get latest voucher number for a specific type
-const getLatestVoucherNumber = async (req, res) => {
-    try {
-        const { voucherType } = req.params;
-
-        if (!voucherType || !['paid', 'received'].includes(voucherType)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid voucher type'
-            });
-        }
-
-        const latestVoucher = await Voucher.findOne({ voucherType })
-            .sort({ voucherNumber: -1 })
-            .select('voucherNumber');
-
-        const voucherNumber = latestVoucher ? latestVoucher.voucherNumber + 1 : 1;
-
-        return res.status(200).json({
-            success: true,
-            data: { voucherNumber }
-        });
-    } catch (error) {
-        console.error('Error getting latest voucher number:', error);
         return res.status(500).json({
             success: false,
             message: error.message || 'Internal server error'
@@ -187,8 +185,44 @@ const getVouchers = async (req, res) => {
     }
 };
 
+// Get latest voucher number for a specific type
+const getLatestVoucherNumber = async (req, res) => {
+    try {
+        const { voucherType } = req.params;
+
+        if (!voucherType || !['paid', 'received'].includes(voucherType)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid voucher type'
+            });
+        }
+
+        const latestVoucher = await Voucher.findOne({ voucherType })
+            .sort({ voucherNumber: -1 })
+            .select('voucherNumber');
+
+        const voucherNumber = latestVoucher ? latestVoucher.voucherNumber + 1 : 1;
+        const prefix = voucherType === 'paid' ? 'VCB' : 'VRB';
+        const voucherTxId = `${prefix}${String(voucherNumber).padStart(5, '0')}`;
+
+        return res.status(200).json({
+            success: true,
+            data: { 
+                voucherNumber,
+                voucherTxId
+            }
+        });
+    } catch (error) {
+        console.error('Error getting latest voucher number:', error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Internal server error'
+        });
+    }
+};
+
 module.exports = {
     createVoucher,
-    getLatestVoucherNumber,
-    getVouchers
+    getVouchers,
+    getLatestVoucherNumber
 };

@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 const BASE_URL = 'http://localhost:3490';
 
 const LEDGER_TYPES = {
-    paid: ['Expenses', 'Bank'],
+    paid: ['Expenses', 'Loans'],
     received: ['Income', 'Loans']
 };
 
@@ -17,8 +17,6 @@ const VoucherBook = () => {
     const [subLedgers, setSubLedgers] = useState([]);
     const [selectedSubLedger, setSelectedSubLedger] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
-    const [bankLedgers, setBankLedgers] = useState([]);
-    const [selectedBankLedger, setSelectedBankLedger] = useState('');
     const [bankSubLedgers, setBankSubLedgers] = useState([]);
     const [selectedBankSubLedger, setSelectedBankSubLedger] = useState('');
     const [voucherNumber, setVoucherNumber] = useState('');
@@ -66,15 +64,12 @@ const VoucherBook = () => {
 
     useEffect(() => {
         if (voucherType) {
-            // Set available ledger types based on voucher type
             setAvailableLedgerTypes(LEDGER_TYPES[voucherType] || []);
             fetchLatestVoucherNumber();
-            // Reset ledger-related state when voucher type changes
             setLedgerType('');
             setSelectedLedger('');
             setSelectedSubLedger('');
             setPaymentMethod('');
-            setSelectedBankLedger('');
             setSelectedBankSubLedger('');
         } else {
             setVoucherData(prev => ({
@@ -85,7 +80,7 @@ const VoucherBook = () => {
         }
     }, [voucherType]);
 
-    const fetchBankLedgers = async () => {
+    const fetchBankBranches = async () => {
         if (paymentMethod !== 'bank') return;
 
         setLoading(true);
@@ -101,31 +96,26 @@ const VoucherBook = () => {
                 const bankLedgers = response.data.data.filter(
                     ledger => ledger.ledgerType === 'Bank'
                 );
-                setBankLedgers(bankLedgers);
+                const allBranches = bankLedgers.reduce((acc, bank) => {
+                    return [...acc, ...bank.subLedgers.map(branch => ({
+                        ...branch,
+                        bankId: bank._id,
+                        bankName: bank.groupLedgerName
+                    }))];
+                }, []);
+                setBankSubLedgers(allBranches);
             }
         } catch (error) {
-            console.error('Error fetching bank ledgers:', error);
-            toast.error('Failed to fetch bank ledgers');
+            console.error('Error fetching bank branches:', error);
+            toast.error('Failed to fetch bank branches');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchBankLedgers();
+        fetchBankBranches();
     }, [paymentMethod]);
-
-    useEffect(() => {
-        if (selectedBankLedger) {
-            const bankLedger = bankLedgers.find(l => l._id === selectedBankLedger);
-            if (bankLedger) {
-                setBankSubLedgers(bankLedger.subLedgers);
-            }
-        } else {
-            setBankSubLedgers([]);
-        }
-        setSelectedBankSubLedger('');
-    }, [selectedBankLedger, bankLedgers]);
 
     const fetchLedgers = async () => {
         if (!ledgerType) return;
@@ -140,14 +130,11 @@ const VoucherBook = () => {
             });
 
             if (response.data.success) {
-                // Filter ledgers based on both voucher type and ledger type
                 const filteredLedgers = response.data.data.filter(
                     ledger => ledger.ledgerType === ledgerType && 
                              LEDGER_TYPES[voucherType].includes(ledger.ledgerType)
                 );
                 setGroupLedgers(filteredLedgers);
-
-                // Reset selected ledger and sub-ledger when ledger type changes
                 setSelectedLedger('');
                 setSelectedSubLedger('');
             }
@@ -178,7 +165,6 @@ const VoucherBook = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate all required fields
         if (!voucherType || !ledgerType || !selectedLedger || !selectedSubLedger ||
             !voucherData.description || !voucherData.amount || !paymentMethod ||
             !voucherData.date) {
@@ -186,20 +172,17 @@ const VoucherBook = () => {
             return;
         }
 
-        // Validate bank fields if payment method is bank
-        if (paymentMethod === 'bank' && (!selectedBankLedger || !selectedBankSubLedger)) {
-            toast.error('Please select bank ledger and sub-ledger');
+        if (paymentMethod === 'bank' && !selectedBankSubLedger) {
+            toast.error('Please select a bank branch');
             return;
         }
 
-        // Validate amount
         const amount = parseFloat(voucherData.amount);
         if (isNaN(amount) || amount <= 0) {
             toast.error('Please enter a valid amount');
             return;
         }
 
-        // Validate voucher number and transaction ID
         if (!voucherData.voucherNumber || !voucherData.voucherTxId) {
             toast.error('Invalid voucher number or transaction ID');
             return;
@@ -208,24 +191,48 @@ const VoucherBook = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
+            const selectedBranch = bankSubLedgers.find(b => b._id === selectedBankSubLedger);
+            
+            // Get the selected ledger and sub-ledger details
+            const selectedGroupLedger = groupLedgers.find(l => l._id === selectedLedger);
+            const selectedSubLedgerData = subLedgers.find(sl => sl._id === selectedSubLedger);
 
-            // Create payload with all required fields
+            if (!selectedGroupLedger || !selectedSubLedgerData) {
+                toast.error('Selected ledger information not found');
+                return;
+            }
+
             const payload = {
                 voucherType,
                 ledgerType,
                 ledgerId: selectedLedger,
                 subLedgerId: selectedSubLedger,
-                date: new Date(voucherData.date).toISOString(), // Ensure proper date format
+                // Add group ledger and sub-ledger info for the books
+                groupLedgerInfo: {
+                    groupLedgerName: selectedGroupLedger.groupLedgerName,
+                    ledgerType: selectedGroupLedger.ledgerType
+                },
+                subLedgerInfo: {
+                    name: selectedSubLedgerData.name
+                },
+                date: new Date(voucherData.date).toISOString(),
                 description: voucherData.description.trim(),
                 amount: parseFloat(voucherData.amount),
                 paymentMethod,
-                bankLedgerId: paymentMethod === 'bank' ? selectedBankLedger : undefined,
-                bankSubLedgerId: paymentMethod === 'bank' ? selectedBankSubLedger : undefined,
+                bankLedgerId: paymentMethod === 'bank' && selectedBranch ? selectedBranch.bankId : undefined,
+                bankSubLedgerId: paymentMethod === 'bank' && selectedBranch ? selectedBranch._id : undefined,
+                // Add bank info for bank book if payment method is bank
+                bankBranch: paymentMethod === 'bank' && selectedBranch ? {
+                    bankId: selectedBranch.bankId,
+                    bankName: selectedBranch.bankName,
+                    branchId: selectedBranch._id,
+                    branchName: selectedBranch.name
+                } : undefined,
                 voucherNumber: parseInt(voucherData.voucherNumber),
                 voucherTxId: voucherData.voucherTxId
             };
 
-            console.log('Submitting voucher data:', payload); // Debug log
+            console.log('Submitting payload:', payload); // Debug log
 
             const response = await axios.post(
                 `${BASE_URL}/api/vouchers/create`,
@@ -240,13 +247,11 @@ const VoucherBook = () => {
 
             if (response.data.success) {
                 toast.success('Voucher created successfully');
-                // Reset form
                 setVoucherType('');
                 setLedgerType('');
                 setSelectedLedger('');
                 setSelectedSubLedger('');
                 setPaymentMethod('');
-                setSelectedBankLedger('');
                 setSelectedBankSubLedger('');
                 setVoucherData({
                     voucherTxId: '',
@@ -255,7 +260,6 @@ const VoucherBook = () => {
                     amount: '',
                     voucherNumber: 0
                 });
-                // Refresh voucher number after successful creation
                 await fetchLatestVoucherNumber();
             }
         } catch (error) {
@@ -441,45 +445,23 @@ const VoucherBook = () => {
                                             </div>
 
                                             {paymentMethod === 'bank' && (
-                                                <>
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            Bank
-                                                        </label>
-                                                        <select
-                                                            value={selectedBankLedger}
-                                                            onChange={(e) => setSelectedBankLedger(e.target.value)}
-                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                        >
-                                                            <option value="">Select Bank</option>
-                                                            {bankLedgers.map((bank) => (
-                                                                <option key={bank._id} value={bank._id}>
-                                                                    {bank.groupLedgerName}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-
-                                                    {selectedBankLedger && (
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                Bank Branch
-                                                            </label>
-                                                            <select
-                                                                value={selectedBankSubLedger}
-                                                                onChange={(e) => setSelectedBankSubLedger(e.target.value)}
-                                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                            >
-                                                                <option value="">Select Branch</option>
-                                                                {bankSubLedgers.map((branch) => (
-                                                                    <option key={branch._id} value={branch._id}>
-                                                                        {branch.name}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                        </div>
-                                                    )}
-                                                </>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Bank Branch
+                                                    </label>
+                                                    <select
+                                                        value={selectedBankSubLedger}
+                                                        onChange={(e) => setSelectedBankSubLedger(e.target.value)}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    >
+                                                        <option value="">Select Branch</option>
+                                                        {bankSubLedgers.map((branch) => (
+                                                            <option key={branch._id} value={branch._id}>
+                                                                {branch.bankName} - {branch.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
                                             )}
                                         </>
                                     )}

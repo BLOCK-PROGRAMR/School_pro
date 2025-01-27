@@ -55,9 +55,19 @@ const createLedger = async (req, res) => {
 const getLedgers = async (req, res) => {
     try {
         const ledgers = await Ledger.find().sort({ createdAt: -1 });
+        console.log('Found ledgers:', ledgers); // Debug log
+        
         res.status(200).json({
             success: true,
-            data: ledgers
+            data: ledgers.map(ledger => ({
+                _id: ledger._id,
+                groupLedgerName: ledger.groupLedgerName,
+                ledgerType: ledger.ledgerType,
+                subLedgers: ledger.subLedgers.map(sub => ({
+                    _id: sub._id,
+                    name: sub.name
+                }))
+            }))
         });
     } catch (error) {
         console.error('Error in getLedgers:', error);
