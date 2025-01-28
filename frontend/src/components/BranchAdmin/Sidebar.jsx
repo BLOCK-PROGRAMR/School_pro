@@ -353,6 +353,16 @@ const Sidebar = () => {
                       View All
                     </MenuItem>
 
+
+                    <MenuItem
+                      to={`/branch-admin/data`}
+                      icon={FileText}
+                    >
+                      Data
+                    </MenuItem>
+
+
+
                   </div>
                 </div>
               </div>

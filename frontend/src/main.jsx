@@ -91,6 +91,10 @@ import CashBook from "./components/BranchAdmin/Books/CashBook.jsx";
 import BankBook from "./components/BranchAdmin/Books/BankBook.jsx";
 import FeeLedger from "./components/BranchAdmin/Ledger/FeeLedger.jsx";
 
+
+
+import Data from "./components/BranchAdmin/Students/Data.jsx"
+
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -243,6 +247,18 @@ const Router = createBrowserRouter([
             element: <FetchReceipts />,
             errorElement: <ErrorBoundary />
           },
+
+
+
+          {
+            path: "data",
+            element: <Data/>,
+            errorElement: <ErrorBoundary />
+          },
+
+
+
+
           // {
           //   path: "cash-book/:academicYearID",
           //   element: <CashBook />,
