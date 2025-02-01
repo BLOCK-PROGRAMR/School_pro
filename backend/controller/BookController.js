@@ -12,24 +12,24 @@ const createCashBookEntry = async (voucherData) => {
 
         const cashBookEntry = new CashBook({
             date: voucherData.date,
-            rcNo: voucherData.voucherTxId,
+            rcNo: voucherData.voucherTxId ? voucherData.voucherTxId : voucherData.rcNo,
+
             ledgerType: voucherData.ledgerType,
-            // Add group ledger info
             groupLedger: {
-                id: voucherData.ledgerId,
-                name: voucherData.groupLedgerInfo.groupLedgerName,
-                type: voucherData.groupLedgerInfo.ledgerType
+                ...(voucherData.ledgerId && { id: voucherData.ledgerId }), // Only add if present
+                name: voucherData.groupLedgerInfo?.groupLedgerName || voucherData.groupLedger?.name,
+                type: voucherData.groupLedgerInfo?.ledgerType || voucherData.groupLedger?.type,
             },
-            // Add sub-ledger info
             subLedger: {
-                id: voucherData.subLedgerId,
-                name: voucherData.subLedgerInfo.name
+                ...(voucherData.subLedgerId && { id: voucherData.subLedgerId }), // Only add if present
+                name: voucherData.subLedgerInfo?.name || voucherData.subLedger?.name
             },
             amount: voucherData.amount,
-            transactionType: voucherData.voucherType,
-            voucherRef: voucherData._id,
+            transactionType: voucherData.voucherType || voucherData.transactionType,
+            ...(voucherData._id && { voucherRef: voucherData._id }), // Only add if present
             description: voucherData.description
         });
+
 
         await cashBookEntry.save();
         console.log('Cash book entry created:', cashBookEntry);
@@ -43,34 +43,37 @@ const createCashBookEntry = async (voucherData) => {
 // Create bank book entry
 const createBankBookEntry = async (voucherData) => {
     try {
+        console.log(voucherData)
+
         // Check if entry with this rcNo already exists
         const existingEntry = await BankBook.findOne({ rcNo: voucherData.voucherTxId });
         if (existingEntry) {
             throw new Error('Bank book entry with this reference number already exists');
         }
-
         const bankBookEntry = new BankBook({
             date: voucherData.date,
-            rcNo: voucherData.voucherTxId,
+            rcNo: voucherData.voucherTxId ? voucherData.voucherTxId : voucherData.rcNo,
+
             ledgerType: voucherData.ledgerType,
             // Add group ledger info
             groupLedger: {
-                id: voucherData.ledgerId,
-                name: voucherData.groupLedgerInfo.groupLedgerName,
-                type: voucherData.groupLedgerInfo.ledgerType
+                ...(voucherData.ledgerId && { id: voucherData.ledgerId }), // Only add if present
+                name: voucherData.groupLedgerInfo?.groupLedgerName || voucherData.groupLedger?.name,
+                type: voucherData.groupLedgerInfo?.ledgerType || voucherData.groupLedger?.type
             },
             // Add sub-ledger info
             subLedger: {
-                id: voucherData.subLedgerId,
-                name: voucherData.subLedgerInfo.name
+                ...(voucherData.subLedgerId && { id: voucherData.subLedgerId }), // Only add if present
+                name: voucherData.subLedgerInfo?.name || voucherData.subLedger?.name
             },
-            bankName: voucherData.bankBranch?.bankName || 'N/A',
-            branchName: voucherData.bankBranch?.branchName || 'N/A',
+            bankName: voucherData.bankBranch?.bankName || voucherData.bankName,
+            branchName: voucherData.bankBranch?.branchName || voucherData.branchName,
             amount: voucherData.amount,
-            transactionType: voucherData.voucherType,
-            voucherRef: voucherData._id,
+            transactionType: voucherData.voucherType || voucherData.transactionType,
+            ...(voucherData._id && { voucherRef: voucherData._id }), // Only add if present
             description: voucherData.description
         });
+
 
         await bankBookEntry.save();
         console.log('Bank book entry created:', bankBookEntry);

@@ -13,13 +13,13 @@ const cashBookSchema = new mongoose.Schema({
     ledgerType: {
         type: String,
         required: true,
-        enum: ['Expenses', 'Income', 'Loans', 'Bank Charges', 'Bank Interest', 'Capital', 'Withdrawal']
+        enum: ['Expenses', 'Income', 'Loans', 'studentfee']
     },
     // Add fields for group ledger info
     groupLedger: {
         id: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true,
+
             ref: 'Ledger'
         },
         name: {
@@ -36,7 +36,7 @@ const cashBookSchema = new mongoose.Schema({
     subLedger: {
         id: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true
+
         },
         name: {
             type: String,
@@ -55,7 +55,7 @@ const cashBookSchema = new mongoose.Schema({
     voucherRef: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Voucher',
-        required: true
+
     },
     description: {
         type: String,

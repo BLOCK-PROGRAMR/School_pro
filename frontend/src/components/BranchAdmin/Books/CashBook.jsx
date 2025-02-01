@@ -184,7 +184,7 @@ const CashBook = () => {
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">RC No</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Voucher ID</th>
+                                
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Ledger Type</th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Group Ledger</th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Description</th>
@@ -200,9 +200,9 @@ const CashBook = () => {
                                         <td className="px-4 py-3 text-sm text-gray-900">
                                             {entry.rcNo || 'N/A'}
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-gray-900">
+                                        {/* <td className="px-4 py-3 text-sm text-gray-900">
                                             {entry.voucherTxId}
-                                        </td>
+                                        </td> */}
                                         <td className="px-4 py-3 text-sm text-gray-900">
                                             {entry.ledgerType || 'N/A'}
                                         </td>
