@@ -95,6 +95,9 @@ import FeeLedger from "./components/BranchAdmin/Ledger/FeeLedger.jsx";
 
 import Data from "./components/BranchAdmin/Students/Data.jsx"
 
+
+import AddAccount from "./components/BranchAdmin/Accountant/addAccount.jsx";
+
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -256,6 +259,12 @@ const Router = createBrowserRouter([
             errorElement: <ErrorBoundary />
           },
 
+          
+          {
+            path: "account",
+            element: <AddAccount/>,
+            errorElement: <ErrorBoundary />
+          },
 
 
 
