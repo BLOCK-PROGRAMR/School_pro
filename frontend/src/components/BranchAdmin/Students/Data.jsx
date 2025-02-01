@@ -13,6 +13,10 @@ const Data = () => {
   const [studentData, setStudentData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Add new state variables for search and filter
+  const [searchQuery, setSearchQuery] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState('all'); // 'all', 'paid', 'unpaid'
+
   const terms = [
     { id: 'term1', name: 'Term 1' },
     { id: 'term2', name: 'Term 2' },
@@ -105,7 +109,9 @@ const Data = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(
+      
+      // First fetch students in the section
+      const studentsResponse = await fetch(
         Allapi.getStudentsBySection.url(selectedSection),
         {
           method: Allapi.getStudentsBySection.method,
@@ -116,17 +122,83 @@ const Data = () => {
         }
       );
 
-      const data = await response.json();
-      if (response.ok) {
-        const sortedStudents = (data.data || []).sort((a, b) => a.idNo - b.idNo);
-        const studentsWithAmount = sortedStudents.map(student => ({
-          ...student,
-          totalAmount: student.feeDetails?.reduce((total, fee) => total + (fee.amount || 0), 0) || 0
-        }));
-        setStudentData(studentsWithAmount);
-      } else {
-        toast.error('Failed to fetch student data');
+      const studentsData = await studentsResponse.json();
+      
+      if (!studentsResponse.ok) {
+        throw new Error('Failed to fetch student data');
       }
+
+      // For each student, fetch their fee receipts
+      const studentsWithFees = await Promise.all(studentsData.data.map(async (student) => {
+        try {
+          const receiptsResponse = await fetch(
+            `${Allapi.getReciepts.url(branchdet.academicYears[0])}?studentID=${student.idNo}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const receiptsData = await receiptsResponse.json();
+          
+          let termTotalAmount = 0;
+          let termPaidAmount = 0;
+
+          // Get current term number (1, 2, 3, or 4)
+          const currentTermNumber = parseInt(selectedTerm.replace('term', ''));
+          
+          receiptsData.receipts.forEach(receipt => {
+            receipt.feeLedger.forEach(fee => {
+              const termNumber = parseInt(fee.terms, 10) || 1;
+              const currentTerm = `term${termNumber}`;
+              
+              // Calculate fee amount based on fee type and terms
+              const feeAmount = parseFloat(fee.amount) || 0;
+              const feePaid = parseFloat(fee.paidAmount) || 0;
+              
+              // Calculate per term amount
+              const perTermAmount = feeAmount / termNumber;
+              
+              // Calculate amount applicable for current term
+              if (currentTermNumber <= termNumber) {
+                // Add this term's portion to total
+                termTotalAmount += perTermAmount;
+                
+                // Calculate paid amount for this term
+                // If fee is partially paid, distribute it proportionally across terms
+                const perTermPaid = feePaid / termNumber;
+                termPaidAmount += perTermPaid;
+              }
+            });
+          });
+
+          // Calculate remaining amount for this term
+          const termRemainingAmount = termTotalAmount - termPaidAmount;
+
+          return {
+            ...student,
+            totalAmount: termTotalAmount,
+            amountPaid: termPaidAmount,
+            amountToBePaid: termRemainingAmount
+          };
+        } catch (error) {
+          console.error(`Error fetching receipts for student ${student.idNo}:`, error);
+          return {
+            ...student,
+            totalAmount: 0,
+            amountPaid: 0,
+            amountToBePaid: 0
+          };
+        }
+      }));
+
+      // Sort students by ID
+      const sortedStudents = studentsWithFees.sort((a, b) => a.idNo - b.idNo);
+      setStudentData(sortedStudents);
+      
     } catch (error) {
       console.error('Error fetching student data:', error);
       toast.error('Failed to fetch student data');
@@ -146,6 +218,19 @@ const Data = () => {
 
   const handleSectionChange = (event) => {
     setSelectedSection(event.target.value);
+  };
+
+  // Add new function to filter and search students
+  const getFilteredStudents = () => {
+    return studentData.filter(student => {
+      // Payment status filter
+      if (paymentFilter === 'paid' && student.amountToBePaid !== 0) return false;
+      if (paymentFilter === 'unpaid' && student.amountToBePaid === 0) return false;
+
+      // Search query filter
+      const searchString = `${student.idNo} ${student.name} ${student.surname || ''}`.toLowerCase();
+      return searchString.includes(searchQuery.toLowerCase());
+    });
   };
 
   return (
@@ -217,6 +302,71 @@ const Data = () => {
         </div>
       </div>
 
+      {/* Add new search and filter controls */}
+      {!loading && studentData.length > 0 && (
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Search Input */}
+          <div className="relative">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+              Search Students
+            </label>
+            <input
+              type="text"
+              id="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by ID or Name..."
+              className="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Payment Status Filter */}
+          <div className="relative">
+            <label htmlFor="paymentFilter" className="block text-sm font-medium text-gray-700 mb-1">
+              Payment Status
+            </label>
+            <select
+              id="paymentFilter"
+              value={paymentFilter}
+              onChange={(e) => setPaymentFilter(e.target.value)}
+              className="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">All Students</option>
+              <option value="paid">Fees Paid</option>
+              <option value="unpaid">Fees Pending</option>
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* Add summary statistics */}
+      {!loading && studentData.length > 0 && (
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500">Total Students</h3>
+            <p className="text-2xl font-semibold text-gray-900">{studentData.length}</p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500">Fees Paid</h3>
+            <p className="text-2xl font-semibold text-green-600">
+              {studentData.filter(s => s.amountToBePaid === 0).length}
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500">Fees Pending</h3>
+            <p className="text-2xl font-semibold text-red-600">
+              {studentData.filter(s => s.amountToBePaid > 0).length}
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500">Total Collection</h3>
+            <p className="text-2xl font-semibold text-blue-600">
+              ₹{studentData.reduce((sum, s) => sum + s.amountPaid, 0).toLocaleString()}
+            </p>
+          </div>
+        </div>
+      )}
+
       {loading && (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -252,42 +402,44 @@ const Data = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {studentData.map((student, index) => {
-                const totalAmount = student.feeDetails?.reduce((total, fee) => total + (fee.amount || 0), 0) || 0;
-                const amountPaid = student.feeDetails?.reduce((total, fee) => total + (fee.paidAmount || 0), 0) || 0;
-                const amountToBePaid = totalAmount - amountPaid;
-                const isPaid = amountToBePaid === 0;
-                
-                return (
-                  <tr key={student._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {index + 1}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {student.idNo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {student.surname ? `${student.surname} ${student.name}` : student.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{totalAmount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{amountPaid}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{amountToBePaid}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {isPaid ? 'Yes' : 'No'}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
+              {getFilteredStudents().map((student, index) => (
+                <tr key={student._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {index + 1}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {student.idNo}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {student.surname ? `${student.surname} ${student.name}` : student.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ₹{student.totalAmount.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ₹{student.amountPaid.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ₹{student.amountToBePaid.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      student.amountToBePaid === 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {student.amountToBePaid === 0 ? 'Yes' : 'No'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
+
+          {/* Add no results message */}
+          {getFilteredStudents().length === 0 && (
+            <div className="text-center py-4 text-gray-500">
+              No students found matching your search criteria
+            </div>
+          )}
         </div>
       )}
 
