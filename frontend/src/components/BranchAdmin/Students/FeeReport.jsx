@@ -1,12 +1,9 @@
-<<<<<<< HEAD
- 
-
-import React, { useState, useEffect ,useContext} from "react";
 
 
-=======
+
+
 import React, { useState, useEffect, useContext } from "react";
->>>>>>> c29445ce47f8ddff99c58c5c50aaef155f500d36
+
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import axios from "axios";
