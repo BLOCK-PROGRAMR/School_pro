@@ -3,7 +3,7 @@ const StudentFeeReceipt = require("../models/Recipts");
 // Create a new receipt
 const createReceipt = async (req, res) => {
   try {
-    const { studentID, academicYearID, date, rcNo, feeLedger } = req.body;
+    const { studentID, academicYearID, date, rcNo, feeLedger,terms } = req.body;
 
     // Ensure all required fields are provided
     if (!studentID || !academicYearID || !date || !rcNo || !feeLedger) {
@@ -21,6 +21,7 @@ const createReceipt = async (req, res) => {
       studentID,
       academicYearID,
       date,
+      terms,
       rcNo,
       feeLedger,
       totalAmount,

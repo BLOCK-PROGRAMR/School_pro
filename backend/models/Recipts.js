@@ -18,6 +18,10 @@ const Reciepts = new mongoose.Schema({
     type: String,
     required: true,
   },
+  terms: {
+    type: String,
+    required: true
+  },
   feeLedger: {
     type: [
       {
@@ -29,10 +33,7 @@ const Reciepts = new mongoose.Schema({
           type: Number,
           required: true,
         },
-        terms: {
-          type: String,
-          required: true
-        }
+        
       },
     ],
     required: true,

@@ -247,8 +247,38 @@ const FetchReceipts = () => {
                   </p>
                 </div>
 
-                {Object.entries(receipt.termGroups).map(([term, fees]) => (
+                {receipts.map((receipt) => (
+                  
+                  <div key={receipt._id} className="mb-4">
+                   
+                    <h5 className="font-semibold text-gray-700 mb-2">
+                      {receipt.terms|| "term"}
+                    </h5>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="text-left border-b border-gray-200">
+                            <th className="pb-2">Fee Type</th>
+                            <th className="pb-2 text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {receipt.feeLedger.map((fee, idx) => (
+                            <tr key={idx} className="border-b border-gray-100 last:border-0">
+                              <td className="py-2">{fee.name}</td>
+                              <td className="py-2 text-right">₹{fee.amount.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+
+                {/* {Object.entries(receipt.termGroups).map(([term, fees]) => (
+                  
                   <div key={term} className="mb-4">
+                    {console.log("term val is",term)}
                     <h5 className="font-semibold text-gray-700 mb-2">
                       {term}
                     </h5>
@@ -271,7 +301,7 @@ const FetchReceipts = () => {
                       </table>
                     </div>
                   </div>
-                ))}
+                ))} */}
 
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="flex justify-between">
