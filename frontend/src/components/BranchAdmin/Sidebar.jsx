@@ -401,6 +401,36 @@ const Sidebar = () => {
                 </div>
               </div>
 
+
+
+              <div className="space-y-1">
+                <button
+                  onClick={() => handleMenuClick("account")}
+                  className={getMenuButtonClasses("account")}
+                >
+                  <div className="flex items-center">
+                    <UserCheck className="w-5 h-5 mr-3" />
+                    <span>Accountant</span>
+                  </div>
+                  {activeMenu === "account" ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+                <div className={getSubmenuClasses("account")}>
+                  <div className="pl-6 space-y-1">
+                    <MenuItem to="/branch-admin/account" icon={UserPlus}>
+                      Add Accountant
+                    </MenuItem>
+                    
+                  </div>
+                </div>
+              </div>
+
+
+
+
               {/* Exams */}
               <div className="space-y-1">
                 <button
