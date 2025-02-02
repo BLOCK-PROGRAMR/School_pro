@@ -12,10 +12,8 @@ const Data = () => {
   const [sections, setSections] = useState([]);
   const [studentData, setStudentData] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Add new state variables for search and filter
   const [searchQuery, setSearchQuery] = useState('');
-  const [paymentFilter, setPaymentFilter] = useState('all'); // 'all', 'paid', 'unpaid'
+  const [paymentFilter, setPaymentFilter] = useState('all');
 
   const terms = [
     { id: 'term1', name: 'Term 1' },
@@ -24,14 +22,12 @@ const Data = () => {
     { id: 'term4', name: 'Term 4' }
   ];
 
-  // Fetch classes when component mounts
   useEffect(() => {
     if (branchdet?.academicYears?.[0]) {
       fetchClasses();
     }
   }, [branchdet]);
 
-  // Fetch sections when class is selected
   useEffect(() => {
     if (selectedClass) {
       fetchSections(selectedClass);
@@ -40,9 +36,8 @@ const Data = () => {
     }
   }, [selectedClass]);
 
-  // Fetch student data when both class and section are selected
   useEffect(() => {
-    if (selectedClass && selectedSection && selectedTerm) {
+    if (selectedClass && selectedSection) {
       fetchStudentData();
     }
   }, [selectedClass, selectedSection, selectedTerm]);
@@ -110,7 +105,6 @@ const Data = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      // First fetch students in the section
       const studentsResponse = await fetch(
         Allapi.getStudentsBySection.url(selectedSection),
         {
@@ -128,9 +122,24 @@ const Data = () => {
         throw new Error('Failed to fetch student data');
       }
 
-      // For each student, fetch their fee receipts
       const studentsWithFees = await Promise.all(studentsData.data.map(async (student) => {
         try {
+          // Calculate total fee from student's feeDetails
+          const totalFee = student.feeDetails.reduce((total, fee) => {
+            const feeAmount = fee.finalAmount || fee.amount;
+            const termsCount = parseInt(fee.terms) || 1;
+            // Calculate per-term amount
+            const perTermAmount = feeAmount / termsCount;
+            // If term is selected, return amount for that term only
+            if (selectedTerm) {
+              const selectedTermNumber = parseInt(selectedTerm.replace('term', ''));
+              return total + (selectedTermNumber <= termsCount ? perTermAmount : 0);
+            }
+            // If no term selected, return total amount
+            return total + feeAmount;
+          }, 0);
+
+          // Fetch receipts for paid amount calculation
           const receiptsResponse = await fetch(
             `${Allapi.getReciepts.url(branchdet.academicYears[0])}?studentID=${student.idNo}`,
             {
@@ -144,43 +153,29 @@ const Data = () => {
 
           const receiptsData = await receiptsResponse.json();
           
-          let termTotalAmount = 0;
           let termPaidAmount = 0;
 
-          // Get current term number (1, 2, 3, or 4)
-          const currentTermNumber = parseInt(selectedTerm.replace('term', ''));
-          
           receiptsData.receipts.forEach(receipt => {
-            receipt.feeLedger.forEach(fee => {
-              const termNumber = parseInt(fee.terms, 10) || 1;
-              const currentTerm = `term${termNumber}`;
-              
-              // Calculate fee amount based on fee type and terms
-              const feeAmount = parseFloat(fee.amount) || 0;
-              const feePaid = parseFloat(fee.paidAmount) || 0;
-              
-              // Calculate per term amount
-              const perTermAmount = feeAmount / termNumber;
-              
-              // Calculate amount applicable for current term
-              if (currentTermNumber <= termNumber) {
-                // Add this term's portion to total
-                termTotalAmount += perTermAmount;
-                
-                // Calculate paid amount for this term
-                // If fee is partially paid, distribute it proportionally across terms
-                const perTermPaid = feePaid / termNumber;
-                termPaidAmount += perTermPaid;
+            if (selectedTerm) {
+              // If term is selected, only count payments for this term
+              if (receipt.terms === selectedTerm) {
+                receipt.feeLedger.forEach(fee => {
+                  termPaidAmount += parseFloat(fee.amount) || 0;
+                });
               }
-            });
+            } else {
+              // If no term selected, count all payments
+              receipt.feeLedger.forEach(fee => {
+                termPaidAmount += parseFloat(fee.amount) || 0;
+              });
+            }
           });
 
-          // Calculate remaining amount for this term
-          const termRemainingAmount = termTotalAmount - termPaidAmount;
+          const termRemainingAmount = totalFee - termPaidAmount;
 
           return {
             ...student,
-            totalAmount: termTotalAmount,
+            totalAmount: totalFee,
             amountPaid: termPaidAmount,
             amountToBePaid: termRemainingAmount
           };
@@ -195,7 +190,6 @@ const Data = () => {
         }
       }));
 
-      // Sort students by ID
       const sortedStudents = studentsWithFees.sort((a, b) => a.idNo - b.idNo);
       setStudentData(sortedStudents);
       
@@ -209,7 +203,6 @@ const Data = () => {
 
   const handleTermChange = (event) => {
     setSelectedTerm(event.target.value);
-    setStudentData([]);
   };
 
   const handleClassChange = (event) => {
@@ -220,14 +213,11 @@ const Data = () => {
     setSelectedSection(event.target.value);
   };
 
-  // Add new function to filter and search students
   const getFilteredStudents = () => {
     return studentData.filter(student => {
-      // Payment status filter
       if (paymentFilter === 'paid' && student.amountToBePaid !== 0) return false;
       if (paymentFilter === 'unpaid' && student.amountToBePaid === 0) return false;
 
-      // Search query filter
       const searchString = `${student.idNo} ${student.name} ${student.surname || ''}`.toLowerCase();
       return searchString.includes(searchQuery.toLowerCase());
     });
@@ -238,28 +228,6 @@ const Data = () => {
       <h1 className="text-3xl font-bold mb-8">Student Data</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {/* Term Dropdown */}
-        <div className="relative">
-          <label htmlFor="term" className="block text-sm font-medium text-gray-700 mb-1">
-            Select Term
-          </label>
-          <select
-            id="term"
-            value={selectedTerm}
-            onChange={handleTermChange}
-            disabled={loading}
-            className="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-          >
-            <option value="">Select Term</option>
-            {terms.map((term) => (
-              <option key={term.id} value={term.id}>
-                {term.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Class Dropdown */}
         <div className="relative">
           <label htmlFor="class" className="block text-sm font-medium text-gray-700 mb-1">
             Select Class
@@ -268,7 +236,7 @@ const Data = () => {
             id="class"
             value={selectedClass}
             onChange={handleClassChange}
-            disabled={!selectedTerm || loading}
+            disabled={loading}
             className="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
           >
             <option value="">Select Class</option>
@@ -280,7 +248,6 @@ const Data = () => {
           </select>
         </div>
 
-        {/* Section Dropdown */}
         <div className="relative">
           <label htmlFor="section" className="block text-sm font-medium text-gray-700 mb-1">
             Select Section
@@ -300,12 +267,30 @@ const Data = () => {
             ))}
           </select>
         </div>
+
+        <div className="relative">
+          <label htmlFor="term" className="block text-sm font-medium text-gray-700 mb-1">
+            Select Term
+          </label>
+          <select
+            id="term"
+            value={selectedTerm}
+            onChange={handleTermChange}
+            disabled={loading}
+            className="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+          >
+            <option value="">All Terms</option>
+            {terms.map((term) => (
+              <option key={term.id} value={term.id}>
+                {term.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Add new search and filter controls */}
       {!loading && studentData.length > 0 && (
         <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Search Input */}
           <div className="relative">
             <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
               Search Students
@@ -320,7 +305,6 @@ const Data = () => {
             />
           </div>
 
-          {/* Payment Status Filter */}
           <div className="relative">
             <label htmlFor="paymentFilter" className="block text-sm font-medium text-gray-700 mb-1">
               Payment Status
@@ -339,7 +323,6 @@ const Data = () => {
         </div>
       )}
 
-      {/* Add summary statistics */}
       {!loading && studentData.length > 0 && (
         <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg shadow">
@@ -388,10 +371,10 @@ const Data = () => {
                   Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Term Total Amount
+                  {selectedTerm ? `${terms.find(t => t.id === selectedTerm)?.name} Amount` : 'Total Amount'}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Term Amount Paid
+                  {selectedTerm ? `${terms.find(t => t.id === selectedTerm)?.name} Paid` : 'Total Paid'}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Due
@@ -434,7 +417,6 @@ const Data = () => {
             </tbody>
           </table>
 
-          {/* Add no results message */}
           {getFilteredStudents().length === 0 && (
             <div className="text-center py-4 text-gray-500">
               No students found matching your search criteria
@@ -443,7 +425,7 @@ const Data = () => {
         </div>
       )}
 
-      {!loading && studentData.length === 0 && selectedClass && selectedSection && selectedTerm && (
+      {!loading && studentData.length === 0 && selectedClass && selectedSection && (
         <div className="text-center py-8 text-gray-500">
           No student data found
         </div>

@@ -133,11 +133,12 @@ const AddStudents = () => {
 
       const studentCountData = await studentCountResponse.json();
       if (studentCountData.success) {
-        const currentCount = studentCountData.count + 1; // Increment for the new student
+        const currentCount = studentCountData.count // Increment for the new student
         setstdcount(currentCount);
         setysuffix(yearSuffix);
-        const id = `${yearSuffix}${String(currentCount).padStart(4, "0")}`;
+        const id = `${String(currentCount)}`;
 
+// alert(id)
         // Update the form data
         setFormData((prev) => ({
           ...prev,
@@ -614,7 +615,9 @@ const AddStudents = () => {
           <div>Phone Number: ${formData.whatsappNo}</div>
           ${printContents}
           <div class="declaration">
-            I hereby declare that the information provided above is correct, and I agree to pay the fee as mentioned above. I understand that this Fee declaration is valid only upon authentication by the institution.
+             నేను ఇచ్చిన సమాచారం సరిగానే ఉందని తెలియజేస్తున్నాను. పై ఫీజు చెల్లించేందుకు నేను ఒప్పుకుంటున్నాను. ఇది సంస్థ ధృవీకరించిన తర్వాతే చెల్లుబాటు అవుతుంది.
+            <br>
+             I hereby declare that the information provided above is correct, and I agree to pay the fee as mentioned above. I understand that this Fee declaration is valid only upon authentication by the institution.
           </div>
           <div class="signatures">
             <div class="signature-label">

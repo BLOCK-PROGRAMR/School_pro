@@ -11,16 +11,28 @@ exports.getStudentCountByAcademicYear = async (req, res) => {
   const { academicyearid } = req.params;
 
   try {
-    // Count students directly from the Student collection by academicYearId
-    const totalStudents = await Student.countDocuments({ academic_id: academicyearid });
+    // Count students in the given academic year
+    
+    // Find the maximum student idNo in the given academic year
+    const maxStudent = await Student.findOne({ academic_id: academicyearid })
+      .sort({ idNo: -1 }) // Sort in descending order to get the highest idNo
+      .select("idNo");
 
-    return res.status(200).json({ success: true, count: totalStudents });
+    let nextIdNo = 1; // Default to 1 if no students exist
+
+    if (maxStudent && maxStudent.idNo) {
+      nextIdNo = parseInt(maxStudent.idNo) + 1; // Increment max ID
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      count: nextIdNo 
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 
 exports.createAcademicYear = async (req, res) => {
