@@ -54,7 +54,7 @@ const BankBook = () => {
         const received = entries
             .filter(entry => entry.transactionType === 'received')
             .reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        
+
         const paid = entries
             .filter(entry => entry.transactionType === 'paid')
             .reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
@@ -93,7 +93,7 @@ const BankBook = () => {
     return (
         <div className="container mx-auto p-4">
             <h2 className="text-2xl font-bold mb-4">Bank Book</h2>
-            
+
             {loading ? (
                 <div className="text-center">Loading...</div>
             ) : (
@@ -103,31 +103,28 @@ const BankBook = () => {
                         <div className="flex justify-between items-center">
                             <div className="flex space-x-4">
                                 <button
-                                    className={`px-4 py-2 rounded ${
-                                        selectedType === 'all' 
-                                            ? 'bg-blue-600 text-white' 
-                                            : 'bg-gray-200'
-                                    }`}
+                                    className={`px-4 py-2 rounded ${selectedType === 'all'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200'
+                                        }`}
                                     onClick={() => setSelectedType('all')}
                                 >
                                     All Transactions
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded ${
-                                        selectedType === 'received' 
-                                            ? 'bg-green-600 text-white' 
-                                            : 'bg-gray-200'
-                                    }`}
+                                    className={`px-4 py-2 rounded ${selectedType === 'received'
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-gray-200'
+                                        }`}
                                     onClick={() => setSelectedType('received')}
                                 >
                                     Received
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded ${
-                                        selectedType === 'paid' 
-                                            ? 'bg-red-600 text-white' 
-                                            : 'bg-gray-200'
-                                    }`}
+                                    className={`px-4 py-2 rounded ${selectedType === 'paid'
+                                        ? 'bg-red-600 text-white'
+                                        : 'bg-gray-200'
+                                        }`}
                                     onClick={() => setSelectedType('paid')}
                                 >
                                     Paid
@@ -186,7 +183,7 @@ const BankBook = () => {
                                 <tr>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">RC No</th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Voucher ID</th>
+
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Ledger Type</th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Group Ledger</th>
                                     <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Bank Details</th>
@@ -203,9 +200,7 @@ const BankBook = () => {
                                         <td className="px-4 py-3 text-sm text-gray-900">
                                             {entry.rcNo || 'N/A'}
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-gray-900">
-                                            {entry.voucherTxId}
-                                        </td>
+
                                         <td className="px-4 py-3 text-sm text-gray-900">
                                             {entry.ledgerType || 'N/A'}
                                         </td>
@@ -218,11 +213,10 @@ const BankBook = () => {
                                         <td className="px-4 py-3 text-sm text-gray-900">
                                             {entry.description || 'N/A'}
                                         </td>
-                                        <td className={`px-4 py-3 text-sm text-right ${
-                                            entry.transactionType === 'received' 
-                                                ? 'text-green-600' 
-                                                : 'text-red-600'
-                                        }`}>
+                                        <td className={`px-4 py-3 text-sm text-right ${entry.transactionType === 'received'
+                                            ? 'text-green-600'
+                                            : 'text-red-600'
+                                            }`}>
                                             {Number(entry.amount).toFixed(2)}
                                             <span className="ml-1 text-xs">
                                                 {entry.transactionType === 'received' ? '(CR)' : '(DR)'}

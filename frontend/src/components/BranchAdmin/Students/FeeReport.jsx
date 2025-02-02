@@ -1,10 +1,15 @@
+<<<<<<< HEAD
  
 
 import React, { useState, useEffect ,useContext} from "react";
 
 
+=======
+import React, { useState, useEffect, useContext } from "react";
+>>>>>>> c29445ce47f8ddff99c58c5c50aaef155f500d36
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import Allapi from "../../../common"; // Adjust according to your API utility file
 import { mycon } from "../../../store/Mycontext";
 
@@ -13,11 +18,21 @@ const FeeReport = () => {
   const { sid } = useParams();
   const [selectedTerm, setSelectedTerm] = useState(null);
   const [numTerms, setNumTerms] = useState(null);
-    const { branchdet } = useContext(mycon);
-  const [acid,setAcid]=useState(null)
+  const [bankBranches, setBankBranches] = useState([]);
+  const [selectedBankBranch, setSelectedBankBranch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [paymenttype, setPaymenttype] = useState("");
+  const { branchdet } = useContext(mycon);
+  const [acid, setAcid] = useState(null)
   const [studentDataForm, setStudentDataForm] = useState({
     padiFee: [],
     paymentType: "",
+    bankDetails: {
+      bankId: "",
+      bankName: "",
+      branchId: "",
+      branchName: ""
+    }
   });
 
   useEffect(() => {
@@ -71,7 +86,7 @@ const FeeReport = () => {
         }));
 
         setStudent(result.data);
-  
+
       } else {
         toast.error(result.message || "Failed to fetch student data.");
       }
@@ -80,6 +95,48 @@ const FeeReport = () => {
       toast.error("An error occurred while fetching student data.");
     }
   };
+
+  const fetchBankBranches = async () => {
+    if (studentDataForm.paymentType !== "Bank") return;
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(Allapi.getLedgers.url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        const bankLedgers = response.data.data.filter(
+          ledger => ledger.ledgerType === 'Bank'
+        );
+        // Flatten the bank and branch structure into a single array
+        const allBranches = bankLedgers.reduce((acc, bank) => {
+          const bankBranches = bank.subLedgers.map(branch => ({
+            _id: branch._id,
+            name: `${bank.groupLedgerName} - ${branch.name}`,
+            bankId: bank._id,
+            bankName: bank.groupLedgerName,
+            branchId: branch._id,
+            branchName: branch.name
+          }));
+          return [...acc, ...bankBranches];
+        }, []);
+        setBankBranches(allBranches);
+      }
+    } catch (error) {
+      console.error('Error fetching bank branches:', error);
+      toast.error('Failed to fetch bank branches');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBankBranches();
+  }, [studentDataForm.paymentType]);
 
   const handleTermChange = (term) => {
     setSelectedTerm(term);
@@ -131,8 +188,41 @@ const FeeReport = () => {
       };
     });
   };
+
+  const handlePaymentTypeChange = (type) => {
+    setStudentDataForm(prev => ({
+      ...prev,
+      paymentType: type,
+      bankDetails: type === "Bank" ? prev.bankDetails : {
+        bankId: "",
+        branchId: "",
+        bankName: "",
+        branchName: ""
+      }
+    }));
+    setSelectedBankBranch("");
+  };
+
+  const handleBankBranchChange = (branchId) => {
+    const selectedBranchData = bankBranches.find(branch => branch._id === branchId);
+    setSelectedBankBranch(branchId);
+
+    if (selectedBranchData) {
+      setStudentDataForm(prev => ({
+        ...prev,
+        bankDetails: {
+          bankId: selectedBranchData.bankId,
+          bankName: selectedBranchData.bankName,
+          branchId: selectedBranchData.branchId,
+          branchName: selectedBranchData.branchName
+        }
+      }));
+    }
+  };
+
   const handleSubmit = async (e) => {
-    console.log(studentDataForm.padiFee, "padi"); // Check the value of padiFee
+    alert(studentDataForm.paymentType);
+    console.log("abnk", studentDataForm.bankDetails)
     e.preventDefault();
     const paymentDetails = studentDataForm.padiFee;
 
@@ -195,23 +285,25 @@ const FeeReport = () => {
         body: JSON.stringify({
           academicYearID: student.academic_id,
           studentID: student.idNo,
-          terms:selectedTerm,
+          terms: selectedTerm,
           date: new Date(),
           rcNo: `RC-${Date.now()}`, // Generate a unique receipt number
           feeLedger: paymentDetails.map((fee) => ({
             name: fee.name,
             amount: fee.enteredAmount,
-            
+
           })),
+          paymentType: studentDataForm.paymentType,
+          bankDetails: studentDataForm.bankDetails
         }),
-      }); 
-      console.log(student,"t")
+      });
+      console.log(student, "t")
 
       const receiptResult = await receiptResponse.json();
 
       if (receiptResult.success) {
         toast.success("Fee Paid Successfully and Receipt Created!");
-        console.log(receiptResult,"recieots");
+        console.log(receiptResult, "recieots");
         // window.location.reload();
         fetchStudentById(sid); // Refresh data
       } else {
@@ -327,20 +419,33 @@ const FeeReport = () => {
             <label className="block text-gray-700 mb-1">Payment Type</label>
             <select
               name="paymentType"
-              value={studentDataForm.paymentType || ""}
-              onChange={(e) =>
-                setStudentDataForm({
-                  ...studentDataForm,
-                  paymentType: e.target.value,
-                })
-              }
+              value={studentDataForm.paymentType}
+              onChange={(e) => handlePaymentTypeChange(e.target.value)}
               className="border p-2 rounded w-full"
             >
               <option value="">Select Payment Type</option>
               <option value="Cash">Cash</option>
-              <option value="Card">Card</option>
-              <option value="Online">Online</option>
+              <option value="Bank">Bank</option>
             </select>
+
+            {studentDataForm.paymentType === "Bank" && (
+              <div className="mt-3">
+                <label className="block text-gray-700 mb-1">Select Bank and Branch</label>
+                <select
+                  value={selectedBankBranch}
+                  onChange={(e) => handleBankBranchChange(e.target.value)}
+                  className="border p-2 rounded w-full"
+                  disabled={loading}
+                >
+                  <option value="">Select Bank and Branch</option>
+                  {bankBranches.map((branch) => (
+                    <option key={branch._id} value={branch._id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <button
