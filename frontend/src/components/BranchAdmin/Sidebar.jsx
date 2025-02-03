@@ -245,6 +245,12 @@ const Sidebar = () => {
                     >
                       Voucher Receipts
                     </MenuItem>
+                    {/* <MenuItem
+                      to={`/branch-admin/fee-report/${currentAcademicYear}`}
+                      icon={Plus}
+                    >
+                      Fee Report
+                    </MenuItem> */}
                     <MenuItem
                       to={`/branch-admin/fee-card/${currentAcademicYear}`}
                       icon={Plus}
@@ -361,6 +367,13 @@ const Sidebar = () => {
                       Data
                     </MenuItem>
 
+                    <MenuItem
+                      to={`/branch-admin/FeeData`}
+                      icon={FileText}
+                    >
+                      FeeData
+                    </MenuItem>
+
 
 
                   </div>
@@ -423,7 +436,7 @@ const Sidebar = () => {
                     <MenuItem to="/branch-admin/account" icon={UserPlus}>
                       Add Accountant
                     </MenuItem>
-                    
+
                   </div>
                 </div>
               </div>

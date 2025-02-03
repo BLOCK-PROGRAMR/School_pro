@@ -97,6 +97,7 @@ import Data from "./components/BranchAdmin/Students/Data.jsx"
 
 
 import AddAccount from "./components/BranchAdmin/Accountant/addAccount.jsx";
+import FeeData from "./components/BranchAdmin/Students/FeeData.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -255,14 +256,19 @@ const Router = createBrowserRouter([
 
           {
             path: "data",
-            element: <Data/>,
+            element: <Data />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "FeeData",
+            element: <FeeData />,
             errorElement: <ErrorBoundary />
           },
 
-          
+
           {
             path: "account",
-            element: <AddAccount/>,
+            element: <AddAccount />,
             errorElement: <ErrorBoundary />
           },
 
@@ -279,15 +285,20 @@ const Router = createBrowserRouter([
             errorElement: <ErrorBoundary />
           },
           {
-            path: "bank/:academicYearID", 
-            element: <BankBook/>,
+            path: "bank/:academicYearID",
+            element: <BankBook />,
             errorElement: <ErrorBoundary />
           },
           {
             path: "fee-card/:academicYearID",
-            element: <FeeLedger></FeeLedger>,
+            element: <FeeLedger />,//<FeeLedger><FeeLedger/>
             errorElement: <ErrorBoundary />
           },
+          // {
+          //   path: "fee-report/:academicYearID",
+          //   element: <FeeReport />,//<FeeLedger><FeeLedger/>
+          //   errorElement: <ErrorBoundary />
+          // },
           {
             path: "exam",
             children: [{
