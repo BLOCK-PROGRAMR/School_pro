@@ -1494,6 +1494,7 @@ const StudentEdit = () => {
               </tr>
             </thead>
             <tbody>
+              {console.log("formdata is fee ", formData.feeDetails)}
               {formData.feeDetails.map((fee, index) => (
                 <tr key={index} className="border-t text-left hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm text-gray-700">

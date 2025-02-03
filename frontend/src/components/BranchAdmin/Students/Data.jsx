@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { toast } from 'react-toastify';
-import { mycon } from '../../../store/Mycontext';
-import Allapi from '../../../common';
+import React, { useState, useEffect, useContext } from "react";
+import { toast } from "react-toastify";
+import { mycon } from "../../../store/Mycontext";
+import Allapi from "../../../common";
 
 const Data = () => {
   const { branchdet } = useContext(mycon);
-  const [selectedTerm, setSelectedTerm] = useState('');
-  const [selectedClass, setSelectedClass] = useState('');
-  const [selectedSection, setSelectedSection] = useState('');
+  const [selectedTerm, setSelectedTerm] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
   const [classes, setClasses] = useState([]);
   const [sections, setSections] = useState([]);
   const [studentData, setStudentData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("all");
 
   const terms = [
-    { id: 'term1', name: 'Term 1' },
-    { id: 'term2', name: 'Term 2' },
-    { id: 'term3', name: 'Term 3' },
-    { id: 'term4', name: 'Term 4' }
+    { id: "term1", name: "Term 1" },
+    { id: "term2", name: "Term 2" },
+    { id: "term3", name: "Term 3" },
+    { id: "term4", name: "Term 4" },
   ];
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const Data = () => {
   useEffect(() => {
     if (selectedClass) {
       fetchSections(selectedClass);
-      setSelectedSection('');
+      setSelectedSection("");
       setStudentData([]);
     }
   }, [selectedClass]);
@@ -45,15 +45,15 @@ const Data = () => {
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await fetch(
         Allapi.getClasses.url(branchdet.academicYears[0]),
         {
           method: Allapi.getClasses.method,
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -61,11 +61,11 @@ const Data = () => {
       if (response.ok) {
         setClasses(data.data || []);
       } else {
-        toast.error('Failed to fetch classes');
+        toast.error("Failed to fetch classes");
       }
     } catch (error) {
-      console.error('Error fetching classes:', error);
-      toast.error('Error fetching classes');
+      console.error("Error fetching classes:", error);
+      toast.error("Error fetching classes");
     } finally {
       setLoading(false);
     }
@@ -74,27 +74,24 @@ const Data = () => {
   const fetchSections = async (classId) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(
-        Allapi.getSections.url(classId),
-        {
-          method: Allapi.getSections.method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
+      const token = localStorage.getItem("token");
+      const response = await fetch(Allapi.getSections.url(classId), {
+        method: Allapi.getSections.method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const data = await response.json();
       if (response.ok) {
         setSections(data.data || []);
       } else {
-        toast.error('Failed to fetch sections');
+        toast.error("Failed to fetch sections");
       }
     } catch (error) {
-      console.error('Error fetching sections:', error);
-      toast.error('Error fetching sections');
+      console.error("Error fetching sections:", error);
+      toast.error("Error fetching sections");
     } finally {
       setLoading(false);
     }
@@ -103,99 +100,148 @@ const Data = () => {
   const fetchStudentData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      
+      const token = localStorage.getItem("token");
+
       const studentsResponse = await fetch(
         Allapi.getStudentsBySection.url(selectedSection),
         {
           method: Allapi.getStudentsBySection.method,
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       const studentsData = await studentsResponse.json();
-      
+
       if (!studentsResponse.ok) {
-        throw new Error('Failed to fetch student data');
+        throw new Error("Failed to fetch student data");
       }
 
-      const studentsWithFees = await Promise.all(studentsData.data.map(async (student) => {
-        try {
-          // Calculate total fee from student's feeDetails
-          const totalFee = student.feeDetails.reduce((total, fee) => {
-            const feeAmount = fee.finalAmount || fee.amount;
-            const termsCount = parseInt(fee.terms) || 1;
-            // Calculate per-term amount
-            const perTermAmount = feeAmount / termsCount;
-            // If term is selected, return amount for that term only
-            if (selectedTerm) {
-              const selectedTermNumber = parseInt(selectedTerm.replace('term', ''));
-              return total + (selectedTermNumber <= termsCount ? perTermAmount : 0);
-            }
-            // If no term selected, return total amount
-            return total + feeAmount;
-          }, 0);
-
-          // Fetch receipts for paid amount calculation
-          const receiptsResponse = await fetch(
-            `${Allapi.getReciepts.url(branchdet.academicYears[0])}?studentID=${student.idNo}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          const receiptsData = await receiptsResponse.json();
-          
-          let termPaidAmount = 0;
-
-          receiptsData.receipts.forEach(receipt => {
-            if (selectedTerm) {
-              // If term is selected, only count payments for this term
-              if (receipt.terms === selectedTerm) {
-                receipt.feeLedger.forEach(fee => {
-                  termPaidAmount += parseFloat(fee.amount) || 0;
-                });
+      const studentsWithFees = await Promise.all(
+        studentsData.data.map(async (student) => {
+          try {
+            console.log("student fees in are", student.feeDetails);
+            // Calculate total fee from student's feeDetails
+            // const totalFee = student.feeDetails.reduce((total, fee) => {
+            //   const feeAmount = fee.finalAmount || fee.amount;
+            //   const termsCount = parseInt(fee.terms) || 1;
+            //   // Calculate per-term amount
+            //   const perTermAmount = feeAmount / termsCount;
+            //   // If term is selected, return amount for that term only
+            //   if (selectedTerm) {
+            //     const selectedTermNumber = parseInt(
+            //       selectedTerm.replace("term", "")
+            //     );
+            //     return (
+            //       total + (selectedTermNumber <= termsCount ? perTermAmount : 0)
+            //     );
+            //   }
+            const totalFee = student.feeDetails.reduce((total, fee) => {
+              const feeAmount = fee.finalAmount;
+              const termsCount = parseInt(fee.terms) || 1;
+              // Calculate per-term amount
+              const perTermAmount = feeAmount / termsCount;
+              // If term is selected, return amount for that term only
+              if (selectedTerm) {
+                const selectedTermNumber = parseInt(
+                  selectedTerm.replace("term", "")
+                );
+                // return total + perTermAmount * ({selectedTermNumber>termsCount?termsCount:selectedTermNumber});
+                return (
+                  total +
+                  perTermAmount *
+                    (selectedTermNumber > termsCount
+                      ? termsCount
+                      : selectedTermNumber)
+                );
               }
-            } else {
-              // If no term selected, count all payments
-              receipt.feeLedger.forEach(fee => {
-                termPaidAmount += parseFloat(fee.amount) || 0;
-              });
-            }
-          });
+              // If no term selected, return total amount
+              return total + feeAmount;
+            }, 0);
 
-          const termRemainingAmount = totalFee - termPaidAmount;
+            // Fetch receipts for paid amount calculation
+            const receiptsResponse = await fetch(
+              `${Allapi.getReciepts.url(
+                branchdet.academicYears[0]
+              )}?studentID=${student.idNo}`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
 
-          return {
-            ...student,
-            totalAmount: totalFee,
-            amountPaid: termPaidAmount,
-            amountToBePaid: termRemainingAmount
-          };
-        } catch (error) {
-          console.error(`Error fetching receipts for student ${student.idNo}:`, error);
-          return {
-            ...student,
-            totalAmount: 0,
-            amountPaid: 0,
-            amountToBePaid: 0
-          };
-        }
-      }));
+            const receiptsData = await receiptsResponse.json();
+            console.log("receipts daata is", receiptsData);
+
+            let termPaidAmount = 0;
+
+            receiptsData.receipts.forEach((receipt) => {
+              if (selectedTerm) {
+                // If term is selected, only count payments for this term
+                const selectedTermNumber = parseInt(
+                  selectedTerm.replace(/\D/g, ""),
+                  10
+                );
+                const receiptTermNumber = parseInt(
+                  receipt.terms.replace(/\D/g, ""),
+                  10
+                );
+
+                // console.log("select term", selectedTerm);
+                // const formattedTerm = receipt.terms.replace("Term-", "term");
+                // console.log("fetched tems are", receipt.terms);
+                // console.log("selected tems are", selectedTerm);
+                // console.log("formatted term", formattedTerm);
+
+                if (receiptTermNumber <= selectedTermNumber) {
+                  console.log("needed", receipt.totalAmount);
+                  termPaidAmount += receipt.totalAmount;
+                  // receipt.feeLedger.forEach((fee) => {
+                  //   termPaidAmount += parseFloat(fee.amount) || 0;
+                  // });
+                }
+              } else {
+                // If no term selected, count all payments
+                // receipt.feeLedger.forEach((fee) => {
+                //   termPaidAmount += parseFloat(fee.amount) || 0;
+                // });
+                termPaidAmount += receipt.totalAmount;
+              }
+            });
+
+            const termRemainingAmount = totalFee - termPaidAmount;
+
+            return {
+              ...student,
+              totalAmount: totalFee,
+              amountPaid: termPaidAmount,
+              amountToBePaid: termRemainingAmount,
+            };
+          } catch (error) {
+            console.error(
+              `Error fetching receipts for student ${student.idNo}:`,
+              error
+            );
+            return {
+              ...student,
+              totalAmount: 0,
+              amountPaid: 0,
+              amountToBePaid: 0,
+            };
+          }
+        })
+      );
 
       const sortedStudents = studentsWithFees.sort((a, b) => a.idNo - b.idNo);
       setStudentData(sortedStudents);
-      
     } catch (error) {
-      console.error('Error fetching student data:', error);
-      toast.error('Failed to fetch student data');
+      console.error("Error fetching student data:", error);
+      toast.error("Failed to fetch student data");
     } finally {
       setLoading(false);
     }
@@ -214,11 +260,15 @@ const Data = () => {
   };
 
   const getFilteredStudents = () => {
-    return studentData.filter(student => {
-      if (paymentFilter === 'paid' && student.amountToBePaid !== 0) return false;
-      if (paymentFilter === 'unpaid' && student.amountToBePaid === 0) return false;
+    return studentData.filter((student) => {
+      if (paymentFilter === "paid" && student.amountToBePaid !== 0)
+        return false;
+      if (paymentFilter === "unpaid" && student.amountToBePaid === 0)
+        return false;
 
-      const searchString = `${student.idNo} ${student.name} ${student.surname || ''}`.toLowerCase();
+      const searchString = `${student.idNo} ${student.name} ${
+        student.surname || ""
+      }`.toLowerCase();
       return searchString.includes(searchQuery.toLowerCase());
     });
   };
@@ -226,10 +276,13 @@ const Data = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Student Data</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="relative">
-          <label htmlFor="class" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="class"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Select Class
           </label>
           <select
@@ -249,7 +302,10 @@ const Data = () => {
         </div>
 
         <div className="relative">
-          <label htmlFor="section" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="section"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Select Section
           </label>
           <select
@@ -269,7 +325,10 @@ const Data = () => {
         </div>
 
         <div className="relative">
-          <label htmlFor="term" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="term"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Select Term
           </label>
           <select
@@ -292,7 +351,10 @@ const Data = () => {
       {!loading && studentData.length > 0 && (
         <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="search"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Search Students
             </label>
             <input
@@ -306,7 +368,10 @@ const Data = () => {
           </div>
 
           <div className="relative">
-            <label htmlFor="paymentFilter" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="paymentFilter"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Payment Status
             </label>
             <select
@@ -326,25 +391,34 @@ const Data = () => {
       {!loading && studentData.length > 0 && (
         <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Total Students</h3>
-            <p className="text-2xl font-semibold text-gray-900">{studentData.length}</p>
+            <h3 className="text-sm font-medium text-gray-500">
+              Total Students
+            </h3>
+            <p className="text-2xl font-semibold text-gray-900">
+              {studentData.length}
+            </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Fees Paid</h3>
             <p className="text-2xl font-semibold text-green-600">
-              {studentData.filter(s => s.amountToBePaid === 0).length}
+              {studentData.filter((s) => s.amountToBePaid === 0).length}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500">Fees Pending</h3>
             <p className="text-2xl font-semibold text-red-600">
-              {studentData.filter(s => s.amountToBePaid > 0).length}
+              {studentData.filter((s) => s.amountToBePaid > 0).length}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Total Collection</h3>
+            <h3 className="text-sm font-medium text-gray-500">
+              Total Collection
+            </h3>
             <p className="text-2xl font-semibold text-blue-600">
-              ₹{studentData.reduce((sum, s) => sum + s.amountPaid, 0).toLocaleString()}
+              ₹
+              {studentData
+                .reduce((sum, s) => sum + s.amountPaid, 0)
+                .toLocaleString()}
             </p>
           </div>
         </div>
@@ -371,10 +445,14 @@ const Data = () => {
                   Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {selectedTerm ? `${terms.find(t => t.id === selectedTerm)?.name} Amount` : 'Total Amount'}
+                  {selectedTerm
+                    ? `${terms.find((t) => t.id === selectedTerm)?.name} Amount`
+                    : "Total Amount"}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {selectedTerm ? `${terms.find(t => t.id === selectedTerm)?.name} Paid` : 'Total Paid'}
+                  {selectedTerm
+                    ? `${terms.find((t) => t.id === selectedTerm)?.name} Paid`
+                    : "Total Paid"}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Due
@@ -394,7 +472,9 @@ const Data = () => {
                     {student.idNo}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {student.surname ? `${student.surname} ${student.name}` : student.name}
+                    {student.surname
+                      ? `${student.surname} ${student.name}`
+                      : student.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     ₹{student.totalAmount.toLocaleString()}
@@ -406,10 +486,14 @@ const Data = () => {
                     ₹{student.amountToBePaid.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      student.amountToBePaid === 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {student.amountToBePaid === 0 ? 'Yes' : 'No'}
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        student.amountToBePaid === 0
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {student.amountToBePaid === 0 ? "Yes" : "No"}
                     </span>
                   </td>
                 </tr>
@@ -425,11 +509,14 @@ const Data = () => {
         </div>
       )}
 
-      {!loading && studentData.length === 0 && selectedClass && selectedSection && (
-        <div className="text-center py-8 text-gray-500">
-          No student data found
-        </div>
-      )}
+      {!loading &&
+        studentData.length === 0 &&
+        selectedClass &&
+        selectedSection && (
+          <div className="text-center py-8 text-gray-500">
+            No student data found
+          </div>
+        )}
     </div>
   );
 };
