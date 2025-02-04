@@ -152,9 +152,9 @@ const Data = () => {
                 return (
                   total +
                   perTermAmount *
-                  (selectedTermNumber > termsCount
-                    ? termsCount
-                    : selectedTermNumber)
+                    (selectedTermNumber > termsCount
+                      ? termsCount
+                      : selectedTermNumber)
                 );
               }
               // If no term selected, return total amount
@@ -266,8 +266,9 @@ const Data = () => {
       if (paymentFilter === "unpaid" && student.amountToBePaid === 0)
         return false;
 
-      const searchString = `${student.idNo} ${student.name} ${student.surname || ""
-        }`.toLowerCase();
+      const searchString = `${student.idNo} ${student.name} ${
+        student.surname || ""
+      }`.toLowerCase();
       return searchString.includes(searchQuery.toLowerCase());
     });
   };
@@ -486,10 +487,11 @@ const Data = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${student.amountToBePaid === 0
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        student.amountToBePaid === 0
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
-                        }`}
+                      }`}
                     >
                       {student.amountToBePaid === 0 ? "Yes" : "No"}
                     </span>

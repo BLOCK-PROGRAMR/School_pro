@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from "react";
 
 import { toast } from "react-toastify";
@@ -49,7 +48,7 @@ const FeeReport = () => {
 
       const result = await response.json();
       if (result.success) {
-        console.log(result.data.feeDetails);
+        console.log("db", result.data.feeDetails);
         const maxTerms = Math.max(
           ...result.data.feeDetails.map((fee) => parseInt(fee.terms, 10))
         );
@@ -73,7 +72,7 @@ const FeeReport = () => {
             enteredAmount: 0, // Initialize enteredAmount to 0
           };
         });
-        console.log(initialPaidFee);
+        console.log("init", initialPaidFee);
         setStudentDataForm((prev) => ({
           ...prev,
           padiFee: initialPaidFee,
@@ -190,11 +189,11 @@ const FeeReport = () => {
         type === "Bank"
           ? prev.bankDetails
           : {
-            bankId: "",
-            branchId: "",
-            bankName: "",
-            branchName: "",
-          },
+              bankId: "",
+              branchId: "",
+              bankName: "",
+              branchName: "",
+            },
     }));
     setSelectedBankBranch("");
   };
