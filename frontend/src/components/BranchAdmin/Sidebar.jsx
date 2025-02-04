@@ -375,6 +375,15 @@ const Sidebar = () => {
                     </MenuItem>
 
 
+                    <MenuItem
+                      to={`/branch-admin/info`}
+                      icon={FileText}
+                    >
+                      Student Info
+                    </MenuItem>
+
+
+
 
                   </div>
                 </div>

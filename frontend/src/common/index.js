@@ -377,34 +377,30 @@ const Allapi = {
 
   // Ledger endpoints
   getLedgers: {
-<<<<<<< HEAD
     url: (branchId) => `${backapi}/api/ledger/${branchId}`,
-    method: "GET"
-=======
+    method: "GET",
     url: `${backapi}/api/ledger/all`,
     method: "GET",
->>>>>>> 924326f524d53f8e5489a9e239af77ad0ee9cb41
   },
   createLedger: {
     url: `${backapi}/api/ledger/create`,
     method: "POST",
   },
   updateLedger: {
-<<<<<<< HEAD
+
     url: (id) => `${backapi}/api/ledger/${id}`,
     method: "PUT"
   },
   deleteLedger: {
     url: (id) => `${backapi}/api/ledger/${id}`,
-    method: "DELETE"
-=======
+    method: "DELETE",
     url: (id) => `${backapi}/api/ledger/update/${id}`,
     method: "PUT",
   },
   deleteLedger: {
     url: (id) => `${backapi}/api/ledger/delete/${id}`,
     method: "DELETE",
->>>>>>> 924326f524d53f8e5489a9e239af77ad0ee9cb41
+
   },
 
   // Account endpoints
