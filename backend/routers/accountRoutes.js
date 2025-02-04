@@ -6,21 +6,21 @@ const {
     getAccounts,
     updateAccount,
     deleteAccount
-} = require('../controllers/accountController');
+} = require('../controllers/AccountController');
 
 // All routes are protected and require authentication
 router.use(auth);
 
-// Add new account (Admin only)
-router.post('/', checkRole(['admin']), addAccount);
+// Add new account (Branch Admin and Admin)
+router.post('/', checkRole(['MainAdmin', 'BranchAdmin']), addAccount);
 
-// Get all accounts (Admin and Principal)
-router.get('/', checkRole(['admin', 'principal']), getAccounts);
+// Get all accounts (Admin, Branch Admin and Principal)
+router.get('/', checkRole(['MainAdmin', 'BranchAdmin']), getAccounts);
 
-// Update account (Admin only)
-router.put('/:id', checkRole(['admin']), updateAccount);
+// Update account (Branch Admin and Admin)
+router.put('/:id', checkRole(['MainAdmin', 'BranchAdmin']), updateAccount);
 
-// Delete account (Admin only)
-router.delete('/:id', checkRole(['admin']), deleteAccount);
+// Delete account (Branch Admin and Admin)
+router.delete('/:id', checkRole(['MainAdmin', 'BranchAdmin']), deleteAccount);
 
 module.exports = router;
