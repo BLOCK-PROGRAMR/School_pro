@@ -503,6 +503,14 @@ const StudentEdit = () => {
               name: "Transport-fee",
               amount: parseInt(formData.transportDetails.amount),
               terms: parseInt(formData.transportDetails.terms),
+              concession: parseFloat(formData.transportDetails.concession) || 0,
+              finalAmount: parseInt(
+                formData.transportDetails.amount -
+                  formData.transportDetails.amount *
+                    (formData.transportDetails.concession
+                      ? formData.transportDetails.concession
+                      : 0)
+              ),
             },
           ],
         }));
@@ -527,6 +535,14 @@ const StudentEdit = () => {
             name: "hostel-fee",
             amount: parseInt(formData.hostelDetails.hostelFee),
             terms: parseInt(formData.hostelDetails.terms),
+            concession: parseFloat(formData.hostelDetails.concession) || 0,
+            finalAmount: parseInt(
+              formData.hostelDetails.hostelFee -
+                formData.hostelDetails.hostelFee *
+                  (formData.hostelDetails.concession
+                    ? formData.hostelDetails.concession
+                    : 0)
+            ),
           },
         ],
       }));
@@ -1395,6 +1411,7 @@ const StudentEdit = () => {
                   ))}
                 </select>
                 <div>
+                  {console.log("formdata fee det is", formData.feeDetails)}
                   <label className="block text-sm font-medium text-gray-700">
                     Number of Terms
                   </label>
@@ -1549,6 +1566,7 @@ const StudentEdit = () => {
                 </td>
                 <td className="px-6 py-4 text-md font-semibold text-black">
                   {calculateTotalFee().toFixed(2)}
+                  {console.log("fee", formData)}
                 </td>
               </tr>
             </tfoot>
