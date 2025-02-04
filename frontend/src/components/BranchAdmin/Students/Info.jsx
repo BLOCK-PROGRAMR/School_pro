@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 import { mycon } from "../../../store/Mycontext";
 import Allapi from "../../../common";
+import * as XLSX from 'xlsx';
 
 const Info = () => {
   const { branchdet } = useContext(mycon);
@@ -100,6 +101,18 @@ const Info = () => {
     return formattedFees.join('\n');
   };
 
+  const formatConcessions = (feeDetails) => {
+    if (!feeDetails || !Array.isArray(feeDetails)) return "-";
+
+    const formattedConcessions = feeDetails.map(fee => {
+      const name = fee.name || fee.feeType || 'Other';
+      const concession = fee.concession || 0;
+      return `${name}: ${concession}%`;
+    }).filter(fee => fee.includes('%') && !fee.includes('0%'));
+
+    return formattedConcessions.length > 0 ? formattedConcessions.join('\n') : "-";
+  };
+
   const fetchStudentData = async () => {
     try {
       setLoading(true);
@@ -125,21 +138,24 @@ const Info = () => {
       const studentsWithDetails = await Promise.all(
         studentsData.data.map(async (student) => {
           try {
-            // Format fee types
+            // Format fee types and concessions
             const feeTypes = formatFeeTypes(student.feeDetails);
+            const concessions = formatConcessions(student.feeDetails);
 
             // Calculate course fee (original amount)
             const courseFee = (student.feeDetails || []).reduce((total, fee) => {
               return total + (parseFloat(fee.amount) || 0);
             }, 0);
 
-            // Calculate total concession
-            const concession = (student.feeDetails || []).reduce((total, fee) => {
-              return total + (parseFloat(fee.concessionAmount || fee.concession || 0));
+            // Calculate total concession amount
+            const concessionAmount = (student.feeDetails || []).reduce((total, fee) => {
+              const amount = parseFloat(fee.amount) || 0;
+              const concessionPercent = parseFloat(fee.concession) || 0;
+              return total + (amount * concessionPercent / 100);
             }, 0);
 
             // Calculate final fee (after concession)
-            const finalFee = courseFee - concession;
+            const finalFee = courseFee - concessionAmount;
 
             // Fetch receipts
             const receiptsResponse = await fetch(
@@ -179,8 +195,9 @@ const Info = () => {
             return {
               ...student,
               feeTypes,
+              concessions,
               courseFee,
-              concession,
+              concessionAmount,
               finalFee,
               paidAmount,
               receiptDetails
@@ -190,8 +207,9 @@ const Info = () => {
             return {
               ...student,
               feeTypes: "-",
+              concessions: "-",
               courseFee: 0,
-              concession: 0,
+              concessionAmount: 0,
               finalFee: 0,
               paidAmount: 0,
               receiptDetails: []
@@ -206,6 +224,73 @@ const Info = () => {
       toast.error("Failed to fetch student data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const downloadStudentData = () => {
+    try {
+      if (studentData.length === 0) {
+        toast.warning("No student data available to download");
+        return;
+      }
+
+      // Prepare data for export
+      const exportData = filteredStudents.map((student, index) => {
+        // Format receipt details
+        const receiptDetailsFormatted = student.receiptDetails?.map(receipt => {
+          const feeDetailsStr = receipt.feeDetails
+            .map(fee => `${fee.name}: ₹${fee.amount.toLocaleString()}`)
+            .join('\n');
+          return `Receipt #${receipt.number} (${receipt.date})\n${feeDetailsStr}\nTotal: ₹${receipt.amount.toLocaleString()} (${receipt.terms})`
+        }).join('\n\n') || '-';
+
+        return {
+          'S.No': index + 1,
+          'Student ID': student.idNo,
+          'Name': student.surname ? `${student.surname} ${student.name}` : student.name,
+          'Fee Types': student.feeTypes || '-',
+          'Course Fee': `₹${student.courseFee?.toLocaleString() || '-'}`,
+          'Concession': student.concessions || '-',
+          'Final Fee': `₹${student.finalFee?.toLocaleString() || '-'}`,
+          'Paid Amount': `₹${student.paidAmount?.toLocaleString() || '-'}`,
+          'Receipt Details': receiptDetailsFormatted
+        };
+      });
+
+      // Create worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Students");
+
+      // Auto-size columns and set column widths
+      const colWidths = [
+        { wch: 6 },  // S.No
+        { wch: 15 }, // Student ID
+        { wch: 30 }, // Name
+        { wch: 30 }, // Fee Types
+        { wch: 15 }, // Course Fee
+        { wch: 20 }, // Concession
+        { wch: 15 }, // Final Fee
+        { wch: 15 }, // Paid Amount
+        { wch: 50 }  // Receipt Details
+      ];
+      ws['!cols'] = colWidths;
+
+      // Set row height for better readability
+      const rowCount = exportData.length + 1; // +1 for header
+      ws['!rows'] = Array(rowCount).fill({ hpt: 30 }); // Set height for all rows
+
+      // Generate filename with class and section
+      const selectedClassName = classes.find(c => c._id === selectedClass)?.name || '';
+      const selectedSectionName = sections.find(s => s._id === selectedSection)?.name || '';
+      const filename = `Students_${selectedClassName}_${selectedSectionName}_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
+
+      // Save file
+      XLSX.writeFile(wb, filename);
+      toast.success("Student data downloaded successfully!");
+    } catch (error) {
+      console.error("Error downloading student data:", error);
+      toast.error("Failed to download student data");
     }
   };
 
@@ -263,11 +348,11 @@ const Info = () => {
               </select>
             </div>
 
-            <div>
+            <div className="flex flex-col">
               <label htmlFor="search" className="block text-sm font-semibold text-gray-700 mb-2">
                 Search Students
               </label>
-              <div className="relative">
+              <div className="relative flex-grow">
                 <input
                   type="text"
                   id="search"
@@ -290,6 +375,28 @@ const Info = () => {
                 </svg>
               </div>
             </div>
+          </div>
+
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={downloadStudentData}
+              disabled={loading || studentData.length === 0}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              <svg
+                className="mr-2 -ml-1 h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Download Student Data
+            </button>
           </div>
         </div>
 
@@ -351,10 +458,8 @@ const Info = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className="font-medium">₹{student.courseFee?.toLocaleString() || "-"}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {student.concession?.toLocaleString() || "-"}%
-                        </span>
+                      <td className="px-6 py-4 whitespace-pre text-sm text-gray-900">
+                        {student.concessions}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className="font-medium">₹{student.finalFee?.toLocaleString() || "-"}</span>
