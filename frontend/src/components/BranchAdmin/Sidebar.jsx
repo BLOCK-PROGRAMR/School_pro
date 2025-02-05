@@ -445,6 +445,9 @@ const Sidebar = () => {
                     <MenuItem to="/branch-admin/account" icon={UserPlus}>
                       Add Accountant
                     </MenuItem>
+                    <MenuItem to="/branch-admin/viewaccount" icon={UserPlus}>
+                      View Accountant
+                    </MenuItem>
 
                   </div>
                 </div>

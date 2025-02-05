@@ -89,6 +89,7 @@ import FeeData from "./components/BranchAdmin/Students/FeeData.jsx";
 
 
 import Info from "./components/BranchAdmin/Students/Info.jsx";
+import ViewAccountants from "./components/BranchAdmin/Accountant/ViewAccountants.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -236,7 +237,7 @@ const Router = createBrowserRouter([
 
           {
             path: "info",
-            element: <Info/>,
+            element: <Info />,
             errorElement: <ErrorBoundary />,
           },
 
@@ -252,6 +253,11 @@ const Router = createBrowserRouter([
           {
             path: "account",
             element: <AddAccount />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "viewaccount",
+            element: <ViewAccountants />,
             errorElement: <ErrorBoundary />,
           },
 
