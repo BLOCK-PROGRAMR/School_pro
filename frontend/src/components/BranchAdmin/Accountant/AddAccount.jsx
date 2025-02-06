@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { mycon } from '../../../store/Mycontext';
 import Allapi from '../../../common';
@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddAccount = () => {
     const { branchdet } = useContext(mycon);
 
-    const [formData, setFormData] = useState({
+    const initialFormState = {
         name: '',
         username: '',
         password: '',
@@ -24,14 +24,18 @@ const AddAccount = () => {
         aadharNumber: '',
         academic_id: '',
         role: 'Account',
-        branchId: branchdet._id
-    });
+        branchId: ''
+    };
+
+    const [formData, setFormData] = useState(initialFormState);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if (branchdet?.academicYears?.[0]) {
+        if (branchdet?.academicYears?.[0] && branchdet?._id) {
             setFormData(prev => ({
                 ...prev,
-                academic_id: branchdet.academicYears[0]
+                academic_id: branchdet.academicYears[0],
+                branchId: branchdet._id
             }));
         }
     }, [branchdet]);
@@ -64,6 +68,10 @@ const AddAccount = () => {
             toast.error('Username is required');
             return false;
         }
+        if (!formData.password.trim()) {
+            toast.error('Password is required');
+            return false;
+        }
         if (!formData.phone.trim() || !/^\d{10}$/.test(formData.phone)) {
             toast.error('Please enter a valid 10-digit phone number');
             return false;
@@ -80,14 +88,19 @@ const AddAccount = () => {
             toast.error('Academic year not available');
             return false;
         }
+        if (!formData.branchId) {
+            toast.error('Branch information not available');
+            return false;
+        }
         return true;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
+        if (!validateForm() || isSubmitting) return;
 
         try {
+            setIsSubmitting(true);
             const response = await fetch(Allapi.addAccount.url, {
                 method: Allapi.addAccount.method,
                 headers: {
@@ -101,31 +114,19 @@ const AddAccount = () => {
 
             if (result.success) {
                 toast.success('Account added successfully!');
-                setFormData({
-                    name: '',
-                    username: '',
-                    password: '',
-                    phone: '',
-                    address: {
-                        doorNo: '',
-                        street: '',
-                        city: '',
-                        pincode: '',
-                    },
-                    qualification: '',
-                    experience: '',
-                    joiningDate: '',
-                    aadharNumber: '',
-                    academic_id: branchdet.academicYears[0],
-                    role: 'Account',
-                    branchId: branchdet._id
-                });
+                setFormData(prev => ({
+                    ...initialFormState,
+                    academic_id: branchdet?.academicYears?.[0] || '',
+                    branchId: branchdet?._id || ''
+                }));
             } else {
                 toast.error(result.message || 'Failed to add account');
             }
         } catch (error) {
-            toast.error('Failed to add account. Please try again.');
             console.error('Error adding account:', error);
+            toast.error('Failed to add account. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -158,6 +159,7 @@ const AddAccount = () => {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter full name"
+                                required
                             />
                         </div>
 
@@ -172,6 +174,22 @@ const AddAccount = () => {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter username"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Password
+                            </label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter password"
+                                required
                             />
                         </div>
 
@@ -185,8 +203,9 @@ const AddAccount = () => {
                                 value={formData.aadharNumber}
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter aadhar"
+                                placeholder="Enter 12-digit Aadhar number"
                                 maxLength={12}
+                                required
                             />
                         </div>
 
@@ -200,8 +219,9 @@ const AddAccount = () => {
                                 value={formData.phone}
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="10-digit phone number"
+                                placeholder="Enter 10-digit phone number"
                                 maxLength={10}
+                                required
                             />
                         </div>
                     </div>
@@ -242,8 +262,9 @@ const AddAccount = () => {
                                 value={formData.address.pincode}
                                 onChange={handleInputChange}
                                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Pincode"
+                                placeholder="6-digit Pincode"
                                 maxLength={6}
+                                required
                             />
                         </div>
                     </div>
@@ -296,9 +317,12 @@ const AddAccount = () => {
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={isSubmitting}
+                        className={`w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                     >
-                        Add Accountant
+                        {isSubmitting ? 'Adding Accountant...' : 'Add Accountant'}
                     </button>
                 </form>
             </div>

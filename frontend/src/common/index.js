@@ -393,6 +393,27 @@ const Allapi = {
     url: (id) => `${backapi}/api/ledger/delete/${id}`,
     method: "DELETE"
   },
+
+
+
+  addAccount: {
+    url: `${backapi}/accounts`,
+    method: 'POST'
+},
+getAccounts: {
+    url: `${backapi}/accounts`,
+    method: 'GET'
+},
+updateAccount: (id) => ({
+    url: `${backapi}/accounts/${id}`,
+    method: 'PUT'
+}),
+deleteAccount: (id) => ({
+    url: `${backapi}/accounts/${id}`,
+    method: 'DELETE'
+})
+
+
 };
 
 export default Allapi;
