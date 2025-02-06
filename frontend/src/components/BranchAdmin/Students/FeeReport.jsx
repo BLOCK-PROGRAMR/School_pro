@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect, useContext } from "react";
+
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -16,7 +16,7 @@ const FeeReport = () => {
   const [loading, setLoading] = useState(false);
   const [paymenttype, setPaymenttype] = useState("");
   const { branchdet } = useContext(mycon);
-  const [acid, setAcid] = useState(null)
+  const [acid, setAcid] = useState(null);
   const [studentDataForm, setStudentDataForm] = useState({
     padiFee: [],
     paymentType: "",
@@ -24,8 +24,8 @@ const FeeReport = () => {
       bankId: "",
       bankName: "",
       branchId: "",
-      branchName: ""
-    }
+      branchName: "",
+    },
   });
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const FeeReport = () => {
 
       const result = await response.json();
       if (result.success) {
-        console.log(result.data.feeDetails);
+        console.log("db", result.data.feeDetails);
         const maxTerms = Math.max(
           ...result.data.feeDetails.map((fee) => parseInt(fee.terms, 10))
         );
@@ -72,14 +72,13 @@ const FeeReport = () => {
             enteredAmount: 0, // Initialize enteredAmount to 0
           };
         });
-        console.log(initialPaidFee);
+        console.log("init", initialPaidFee);
         setStudentDataForm((prev) => ({
           ...prev,
           padiFee: initialPaidFee,
         }));
 
         setStudent(result.data);
-
       } else {
         toast.error(result.message || "Failed to fetch student data.");
       }
@@ -103,25 +102,25 @@ const FeeReport = () => {
 
       if (response.data.success) {
         const bankLedgers = response.data.data.filter(
-          ledger => ledger.ledgerType === 'Bank'
+          (ledger) => ledger.ledgerType === "Bank"
         );
         // Flatten the bank and branch structure into a single array
         const allBranches = bankLedgers.reduce((acc, bank) => {
-          const bankBranches = bank.subLedgers.map(branch => ({
+          const bankBranches = bank.subLedgers.map((branch) => ({
             _id: branch._id,
             name: `${bank.groupLedgerName} - ${branch.name}`,
             bankId: bank._id,
             bankName: bank.groupLedgerName,
             branchId: branch._id,
-            branchName: branch.name
+            branchName: branch.name,
           }));
           return [...acc, ...bankBranches];
         }, []);
         setBankBranches(allBranches);
       }
     } catch (error) {
-      console.error('Error fetching bank branches:', error);
-      toast.error('Failed to fetch bank branches');
+      console.error("Error fetching bank branches:", error);
+      toast.error("Failed to fetch bank branches");
     } finally {
       setLoading(false);
     }
@@ -183,39 +182,44 @@ const FeeReport = () => {
   };
 
   const handlePaymentTypeChange = (type) => {
-    setStudentDataForm(prev => ({
+    setStudentDataForm((prev) => ({
       ...prev,
       paymentType: type,
-      bankDetails: type === "Bank" ? prev.bankDetails : {
-        bankId: "",
-        branchId: "",
-        bankName: "",
-        branchName: ""
-      }
+      bankDetails:
+        type === "Bank"
+          ? prev.bankDetails
+          : {
+              bankId: "",
+              branchId: "",
+              bankName: "",
+              branchName: "",
+            },
     }));
     setSelectedBankBranch("");
   };
 
   const handleBankBranchChange = (branchId) => {
-    const selectedBranchData = bankBranches.find(branch => branch._id === branchId);
+    const selectedBranchData = bankBranches.find(
+      (branch) => branch._id === branchId
+    );
     setSelectedBankBranch(branchId);
 
     if (selectedBranchData) {
-      setStudentDataForm(prev => ({
+      setStudentDataForm((prev) => ({
         ...prev,
         bankDetails: {
           bankId: selectedBranchData.bankId,
           bankName: selectedBranchData.bankName,
           branchId: selectedBranchData.branchId,
-          branchName: selectedBranchData.branchName
-        }
+          branchName: selectedBranchData.branchName,
+        },
       }));
     }
   };
 
   const handleSubmit = async (e) => {
     alert(studentDataForm.paymentType);
-    console.log("abnk", studentDataForm.bankDetails)
+    console.log("abnk", studentDataForm.bankDetails);
     e.preventDefault();
     const paymentDetails = studentDataForm.padiFee;
 
@@ -284,13 +288,12 @@ const FeeReport = () => {
           feeLedger: paymentDetails.map((fee) => ({
             name: fee.name,
             amount: fee.enteredAmount,
-
           })),
           paymentType: studentDataForm.paymentType,
-          bankDetails: studentDataForm.bankDetails
+          bankDetails: studentDataForm.bankDetails,
         }),
       });
-      console.log(student, "t")
+      console.log(student, "t");
 
       const receiptResult = await receiptResponse.json();
 
@@ -385,6 +388,7 @@ const FeeReport = () => {
                 </tr>
               </thead>
               <tbody>
+                {console.log("student fee is", studentDataForm.padiFee)}
                 {studentDataForm.padiFee.map((fee) => (
                   <tr key={fee.name}>
                     <td className="p-2 border">{fee.name}</td>
@@ -423,7 +427,9 @@ const FeeReport = () => {
 
             {studentDataForm.paymentType === "Bank" && (
               <div className="mt-3">
-                <label className="block text-gray-700 mb-1">Select Bank and Branch</label>
+                <label className="block text-gray-700 mb-1">
+                  Select Bank and Branch
+                </label>
                 <select
                   value={selectedBankBranch}
                   onChange={(e) => handleBankBranchChange(e.target.value)}

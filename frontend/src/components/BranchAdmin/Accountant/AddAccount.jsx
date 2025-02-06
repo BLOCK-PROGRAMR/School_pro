@@ -29,6 +29,8 @@ const AddAccount = () => {
 
     const [formData, setFormData] = useState(initialFormState);
     const [isSubmitting, setIsSubmitting] = useState(false);
+        branchId: branchdet?._id || ''
+    };
 
     useEffect(() => {
         if (branchdet?.academicYears?.[0] && branchdet?._id) {
@@ -60,27 +62,31 @@ const AddAccount = () => {
     };
 
     const validateForm = () => {
-        if (!formData.name.trim()) {
+        if (!formData.name) {
             toast.error('Name is required');
             return false;
         }
-        if (!formData.username.trim()) {
+        if (!formData.username) {
             toast.error('Username is required');
             return false;
         }
+
         if (!formData.password.trim()) {
             toast.error('Password is required');
             return false;
         }
         if (!formData.phone.trim() || !/^\d{10}$/.test(formData.phone)) {
+
+        if (!formData.password) {
+            toast.error('Password is required');
+            return false;
+        }
+        if (!formData.phone || !/^\d{10}$/.test(formData.phone)) {
+ 
             toast.error('Please enter a valid 10-digit phone number');
             return false;
         }
-        if (!formData.address.pincode.trim() || !/^\d{6}$/.test(formData.address.pincode)) {
-            toast.error('Please enter a valid 6-digit pincode');
-            return false;
-        }
-        if (!formData.aadharNumber.trim() || !/^\d{12}$/.test(formData.aadharNumber)) {
+        if (!formData.aadharNumber || !/^\d{12}$/.test(formData.aadharNumber)) {
             toast.error('Please enter a valid 12-digit Aadhar number');
             return false;
         }
@@ -89,7 +95,15 @@ const AddAccount = () => {
             return false;
         }
         if (!formData.branchId) {
+
             toast.error('Branch information not available');
+
+            toast.error('Branch ID not available');
+            return false;
+        }
+        if (formData.address.pincode && !/^\d{6}$/.test(formData.address.pincode)) {
+            toast.error('Please enter a valid 6-digit pincode');
+ 
             return false;
         }
         return true;
@@ -100,33 +114,68 @@ const AddAccount = () => {
         if (!validateForm() || isSubmitting) return;
 
         try {
+
             setIsSubmitting(true);
+
+            const token = localStorage.getItem('token');
+            console.log('Token from localStorage:', token);
+            console.log('Sending form data:', formData);
+
+ 
             const response = await fetch(Allapi.addAccount.url, {
                 method: Allapi.addAccount.method,
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    ...formData,
+                    experience: formData.experience ? Number(formData.experience) : 0,
+                    joiningDate: formData.joiningDate || new Date().toISOString()
+                })
             });
 
+            console.log('Response status:', response.status);
             const result = await response.json();
+            console.log('Response data:', result);
 
             if (result.success) {
                 toast.success('Account added successfully!');
+ 
                 setFormData(prev => ({
                     ...initialFormState,
                     academic_id: branchdet?.academicYears?.[0] || '',
                     branchId: branchdet?._id || ''
                 }));
-            } else {
+ 
+                setFormData({
+                    name: '',
+                    username: '',
+                    password: '',
+                    phone: '',
+                    address: {
+                        doorNo: '',
+                        street: '',
+                        city: '',
+                        pincode: '',
+                    },
+                    qualification: '',
+                    experience: '',
+                    joiningDate: '',
+                    aadharNumber: '',
+                    academic_id: branchdet?.academicYears?.[0] || '',
+                    role: 'Account',
+                    branchId: branchdet?._id || ''
+                });
+ 
                 toast.error(result.message || 'Failed to add account');
             }
         } catch (error) {
             console.error('Error adding account:', error);
-            toast.error('Failed to add account. Please try again.');
+ 
         } finally {
             setIsSubmitting(false);
+
         }
     };
 
@@ -134,7 +183,7 @@ const AddAccount = () => {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-100">
                 <div className="p-6 bg-white rounded-lg shadow-md">
-                    <p className="text-gray-700">Loading academic year information...</p>
+                    <p className="text-gray-700">Please add an academic year before adding an accountant.</p>
                 </div>
             </div>
         );
@@ -146,11 +195,10 @@ const AddAccount = () => {
                 <h2 className="mb-6 text-2xl font-bold text-gray-800">Add Accountant</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Personal Information */}
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                                Name
+                                Name *
                             </label>
                             <input
                                 type="text"
@@ -165,7 +213,7 @@ const AddAccount = () => {
 
                         <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                                Username
+                                Username *
                             </label>
                             <input
                                 type="text"
@@ -175,6 +223,7 @@ const AddAccount = () => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter username"
                                 required
+
                             />
                         </div>
 
@@ -190,12 +239,28 @@ const AddAccount = () => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter password"
                                 required
+ 
                             />
                         </div>
 
                         <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                                Aadhar Number
+                                Password *
+                            </label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter password"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Aadhar Number *
                             </label>
                             <input
                                 type="text"
@@ -211,7 +276,7 @@ const AddAccount = () => {
 
                         <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                                Phone Number
+                                Phone Number *
                             </label>
                             <input
                                 type="tel"
@@ -224,8 +289,8 @@ const AddAccount = () => {
                                 required
                             />
                         </div>
-                    </div>
 
+                        </div>
                     {/* Address Fields */}
                     <div className="space-y-4">
                         <label className="block text-sm font-medium text-gray-700">
@@ -271,6 +336,7 @@ const AddAccount = () => {
 
                     {/* Professional Information */}
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+ 
                         <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
                                 Qualification
@@ -295,7 +361,7 @@ const AddAccount = () => {
                                 value={formData.experience}
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Years of experience"
+                                placeholder="Enter years of experience"
                                 min="0"
                             />
                         </div>
@@ -312,8 +378,68 @@ const AddAccount = () => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
+
+                        {/* Address Fields */}
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Door No
+                            </label>
+                            <input
+                                type="text"
+                                name="address.doorNo"
+                                value={formData.address.doorNo}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter door number"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Street
+                            </label>
+                            <input
+                                type="text"
+                                name="address.street"
+                                value={formData.address.street}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter street name"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                City
+                            </label>
+                            <input
+                                type="text"
+                                name="address.city"
+                                value={formData.address.city}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter city name"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Pincode *
+                            </label>
+                            <input
+                                type="text"
+                                name="address.pincode"
+                                value={formData.address.pincode}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter 6-digit pincode"
+                                maxLength={6}
+                                required
+                            />
+                        </div>
                     </div>
 
+ 
                     {/* Submit Button */}
                     <button
                         type="submit"
@@ -324,6 +450,16 @@ const AddAccount = () => {
                     >
                         {isSubmitting ? 'Adding Accountant...' : 'Add Accountant'}
                     </button>
+ 
+                    <div className="flex justify-end mt-6">
+                        <button
+                            type="submit"
+                            className="px-6 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            Add Accountant
+                        </button>
+                    </div>
+ 
                 </form>
             </div>
         </div>

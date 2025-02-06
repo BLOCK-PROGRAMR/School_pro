@@ -133,12 +133,12 @@ const AddStudents = () => {
 
       const studentCountData = await studentCountResponse.json();
       if (studentCountData.success) {
-        const currentCount = studentCountData.count // Increment for the new student
+        const currentCount = studentCountData.count; // Increment for the new student
         setstdcount(currentCount);
         setysuffix(yearSuffix);
         const id = `${String(currentCount)}`;
 
-// alert(id)
+        // alert(id)
         // Update the form data
         setFormData((prev) => ({
           ...prev,
@@ -496,6 +496,8 @@ const AddStudents = () => {
               name: "Transport-fee",
               amount: parseInt(formData.transportDetails.amount),
               terms: parseInt(formData.transportDetails.terms),
+              concession:parseFloat(formData.transportDetails.concession)|| 0,
+              finalAmount:parseInt(formData.transportDetails.amount-(formData.transportDetails.amount*(formData.transportDetails.concession?formData.transportDetails.concession:0)))
             },
           ],
         }));
@@ -521,6 +523,8 @@ const AddStudents = () => {
             name: "hostel-fee",
             amount: parseInt(formData.hostelDetails.hostelFee),
             terms: parseInt(formData.hostelDetails.terms),
+            concession:parseFloat(formData.hostelDetails.concession)|| 0,
+              finalAmount:parseInt(formData.hostelDetails.hostelFee-(formData.hostelDetails.hostelFee*(formData.hostelDetails.concession?formData.hostelDetails.concession:0)))
           },
         ],
       }));
@@ -1474,6 +1478,7 @@ const AddStudents = () => {
                 </td>
                 <td className="px-6 py-4 text-md font-semibold text-black">
                   {calculateTotalFee().toFixed(2)}
+                  {console.log("fee", formData)}
                 </td>
               </tr>
             </tfoot>

@@ -29,10 +29,11 @@ const FeeLedger = () => {
       if (result.success) {
         setStudent({
           ...result.data,
-          name: result.data.name || 'N/A',
-          class: result.data.class?.name || 'N/A',
-          phone: result.data.whatsappNo || result.data.emergencyContact || 'N/A',
-          feeDetails: result.data.feeDetails || []
+          name: result.data.name || "N/A",
+          class: result.data.class?.name || "N/A",
+          phone:
+            result.data.whatsappNo || result.data.emergencyContact || "N/A",
+          feeDetails: result.data.feeDetails || [],
         });
       } else {
         setError(result.message || "Failed to fetch student data.");
@@ -74,19 +75,21 @@ const FeeLedger = () => {
       }
 
       const data = await response.json();
-      
+
       // Process receipts to organize by fee type
-      const processedReceipts = data.receipts.map(receipt => {
-        const feeTypes = receipt.feeLedger.reduce((acc, fee) => {
-          return acc + `${fee.name} :₹${fee.amount}, `;
-        }, '').slice(0, -2); // Remove last comma and space
+      const processedReceipts = data.receipts.map((receipt) => {
+        const feeTypes = receipt.feeLedger
+          .reduce((acc, fee) => {
+            return acc + `${fee.name} :₹${fee.amount}, `;
+          }, "")
+          .slice(0, -2); // Remove last comma and space
 
         return {
           receiptNo: receipt.rcNo,
           date: new Date(receipt.date),
           ledgerType: feeTypes,
-          paymentMode: receipt.paymentMode || 'Cash',
-          totalAmount: Number(receipt.totalAmount) || 0
+          paymentMode: receipt.paymentMode || "Cash",
+          totalAmount: Number(receipt.totalAmount) || 0,
         };
       });
 
@@ -116,7 +119,12 @@ const FeeLedger = () => {
   // Calculate totals
   const calculateTotal = () => {
     try {
-      return student?.feeDetails?.reduce((sum, fee) => sum + (Number(fee.finalAmount) || 0), 0) || 0;
+      return (
+        student?.feeDetails?.reduce(
+          (sum, fee) => sum + (Number(fee.finalAmount) || 0),
+          0
+        ) || 0
+      );
     } catch (error) {
       console.error("Error calculating total:", error);
       return 0;
@@ -166,13 +174,15 @@ const FeeLedger = () => {
 
         {student && (
           <div className="border rounded-lg shadow-lg p-6 bg-white">
-            <h2 className="text-2xl font-bold text-center mb-6">Student Fee Ledger</h2>
-            
+            <h2 className="text-2xl font-bold text-center mb-6">
+              Student Fee Ledger
+            </h2>
+
             {/* Student Details */}
             <div className="grid grid-cols-4 gap-4 mb-6 border-b pb-4">
               <div>
                 <span className="font-semibold">ID No:</span>
-                <span className="ml-2">{student.idNo || 'N/A'}</span>
+                <span className="ml-2">{student.idNo || "N/A"}</span>
               </div>
               <div>
                 <span className="font-semibold">Student Name:</span>
@@ -188,7 +198,7 @@ const FeeLedger = () => {
               </div>
             </div>
 
-            {/* Fee Details */}
+            {/* Fee Details
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-4">Fee Details</h3>
               <table className="w-full border-collapse">
@@ -204,12 +214,53 @@ const FeeLedger = () => {
                     <tr key={index}>
                       <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{fee.name}</td>
-                      <td className="border p-2">₹{Number(fee.finalAmount).toLocaleString()}</td>
+                      <td className="border p-2">
+                        ₹{Number(fee.finalAmount).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                  <th className="border p-2 text-left">Terms</th>
+                  <tr className="font-bold">
+                    <td className="border p-2" colSpan="2">
+                      Total
+                    </td>
+                    <td className="border p-2">
+                      ₹{calculateTotal().toLocaleString()}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div> */}
+            {/* Fee Details */}
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold mb-4">Fee Details</h3>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border p-2 text-left">S.No</th>
+                    <th className="border p-2 text-left">Fee Type</th>
+                    <th className="border p-2 text-left">Terms</th>
+                    <th className="border p-2 text-left">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {student.feeDetails?.map((fee, index) => (
+                    <tr key={index}>
+                      <td className="border p-2">{index + 1}</td>
+                      <td className="border p-2">{fee.name}</td>
+                      <td className="border p-2">{fee.terms}</td>
+                      <td className="border p-2">
+                        ₹{Number(fee.finalAmount).toLocaleString()}
+                      </td>
                     </tr>
                   ))}
                   <tr className="font-bold">
-                    <td className="border p-2" colSpan="2">Total</td>
-                    <td className="border p-2">₹{calculateTotal().toLocaleString()}</td>
+                    <td className="border p-2" colSpan="3">
+                      Total
+                    </td>
+                    <td className="border p-2">
+                      ₹{calculateTotal().toLocaleString()}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -224,7 +275,9 @@ const FeeLedger = () => {
                     <tr className="bg-gray-100">
                       <th className="border p-2 text-left">Receipt No</th>
                       <th className="border p-2 text-left">Date</th>
-                      <th className="border p-2 text-left whitespace-normal">Ledger Type</th>
+                      <th className="border p-2 text-left whitespace-normal">
+                        Ledger Type
+                      </th>
                       <th className="border p-2 text-left">Payment Mode</th>
                       <th className="border p-2 text-left">Amount</th>
                     </tr>
@@ -233,24 +286,35 @@ const FeeLedger = () => {
                     {receipts.map((receipt, index) => (
                       <tr key={index}>
                         <td className="border p-2">{receipt.receiptNo}</td>
-                        <td className="border p-2">{receipt.date.toLocaleDateString()}</td>
+                        <td className="border p-2">
+                          {receipt.date.toLocaleDateString()}
+                        </td>
                         <td className="border p-2 whitespace-pre-wrap">
-                          <div className="text-sm">
-                            {receipt.ledgerType}
-                          </div>
+                          <div className="text-sm">{receipt.ledgerType}</div>
                         </td>
                         <td className="border p-2">{receipt.paymentMode}</td>
-                        <td className="border p-2">₹{receipt.totalAmount.toLocaleString()}</td>
+                        <td className="border p-2">
+                          ₹{receipt.totalAmount.toLocaleString()}
+                        </td>
                       </tr>
                     ))}
                     <tr className="font-bold bg-gray-50">
-                      <td className="border p-2" colSpan="4">Total Paid</td>
-                      <td className="border p-2">₹{calculateTotalPaid().toLocaleString()}</td>
+                      <td className="border p-2" colSpan="4">
+                        Total Paid
+                      </td>
+                      <td className="border p-2">
+                        ₹{calculateTotalPaid().toLocaleString()}
+                      </td>
                     </tr>
                     <tr className="font-bold text-red-600">
-                      <td className="border p-2" colSpan="4">Due Amount</td>
+                      <td className="border p-2" colSpan="4">
+                        Due Amount
+                      </td>
                       <td className="border p-2">
-                        ₹{(calculateTotal() - calculateTotalPaid()).toLocaleString()}
+                        ₹
+                        {(
+                          calculateTotal() - calculateTotalPaid()
+                        ).toLocaleString()}
                       </td>
                     </tr>
                   </tbody>

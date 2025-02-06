@@ -1,4 +1,4 @@
- 
+
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -273,21 +273,19 @@ const StudentsReports = () => {
       <div className="mb-4">
         <button
           onClick={() => handleTabChange("studentList")}
-          className={`px-4 py-2 mr-2 ${
-            activeTab === "studentList"
+          className={`px-4 py-2 mr-2 ${activeTab === "studentList"
               ? "bg-blue-500 text-white"
               : "bg-gray-200"
-          }`}
+            }`}
         >
           Student List
         </button>
         <button
           onClick={() => handleTabChange("downloadData")}
-          className={`px-4 py-2 ${
-            activeTab === "downloadData"
+          className={`px-4 py-2 ${activeTab === "downloadData"
               ? "bg-blue-500 text-white"
               : "bg-gray-200"
-          }`}
+            }`}
         >
           Download Data
         </button>
@@ -354,7 +352,7 @@ const StudentsReports = () => {
         </div>
       )}
 
-     
+
     </div>
   );
 };

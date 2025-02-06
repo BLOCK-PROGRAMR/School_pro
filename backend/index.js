@@ -28,6 +28,7 @@ const ledgerRoutes = require("./routers/ledgerRoutes");
 const enquiryRoutes = require("./routers/enquiryRoutes");
 const voucherRoutes = require("./routers/voucherRoutes");
 const bookRoutes = require("./routers/bookRoutes");
+const accountRoutes = require("./routers/AccountRoutes");
 
 app.use(cors());
 app.use(cookieParser());
@@ -55,6 +56,7 @@ app.use("/api/receipts", protect.authMiddleware, receiptRoutes);
 app.use("/api/enquiry", protect.authMiddleware, enquiryRoutes);
 app.use("/api/vouchers", protect.authMiddleware, voucherRoutes);
 app.use("/api/books", protect.authMiddleware, bookRoutes);
+app.use("/api/accounts", protect.authMiddleware, accountRoutes);
 
 database().then(
   app.listen(process.env.PORT, () => {
