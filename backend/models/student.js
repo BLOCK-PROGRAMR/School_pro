@@ -52,6 +52,7 @@ const studentSchema = new mongoose.Schema({
     town: String,
     bus: { type: mongoose.Schema.Types.ObjectId, ref: "Bus", required: false },
     halt: String,
+    terms: String,
   },
   hostel: Boolean,
   hostelDetails: {

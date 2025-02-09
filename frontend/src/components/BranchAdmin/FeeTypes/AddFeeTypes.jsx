@@ -158,18 +158,18 @@ const AddFeeType = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const { acid } = useParams();
+  console.log("academic-id", acid);
   // Fetch token from local storage
   const token = localStorage.getItem("token");
 
   // Fetch all fee types from the server
   const fetchFeeTypes = async () => {
     try {
-      console.log('fetching')
+      console.log("fetching");
       const response = await fetch(Allapi.getAllFeeTypes.url(acid), {
         headers: {
           Authorization: `Bearer ${token}`, // Pass token in the request
         },
-       
       });
       const data = await response.json();
       if (data.success) {
@@ -201,7 +201,7 @@ const AddFeeType = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Pass token in the request
         },
-        body: JSON.stringify({ type: newFeeType, terms,academicYear:acid }),
+        body: JSON.stringify({ type: newFeeType, terms, academicYear: acid }),
       });
 
       const data = await response.json();

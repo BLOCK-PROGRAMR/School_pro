@@ -24,6 +24,12 @@ const workingdays = require("./routers/WorkingDaysRoutes.js")
 const attendanceRoutes = require("./routers/AttendanceRoutes.js")
 const homeworkroutes = require("./routers/HomeWorkRoutes.js")
 const receiptRoutes = require("./routers/RecieptsRoutes.js");
+const ledgerRoutes = require("./routers/ledgerRoutes");
+const enquiryRoutes = require("./routers/enquiryRoutes");
+const voucherRoutes = require("./routers/voucherRoutes");
+const bookRoutes = require("./routers/bookRoutes");
+const accountRoutes = require("./routers/AccountRoutes");
+
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
@@ -45,16 +51,15 @@ app.use("/api/teachers", protect.authMiddleware, teacherRoutes);
 app.use("/api/teachersassingn", protect.authMiddleware, teacherAssignRoutes);
 app.use("/api/workingdays",protect.authMiddleware,workingdays);
 app.use("/api/attendance",protect.authMiddleware,attendanceRoutes);
-
+app.use("/api/ledger", protect.authMiddleware, ledgerRoutes);
 app.use("/api/receipts", protect.authMiddleware, receiptRoutes);
+app.use("/api/enquiry", protect.authMiddleware, enquiryRoutes);
+app.use("/api/vouchers", protect.authMiddleware, voucherRoutes);
+app.use("/api/books", protect.authMiddleware, bookRoutes);
+app.use("/api/accounts", protect.authMiddleware, accountRoutes);
+
 database().then(
   app.listen(process.env.PORT, () => {
     console.log("server is running");
   })
 );
-
-// Add this line with your other route imports
-const enquiryRoutes = require("./routers/enquiryRoutes");
-
-// Add this line with your other app.use statements
-app.use("/api/enquiry", protect.authMiddleware, enquiryRoutes);

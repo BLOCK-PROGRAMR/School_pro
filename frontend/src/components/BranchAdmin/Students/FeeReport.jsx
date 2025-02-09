@@ -1,491 +1,8 @@
-// import React, { useState, useEffect } from "react";
-// import { toast } from "react-toastify";
-// import { useParams } from "react-router-dom";
-// import Allapi from "../../../common"; // Adjust according to your API utility file
-
-// const FeeReport = () => {
-//   const [student, setStudent] = useState(null);
-//   const { sid } = useParams();
-//   const [selectedTerm, setSelectedTerm] = useState(null);
-//   const [studentDataForm, setStudentDataForm] = useState({
-//     padiFee: [],
-//   });
-
-//   useEffect(() => {
-//     if (sid) fetchStudentById(sid);
-//   }, [sid]);
-
-//   const fetchStudentById = async (sid) => {
-//     try {
-//       const token = localStorage.getItem("token");
-//       const response = await fetch(Allapi.getstudentbyId.url(sid), {
-//         method: Allapi.getstudentbyId.method,
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
-
-//       const result = await response.json();
-//       if (result.success) {
-//         const initialPaidFee = result.data.feeDetails.map((fee) => {
-//           const finalAmount = fee.concession ? fee.finalAmount : fee.amount;
-//           return {
-//             name: fee.name,
-//             finalAmount,
-//             extractedAmount: finalAmount / fee.terms,
-//             paidAmount: 0,
-//             due: 0,
-//             enteredAmount: 0,
-//           };
-//         });
-
-//         setStudentDataForm((prev) => ({
-//           ...prev,
-//           padiFee: initialPaidFee,
-//         }));
-
-//         setStudent(result.data);
-//       } else {
-//         toast.error(result.message || "Failed to fetch student data.");
-//       }
-//     } catch (error) {
-//       console.error("Error fetching student data:", error);
-//       toast.error("An error occurred while fetching student data.");
-//     }
-//   };
-
-//   const handleTermChange = (term) => {
-//     setSelectedTerm(term);
-//     setStudentDataForm((prev) => {
-//       const updatedPadiFee = prev.padiFee.map((fee) => {
-//         const termValue = parseInt(term.split("-")[1], 10);
-//         const dueAmount = fee.extractedAmount * termValue;
-//         return {
-//           ...fee,
-//           paidAmount: fee.paidAmount, // Retain already paid amount
-//           due: dueAmount > fee.finalAmount ? fee.finalAmount : dueAmount,
-//           enteredAmount: 0, // Reset entered amount on term change
-//         };
-//       });
-//       return {
-//         ...prev,
-//         padiFee: updatedPadiFee,
-//       };
-//     });
-//   };
-
-//   const handleEnteredAmountChange = (feeName, value) => {
-//     setStudentDataForm((prev) => {
-//       const updatedPadiFee = prev.padiFee.map((fee) => {
-//         if (fee.name === feeName) {
-//           return {
-//             ...fee,
-//             enteredAmount: value,
-//           };
-//         }
-//         return fee;
-//       });
-//       return {
-//         ...prev,
-//         padiFee: updatedPadiFee,
-//       };
-//     });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log("Payment Details Submitted:", studentDataForm);
-//     toast.success("Fee Paid Successfully!");
-//   };
-
-//   return (
-//     <div className="bg-gray-50 min-h-screen p-6 flex justify-center">
-//       <div className="bg-white shadow-lg rounded-lg w-full max-w-4xl">
-//         {/* Header */}
-//         <div className="bg-gradient-to-r from-green-400 to-blue-500 p-5 text-white rounded-t-lg flex justify-between">
-//           <h2 className="text-2xl font-bold">Fee Payment</h2>
-//           <span>Student Details & Fees</span>
-//         </div>
-
-//         {/* Student Details */}
-//         {student && (
-//           <div className="p-5 border-b">
-//             <h3 className="text-xl font-bold mb-3 text-gray-700">
-//               Student Details
-//             </h3>
-//             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-gray-600">
-//               <p>
-//                 <span className="font-semibold">ID:</span> {student.idNo}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Name:</span> {student.name}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Class:</span>{" "}
-//                 {student.id ? student.id.name : "N/A"}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Section:</span>{" "}
-//                 {student.section ? student.section.name : "N/A"}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Admission No:</span>{" "}
-//                 {student.admissionNo}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Aadhar No:</span>{" "}
-//                 {student.aadharNo}
-//               </p>
-//             </div>
-//           </div>
-//         )}
-
-//         {/* Select Term */}
-//         <div className="p-5 border-b">
-//           <label className="block text-gray-700 mb-2 text-lg font-semibold">
-//             Select Term
-//           </label>
-//           <select
-//             className="border p-2 rounded w-full"
-//             value={selectedTerm || ""}
-//             onChange={(e) => handleTermChange(e.target.value)}
-//           >
-//             <option value="">Select Term</option>
-//             {Array.from({ length: 4 }, (_, i) => `Term-${i + 1}`).map(
-//               (term) => (
-//                 <option key={term} value={term}>
-//                   {term}
-//                 </option>
-//               )
-//             )}
-//           </select>
-//         </div>
-
-//         {/* Fee Form */}
-//         <form onSubmit={handleSubmit} className="p-5">
-//           <div className="mb-5">
-//             <h3 className="text-lg font-semibold text-gray-700 mb-2">
-//               Fee Details
-//             </h3>
-//             <table className="w-full border-collapse border text-left">
-//               <thead>
-//                 <tr className="bg-gray-100">
-//                   <th className="p-2 border">Fee Type</th>
-//                   <th className="p-2 border">Final Amount</th>
-//                   <th className="p-2 border">Paid Amount</th>
-//                   <th className="p-2 border">Due</th>
-//                   <th className="p-2 border">Enter Amount</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {studentDataForm.padiFee.map((fee) => (
-//                   <tr key={fee.name}>
-//                     <td className="p-2 border">{fee.name}</td>
-//                     <td className="p-2 border">{fee.finalAmount}</td>
-//                     <td className="p-2 border">{fee.paidAmount}</td>
-//                     <td className="p-2 border">{fee.due}</td>
-//                     <td className="p-2 border">
-//                       <input
-//                         type="number"
-//                         className="border p-1 rounded w-full"
-//                         value={fee.enteredAmount || ""}
-//                         onChange={(e) =>
-//                           handleEnteredAmountChange(
-//                             fee.name,
-//                             parseFloat(e.target.value) || 0
-//                           )
-//                         }
-//                       />
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-
-//           {/* Payment Type */}
-//           <div className="mb-5">
-//             <label className="block text-gray-700 mb-1">Payment Type</label>
-//             <select
-//               name="paymentType"
-//               value={studentDataForm.paymentType || ""}
-//               onChange={(e) =>
-//                 setStudentDataForm({
-//                   ...studentDataForm,
-//                   paymentType: e.target.value,
-//                 })
-//               }
-//               className="border p-2 rounded w-full"
-//             >
-//               <option value="Cash">Cash</option>
-//               <option value="Online">Online Payment</option>
-//             </select>
-//           </div>
-
-//           {/* Submit */}
-//           <button
-//             type="submit"
-//             className="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded text-lg font-semibold"
-//           >
-//             Submit Payment
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default FeeReport;
-
-// import React, { useState, useEffect } from "react";
-// import { toast } from "react-toastify";
-// import { useParams } from "react-router-dom";
-// import Allapi from "../../../common"; // Adjust according to your API utility file
-
-// const FeeReport = () => {
-//   const [student, setStudent] = useState(null);
-//   const { sid } = useParams();
-//   const [selectedTerm, setSelectedTerm] = useState(null);
-//   const [studentDataForm, setStudentDataForm] = useState({
-//     padiFee: [],
-//   });
-
-//   useEffect(() => {
-//     if (sid) fetchStudentById(sid);
-//   }, [sid]);
-
-//   const fetchStudentById = async (sid) => {
-//     try {
-//       const token = localStorage.getItem("token");
-//       const response = await fetch(Allapi.getstudentbyId.url(sid), {
-//         method: Allapi.getstudentbyId.method,
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
-
-//       const result = await response.json();
-//       if (result.success) {
-//         const initialPaidFee = result.data.feeDetails.map((fee) => {
-//           const finalAmount = fee.concession ? fee.finalAmount : fee.amount;
-//           return {
-//             name: fee.name,
-//             finalAmount,
-//             terms: fee.terms, // No. of terms added
-//             extractedAmount: finalAmount / fee.terms,
-//             paidAmount: 0,
-//             due: 0,
-//             enteredAmount: 0,
-//           };
-//         });
-
-//         setStudentDataForm((prev) => ({
-//           ...prev,
-//           padiFee: initialPaidFee,
-//         }));
-
-//         setStudent(result.data);
-//       } else {
-//         toast.error(result.message || "Failed to fetch student data.");
-//       }
-//     } catch (error) {
-//       console.error("Error fetching student data:", error);
-//       toast.error("An error occurred while fetching student data.");
-//     }
-//   };
-
-//   const handleTermChange = (term) => {
-//     setSelectedTerm(term);
-//     setStudentDataForm((prev) => {
-//       const updatedPadiFee = prev.padiFee.map((fee) => {
-//         const termValue = parseInt(term.split("-")[1], 10);
-//         const dueAmount = fee.extractedAmount * termValue;
-//         return {
-//           ...fee,
-//           paidAmount: fee.paidAmount,
-//           due: dueAmount > fee.finalAmount ? fee.finalAmount : dueAmount,
-//           enteredAmount: 0,
-//         };
-//       });
-//       return {
-//         ...prev,
-//         padiFee: updatedPadiFee,
-//       };
-//     });
-//   };
-
-//   const handleEnteredAmountChange = (feeName, value) => {
-//     setStudentDataForm((prev) => {
-//       const updatedPadiFee = prev.padiFee.map((fee) => {
-//         if (fee.name === feeName) {
-//           return {
-//             ...fee,
-//             enteredAmount: value,
-//           };
-//         }
-//         return fee;
-//       });
-//       return {
-//         ...prev,
-//         padiFee: updatedPadiFee,
-//       };
-//     });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log("Payment Details Submitted:", studentDataForm);
-//     toast.success("Fee Paid Successfully!");
-//   };
-
-//   return (
-//     <div className="bg-gray-50 min-h-screen p-6 flex justify-center">
-//       <div className="bg-white shadow-lg rounded-lg w-full max-w-4xl">
-//         {/* Header */}
-//         <div className="bg-gradient-to-r from-green-400 to-blue-500 p-5 text-white rounded-t-lg flex justify-between">
-//           <h2 className="text-2xl font-bold">Fee Payment</h2>
-//           <span>Student Details & Fees</span>
-//         </div>
-
-//         {/* Student Details */}
-//         {student && (
-//           <div className="p-5 border-b">
-//             <h3 className="text-xl font-bold mb-3 text-gray-700">
-//               Student Details
-//             </h3>
-//             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-gray-600">
-//               <p>
-//                 <span className="font-semibold">ID:</span> {student.idNo}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Name:</span> {student.name}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Class:</span>{" "}
-//                 {student.id ? student.id.name : "N/A"}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Section:</span>{" "}
-//                 {student.section ? student.section.name : "N/A"}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Admission No:</span>{" "}
-//                 {student.admissionNo}
-//               </p>
-//               <p>
-//                 <span className="font-semibold">Aadhar No:</span>{" "}
-//                 {student.aadharNo}
-//               </p>
-//             </div>
-//           </div>
-//         )}
-
-//         {/* Select Term */}
-//         <div className="p-5 border-b">
-//           <label className="block text-gray-700 mb-2 text-lg font-semibold">
-//             Select Term
-//           </label>
-//           <select
-//             className="border p-2 rounded w-full"
-//             value={selectedTerm || ""}
-//             onChange={(e) => handleTermChange(e.target.value)}
-//           >
-//             <option value="">Select Term</option>
-//             {Array.from({ length: 4 }, (_, i) => `Term-${i + 1}`).map(
-//               (term) => (
-//                 <option key={term} value={term}>
-//                   {term}
-//                 </option>
-//               )
-//             )}
-//           </select>
-//         </div>
-
-//         {/* Fee Form */}
-//         <form onSubmit={handleSubmit} className="p-5">
-//           <div className="mb-5">
-//             <h3 className="text-lg font-semibold text-gray-700 mb-2">
-//               Fee Details
-//             </h3>
-//             <table className="w-full border-collapse border text-left">
-//               <thead>
-//                 <tr className="bg-gray-100">
-//                   <th className="p-2 border">Fee Type</th>
-//                   <th className="p-2 border">Final Amount</th>
-//                   <th className="p-2 border">No. of Terms</th>
-//                   <th className="p-2 border">Paid Amount</th>
-//                   <th className="p-2 border">Due</th>
-//                   <th className="p-2 border">Enter Amount</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {studentDataForm.padiFee.map((fee) => (
-//                   <tr key={fee.name}>
-//                     <td className="p-2 border">{fee.name}</td>
-//                     <td className="p-2 border">{fee.finalAmount}</td>
-//                     <td className="p-2 border">{fee.terms}</td>
-//                     <td className="p-2 border">{fee.paidAmount}</td>
-//                     <td className="p-2 border">{fee.due}</td>
-//                     <td className="p-2 border">
-//                       <input
-//                         type="number"
-//                         className="border p-1 rounded w-full"
-//                         value={fee.enteredAmount || ""}
-//                         onChange={(e) =>
-//                           handleEnteredAmountChange(
-//                             fee.name,
-//                             parseFloat(e.target.value) || 0
-//                           )
-//                         }
-//                       />
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-
-//           {/* Payment Type */}
-//           <div className="mb-5">
-//             <label className="block text-gray-700 mb-1">Payment Type</label>
-//             <select
-//               name="paymentType"
-//               value={studentDataForm.paymentType || ""}
-//               onChange={(e) =>
-//                 setStudentDataForm({
-//                   ...studentDataForm,
-//                   paymentType: e.target.value,
-//                 })
-//               }
-//               className="border p-2 rounded w-full"
-//             >
-//               <option value="Cash">Cash</option>
-//               <option value="Online">Online Payment</option>
-//             </select>
-//           </div>
-
-//           {/* Submit */}
-//           <button
-//             type="submit"
-//             className="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded text-lg font-semibold"
-//           >
-//             Submit Payment
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default FeeReport;
-
-import React, { useState, useEffect ,useContext} from "react";
-
+import React, { useState, useEffect, useContext } from "react";
 
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import Allapi from "../../../common"; // Adjust according to your API utility file
 import { mycon } from "../../../store/Mycontext";
 
@@ -494,11 +11,21 @@ const FeeReport = () => {
   const { sid } = useParams();
   const [selectedTerm, setSelectedTerm] = useState(null);
   const [numTerms, setNumTerms] = useState(null);
-    const { branchdet } = useContext(mycon);
-  const [acid,setAcid]=useState(null)
+  const [bankBranches, setBankBranches] = useState([]);
+  const [selectedBankBranch, setSelectedBankBranch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [paymenttype, setPaymenttype] = useState("");
+  const { branchdet } = useContext(mycon);
+  const [acid, setAcid] = useState(null);
   const [studentDataForm, setStudentDataForm] = useState({
     padiFee: [],
     paymentType: "",
+    bankDetails: {
+      bankId: "",
+      bankName: "",
+      branchId: "",
+      branchName: "",
+    },
   });
 
   useEffect(() => {
@@ -521,7 +48,7 @@ const FeeReport = () => {
 
       const result = await response.json();
       if (result.success) {
-        console.log(result.data.feeDetails);
+        console.log("db", result.data.feeDetails);
         const maxTerms = Math.max(
           ...result.data.feeDetails.map((fee) => parseInt(fee.terms, 10))
         );
@@ -545,14 +72,13 @@ const FeeReport = () => {
             enteredAmount: 0, // Initialize enteredAmount to 0
           };
         });
-        console.log(initialPaidFee);
+        console.log("init", initialPaidFee);
         setStudentDataForm((prev) => ({
           ...prev,
           padiFee: initialPaidFee,
         }));
 
         setStudent(result.data);
-  
       } else {
         toast.error(result.message || "Failed to fetch student data.");
       }
@@ -561,6 +87,48 @@ const FeeReport = () => {
       toast.error("An error occurred while fetching student data.");
     }
   };
+
+  const fetchBankBranches = async () => {
+    if (studentDataForm.paymentType !== "Bank") return;
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(Allapi.getLedgers.url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        const bankLedgers = response.data.data.filter(
+          (ledger) => ledger.ledgerType === "Bank"
+        );
+        // Flatten the bank and branch structure into a single array
+        const allBranches = bankLedgers.reduce((acc, bank) => {
+          const bankBranches = bank.subLedgers.map((branch) => ({
+            _id: branch._id,
+            name: `${bank.groupLedgerName} - ${branch.name}`,
+            bankId: bank._id,
+            bankName: bank.groupLedgerName,
+            branchId: branch._id,
+            branchName: branch.name,
+          }));
+          return [...acc, ...bankBranches];
+        }, []);
+        setBankBranches(allBranches);
+      }
+    } catch (error) {
+      console.error("Error fetching bank branches:", error);
+      toast.error("Failed to fetch bank branches");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBankBranches();
+  }, [studentDataForm.paymentType]);
 
   const handleTermChange = (term) => {
     setSelectedTerm(term);
@@ -612,8 +180,46 @@ const FeeReport = () => {
       };
     });
   };
+
+  const handlePaymentTypeChange = (type) => {
+    setStudentDataForm((prev) => ({
+      ...prev,
+      paymentType: type,
+      bankDetails:
+        type === "Bank"
+          ? prev.bankDetails
+          : {
+              bankId: "",
+              branchId: "",
+              bankName: "",
+              branchName: "",
+            },
+    }));
+    setSelectedBankBranch("");
+  };
+
+  const handleBankBranchChange = (branchId) => {
+    const selectedBranchData = bankBranches.find(
+      (branch) => branch._id === branchId
+    );
+    setSelectedBankBranch(branchId);
+
+    if (selectedBranchData) {
+      setStudentDataForm((prev) => ({
+        ...prev,
+        bankDetails: {
+          bankId: selectedBranchData.bankId,
+          bankName: selectedBranchData.bankName,
+          branchId: selectedBranchData.branchId,
+          branchName: selectedBranchData.branchName,
+        },
+      }));
+    }
+  };
+
   const handleSubmit = async (e) => {
-    console.log(studentDataForm.padiFee, "padi"); // Check the value of padiFee
+    alert(studentDataForm.paymentType);
+    console.log("abnk", studentDataForm.bankDetails);
     e.preventDefault();
     const paymentDetails = studentDataForm.padiFee;
 
@@ -676,22 +282,25 @@ const FeeReport = () => {
         body: JSON.stringify({
           academicYearID: student.academic_id,
           studentID: student.idNo,
+          terms: selectedTerm,
           date: new Date(),
           rcNo: `RC-${Date.now()}`, // Generate a unique receipt number
           feeLedger: paymentDetails.map((fee) => ({
             name: fee.name,
             amount: fee.enteredAmount,
           })),
+          paymentType: studentDataForm.paymentType,
+          bankDetails: studentDataForm.bankDetails,
         }),
-      }); 
-      console.log(student,"t")
+      });
+      console.log(student, "t");
 
       const receiptResult = await receiptResponse.json();
 
       if (receiptResult.success) {
         toast.success("Fee Paid Successfully and Receipt Created!");
-        console.log(receiptResult);
-        window.location.reload();
+        console.log(receiptResult, "recieots");
+        // window.location.reload();
         fetchStudentById(sid); // Refresh data
       } else {
         toast.error(receiptResult.message || "Failed to create receipt.");
@@ -779,6 +388,7 @@ const FeeReport = () => {
                 </tr>
               </thead>
               <tbody>
+                {console.log("student fee is", studentDataForm.padiFee)}
                 {studentDataForm.padiFee.map((fee) => (
                   <tr key={fee.name}>
                     <td className="p-2 border">{fee.name}</td>
@@ -806,20 +416,35 @@ const FeeReport = () => {
             <label className="block text-gray-700 mb-1">Payment Type</label>
             <select
               name="paymentType"
-              value={studentDataForm.paymentType || ""}
-              onChange={(e) =>
-                setStudentDataForm({
-                  ...studentDataForm,
-                  paymentType: e.target.value,
-                })
-              }
+              value={studentDataForm.paymentType}
+              onChange={(e) => handlePaymentTypeChange(e.target.value)}
               className="border p-2 rounded w-full"
             >
               <option value="">Select Payment Type</option>
               <option value="Cash">Cash</option>
-              <option value="Card">Card</option>
-              <option value="Online">Online</option>
+              <option value="Bank">Bank</option>
             </select>
+
+            {studentDataForm.paymentType === "Bank" && (
+              <div className="mt-3">
+                <label className="block text-gray-700 mb-1">
+                  Select Bank and Branch
+                </label>
+                <select
+                  value={selectedBankBranch}
+                  onChange={(e) => handleBankBranchChange(e.target.value)}
+                  className="border p-2 rounded w-full"
+                  disabled={loading}
+                >
+                  <option value="">Select Bank and Branch</option>
+                  {bankBranches.map((branch) => (
+                    <option key={branch._id} value={branch._id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <button

@@ -1,9 +1,11 @@
+const CashBook = require("../models/CashBook");
 const StudentFeeReceipt = require("../models/Recipts");
+const { createCashBookEntry, createBankBookEntry } = require('./BookController');
 
 // Create a new receipt
 const createReceipt = async (req, res) => {
   try {
-    const { studentID, academicYearID, date, rcNo, feeLedger } = req.body;
+    const { studentID, academicYearID, date, rcNo, feeLedger, terms, paymentType, bankDetails } = req.body;
 
     // Ensure all required fields are provided
     if (!studentID || !academicYearID || !date || !rcNo || !feeLedger) {
@@ -21,11 +23,65 @@ const createReceipt = async (req, res) => {
       studentID,
       academicYearID,
       date,
+      terms,
       rcNo,
       feeLedger,
       totalAmount,
     });
 
+
+
+    if (paymentType === 'Cash') {
+      const CashData = {
+
+
+        date,
+        rcNo,
+        ledgerType: "studentfee",
+        groupLedger: {
+
+          name: studentID,
+          type: "Income",
+        },
+        subLedger: {
+
+          name: studentID
+        },
+        amount: totalAmount,
+        transactionType: "received",
+
+        description: "student paying fee through cash",
+
+
+      }
+      await createCashBookEntry(CashData);
+    } else if (paymentType === 'Bank') {
+      const BankData = {
+
+
+        date,
+        rcNo,
+        ledgerType: "studentfee",
+        groupLedger: {
+
+          name: studentID,
+          type: "Income",
+        },
+        bankName: bankDetails.bankName,
+        branchName: bankDetails.branchName,
+        subLedger: {
+
+          name: studentID
+        },
+        amount: totalAmount,
+        transactionType: "received",
+
+        description: "student paying fee through cash",
+
+
+      }
+      await createBankBookEntry(BankData);
+    }
     await newReceipt.save();
 
     return res.status(201).json({

@@ -348,22 +348,21 @@ const Allapi = {
   },
   getMonthlyAbsents: {
     url: `${backapi}/api/attendance/monthly-absents`,
-    method: "GET"
-
+    method: "GET",
   },
-  createHomeWork:{
+  createHomeWork: {
     url: `${backapi}/api/homework/`,
-    method:"POST"
+    method: "POST",
   },
-  getHomeworks:{
+  getHomeworks: {
     url: `${backapi}/api/homework/`,
-    method:"GET"
+    method: "GET",
   },
-  deleteHomework:{
-      url: `${backapi}/api/homework/`,
-      method:"delete"
-  }
-  ,payFeeById: {
+  deleteHomework: {
+    url: `${backapi}/api/homework/`,
+    method: "delete",
+  },
+  payFeeById: {
     url: (sid) => `${backapi}/api/students/pay-fee/${sid}`,
     method: "PUT",
   },
@@ -375,13 +374,52 @@ const Allapi = {
     url: (acid) => `${backapi}/api/receipts/get-reciepts/${acid}`,
     method: "GET",
   },
-  
 
+  // Ledger endpoints
+  getLedgers: {
+    url: (branchId) => `${backapi}/api/ledger/${branchId}`,
+    method: "GET",
+    url: `${backapi}/api/ledger/all`,
+    method: "GET",
+  },
+  createLedger: {
+    url: `${backapi}/api/ledger/create`,
+    method: "POST",
+  },
+  updateLedger: {
 
+    url: (id) => `${backapi}/api/ledger/${id}`,
+    method: "PUT"
+  },
+  deleteLedger: {
+    url: (id) => `${backapi}/api/ledger/${id}`,
+    method: "DELETE",
+    url: (id) => `${backapi}/api/ledger/update/${id}`,
+    method: "PUT",
+  },
+  deleteLedger: {
+    url: (id) => `${backapi}/api/ledger/delete/${id}`,
+    method: "DELETE",
+
+  },
+
+  // Account endpoints
+  addAccount: {
+    url: `${backapi}/api/accounts`,
+    method: "POST"
+  },
+  getAccounts: {
+    url: (branchId, academicId) => `${backapi}/api/accounts?branchId=${branchId}&academicId=${academicId}`,
+    method: "GET"
+  },
+  updateAccount: {
+    url: (id) => `${backapi}/api/accounts/${id}`,
+    method: "PUT"
+  },
+  deleteAccount: {
+    url: (id) => `${backapi}/api/accounts/${id}`,
+    method: "DELETE"
+  }
 };
-
-
-
-
 
 export default Allapi;
