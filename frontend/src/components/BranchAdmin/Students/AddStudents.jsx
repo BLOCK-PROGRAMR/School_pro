@@ -495,6 +495,8 @@ const AddStudents = () => {
               name: "Transport-fee",
               amount: parseInt(formData.transportDetails.amount),
               terms: parseInt(formData.transportDetails.terms),
+              concession:parseFloat(formData.transportDetails.concession)|| 0,
+              finalAmount:parseInt(formData.transportDetails.amount-(formData.transportDetails.amount*(formData.transportDetails.concession?formData.transportDetails.concession:0)))
             },
           ],
         }));

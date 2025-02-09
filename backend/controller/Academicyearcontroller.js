@@ -1,9 +1,13 @@
-const AcademicYear = require("../models/Acyear");
-const Branch = require("../models/Branches");
-const mongoose = require("mongoose");
-const Class = require("../models/Classes");
+
 const Student = require('../models/student'); // Assuming you have a Student model
 
+
+const mongoose = require("mongoose");
+const AcademicYear = require("../models/Acyear");
+const Branch = require("../models/Branches");
+const ClassModel = require("../models/Classes");
+const Section = require("../models/sections");
+const FeeType = require("../models/Feetypes");
 
 
 // Controller function to get student count in an academic year
@@ -22,71 +26,110 @@ exports.getStudentCountByAcademicYear = async (req, res) => {
 };
 
 
-
 exports.createAcademicYear = async (req, res) => {
   const branchId = req.params.branchId;
   const { year, startDate, endDate } = req.body;
 
   try {
-    // Check if the branch exists
     const branch = await Branch.findById(branchId);
     if (!branch) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Branch not found" });
+      return res.status(404).json({ success: false, message: "Branch not found" });
     }
 
-    // Check if the academic year already exists for this branch
-    const existingAcademicYear = await AcademicYear.findOne({
-      year,
-      branch: branchId, // Check the branch-specific academic year
-    });
-
+    const existingAcademicYear = await AcademicYear.findOne({ year, branch: branchId });
     if (existingAcademicYear) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Academic year already exists for this branch" });
+      return res.status(400).json({ 
+        success: false, 
+        message: "Academic year already exists for this branch" 
+      });
     }
 
-    // Create and save the new academic year
+    // Create new academic year
     const academicYear = new AcademicYear({
       year,
       startDate,
       endDate,
-      branch: new mongoose.Types.ObjectId(branchId),
+      branch: branchId,
     });
     await academicYear.save();
 
-    // Insert into the branch's academicYears array and sort by startDate in descending order
+    // Update branch's academicYears array
     branch.academicYears.push(academicYear._id);
-
-    // Retrieve the full academic year documents from the database
-    const academicYearDocs = await AcademicYear.find({
-      _id: { $in: branch.academicYears },
-    });
-
-    // Sort the academic year documents by start date in descending order (latest first)
-    academicYearDocs.sort(
-      (a, b) => new Date(b.startDate) - new Date(a.startDate)
-    );
-
-    // Update the branch's academicYears array with sorted IDs
-    branch.academicYears = academicYearDocs.map((doc) => doc._id);
-
-    // Save the updated branch
+    const academicYearDocs = await AcademicYear.find({ _id: { $in: branch.academicYears } });
+    academicYearDocs.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+    branch.academicYears = academicYearDocs.map(doc => doc._id);
     await branch.save();
 
-    // Sort the AcademicYear collection by startDate in descending order
-    const sortedAcademicYears = await AcademicYear.find({
-      branch: branchId,
-    }).sort({ startDate: -1 });
+    // Find previous academic year (most recent before new startDate)
+    const previousAcademicYear =branch.academicYears[1];
+    console.log(previousAcademicYear);
+    if (previousAcademicYear) {
+      try {
+        // Copy Fee Types
+        const previousFeeTypes = await FeeType.find({ academicYear: previousAcademicYear._id });
+        const newFeeTypes = previousFeeTypes.map(ft => ({
+          
+          type: ft.type,
+          terms: ft.terms,
+          academicYear: academicYear._id
+        }));
+        {console.log(previousFeeTypes)}
+        console.log(newFeeTypes,"copy")
+        await FeeType.insertMany(newFeeTypes);
+
+        // Copy Classes and Sections
+        const previousClasses = await ClassModel.find({ academicYear: previousAcademicYear._id })
+          .populate('sections');
+
+        for (const prevClass of previousClasses) {
+          // Create new class
+          
+          const newClass = new ClassModel({
+            name: prevClass.name,
+            academicYear: academicYear._id,
+            subjects: prevClass.subjects,
+            sections: []
+          });
+          console.log("class",newClass);
+          await newClass.save();
+
+          // Copy sections
+          for (const prevSection of prevClass.sections) {
+            const newSection = new Section({
+              name: prevSection.name,
+              classId: newClass._id,
+              fees: prevSection.fees
+            });
+          console.log("sec",newSection);
+
+            await newSection.save();
+            newClass.sections.push(newSection._id);
+          }
+          await newClass.save();
+          academicYear.classes.push(newClass._id);
+        }
+        await academicYear.save();
+      } catch (error) {
+        // Cleanup on error (optional)
+        await AcademicYear.findByIdAndDelete(academicYear._id);
+        await FeeType.deleteMany({ academicYear: academicYear._id });
+        return res.status(500).json({
+          success: false,
+          message: `Error copying data: ${error.message}`
+        });
+      }
+    }
+
+    const sortedAcademicYears = await AcademicYear.find({ branch: branchId })
+      .sort({ startDate: -1 });
 
     res.status(201).json({
       success: true,
-      message: "Academic Year created successfully",
+      message: `Academic Year created ${previousAcademicYear ? 'with data copied' : ''}`,
       academicYear,
-      sortedAcademicYears, // Return sorted academic years if needed in response
+      sortedAcademicYears,
     });
+
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

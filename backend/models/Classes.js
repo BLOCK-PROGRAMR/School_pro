@@ -21,7 +21,7 @@ const classSchema = new mongoose.Schema(
       mainSubjects: [
         {
           type: String, // Array of main subject names as strings
-          required: true,
+          required:true,
         },
       ],
       additionalSubjects: [
