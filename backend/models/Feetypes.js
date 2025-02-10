@@ -12,12 +12,12 @@ const FeeTypeSchema = new mongoose.Schema(
       required: true,
       enum: [1, 2, 3, 4], // Valid values: 1, 2, 3, 4
     },
-    
+
     academicYear: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "AcademicYear", // Assuming you have an AcademicYear model
       required: true,
-    }
+    },
   },
   { timestamps: true }
 );

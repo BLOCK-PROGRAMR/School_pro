@@ -33,8 +33,8 @@ import {
   ClipboardCheck,
   MapPin,
   Bell,
-  Layers
-} from 'lucide-react';
+  Layers,
+} from "lucide-react";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -64,16 +64,19 @@ const Sidebar = () => {
   const submenuBase = "overflow-hidden transition-all duration-300 ease-in-out";
   const submenuActive = "max-h-[500px] opacity-100";
   const submenuInactive = "max-h-0 opacity-0";
-  const menuButton = "w-full flex items-center justify-between p-3 rounded-lg transition-colors";
+  const menuButton =
+    "w-full flex items-center justify-between p-3 rounded-lg transition-colors";
 
   const getMenuButtonClasses = (menuName) => {
-    return `${menuButton} ${menuItemBase} ${menuItemHover} ${activeMenu === menuName ? menuItemActive : ""
-      }`;
+    return `${menuButton} ${menuItemBase} ${menuItemHover} ${
+      activeMenu === menuName ? menuItemActive : ""
+    }`;
   };
 
   const getSubmenuClasses = (menuName) => {
-    return `${submenuBase} ${activeMenu === menuName ? submenuActive : submenuInactive
-      }`;
+    return `${submenuBase} ${
+      activeMenu === menuName ? submenuActive : submenuInactive
+    }`;
   };
 
   const MenuItem = ({ to, icon: Icon, children }) => (
@@ -90,8 +93,11 @@ const Sidebar = () => {
 
   return (
     <>
-      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}>
+      <aside
+        className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-blue-800">
@@ -99,7 +105,9 @@ const Sidebar = () => {
               <div className="flex items-center justify-center w-10 h-10 bg-blue-800 rounded-full">
                 <GraduationCap className="w-6 h-6" />
               </div>
-              <span className="text-xl font-bold tracking-wider">Branch Admin</span>
+              <span className="text-xl font-bold tracking-wider">
+                Branch Admin
+              </span>
             </div>
             <button
               onClick={() => setSidebarOpen(!isSidebarOpen)}
@@ -115,8 +123,9 @@ const Sidebar = () => {
               {/* Dashboard */}
               <Link
                 to="/branch-admin"
-                className={`${menuItemBase} ${menuItemHover} flex items-center p-3 rounded-lg ${location.pathname === "/branch-admin" ? menuItemActive : ""
-                  }`}
+                className={`${menuItemBase} ${menuItemHover} flex items-center p-3 rounded-lg ${
+                  location.pathname === "/branch-admin" ? menuItemActive : ""
+                }`}
               >
                 <Home className="w-5 h-5 mr-3" />
                 <span>Dashboard</span>
@@ -143,7 +152,10 @@ const Sidebar = () => {
                     <MenuItem to="/branch-admin/academic-year/add" icon={Plus}>
                       Add Academic Year
                     </MenuItem>
-                    <MenuItem to="/branch-admin/academic-year/view" icon={FileText}>
+                    <MenuItem
+                      to="/branch-admin/academic-year/view"
+                      icon={FileText}
+                    >
                       View All Years
                     </MenuItem>
                   </div>
@@ -202,7 +214,10 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("sections")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem to="/branch-admin/academic-year/view-sections" icon={FileText}>
+                    <MenuItem
+                      to="/branch-admin/academic-year/view-sections"
+                      icon={FileText}
+                    >
                       View Sections
                     </MenuItem>
                   </div>
@@ -233,16 +248,10 @@ const Sidebar = () => {
                     >
                       Set Fee Types
                     </MenuItem>
-                    <MenuItem
-                      to={`/branch-admin/ledger-creation`}
-                      icon={Plus}
-                    >
+                    <MenuItem to={`/branch-admin/ledger-creation`} icon={Plus}>
                       Ledger Creation
                     </MenuItem>
-                    <MenuItem
-                      to={`/branch-admin/voucher-creation`}
-                      icon={Plus}
-                    >
+                    <MenuItem to={`/branch-admin/voucher-creation`} icon={Plus}>
                       Voucher Receipts
                     </MenuItem>
                     {/* <MenuItem
@@ -270,8 +279,6 @@ const Sidebar = () => {
                       CashBook
                     </MenuItem> */}
 
-
-
                     <MenuItem
                       to={`/branch-admin/cash/${currentAcademicYear}`}
                       icon={Plus}
@@ -279,23 +286,12 @@ const Sidebar = () => {
                       cash-Book
                     </MenuItem>
 
-
-
                     <MenuItem
                       to={`/branch-admin/bank/${currentAcademicYear}`}
                       icon={Plus}
                     >
                       BankBook
                     </MenuItem>
-
-
-
-
-
-
-
-
-
                   </div>
                 </div>
               </div>
@@ -318,7 +314,10 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("transport")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem to="/branch-admin/transport/add-town" icon={MapPin}>
+                    <MenuItem
+                      to="/branch-admin/transport/add-town"
+                      icon={MapPin}
+                    >
                       Add Towns
                     </MenuItem>
                     <MenuItem to="/branch-admin/transport/add-bus" icon={Bus}>
@@ -359,32 +358,17 @@ const Sidebar = () => {
                       View All
                     </MenuItem>
 
-
-                    <MenuItem
-                      to={`/branch-admin/data`}
-                      icon={FileText}
-                    >
+                    <MenuItem to={`/branch-admin/data`} icon={FileText}>
                       Data
                     </MenuItem>
 
-                    <MenuItem
-                      to={`/branch-admin/FeeData`}
-                      icon={FileText}
-                    >
+                    <MenuItem to={`/branch-admin/FeeData`} icon={FileText}>
                       FeeData
                     </MenuItem>
 
-
-                    <MenuItem
-                      to={`/branch-admin/info`}
-                      icon={FileText}
-                    >
+                    <MenuItem to={`/branch-admin/info`} icon={FileText}>
                       Student Info
                     </MenuItem>
-
-
-
-
                   </div>
                 </div>
               </div>
@@ -407,23 +391,33 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("teachers")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem to="/branch-admin/teachers/add-teacher" icon={UserPlus}>
+                    <MenuItem
+                      to="/branch-admin/teachers/add-teacher"
+                      icon={UserPlus}
+                    >
                       Add Teacher
                     </MenuItem>
-                    <MenuItem to="/branch-admin/teachers/view-teachers" icon={FileText}>
+                    <MenuItem
+                      to="/branch-admin/teachers/view-teachers"
+                      icon={FileText}
+                    >
                       View Teachers
                     </MenuItem>
-                    <MenuItem to="/branch-admin/teachers/assign-teachers" icon={UserCheck}>
+                    <MenuItem
+                      to="/branch-admin/teachers/assign-teachers"
+                      icon={UserCheck}
+                    >
                       Assign Teachers
                     </MenuItem>
-                    <MenuItem to="/branch-admin/teachers/view-perfomance" icon={BarChart2}>
+                    <MenuItem
+                      to="/branch-admin/teachers/view-perfomance"
+                      icon={BarChart2}
+                    >
                       View Performance
                     </MenuItem>
                   </div>
                 </div>
               </div>
-
-
 
               <div className="space-y-1">
                 <button
@@ -448,13 +442,9 @@ const Sidebar = () => {
                     <MenuItem to="/branch-admin/viewaccount" icon={UserPlus}>
                       View Accountant
                     </MenuItem>
-
                   </div>
                 </div>
               </div>
-
-
-
 
               {/* Exams */}
               <div className="space-y-1">
@@ -474,10 +464,16 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("exams")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem to="/branch-admin/exam/create-timetable" icon={Plus}>
+                    <MenuItem
+                      to="/branch-admin/exam/create-timetable"
+                      icon={Plus}
+                    >
                       Create Timetable
                     </MenuItem>
-                    <MenuItem to="/branch-admin/exam/view-timetable" icon={FileText}>
+                    <MenuItem
+                      to="/branch-admin/exam/view-timetable"
+                      icon={FileText}
+                    >
                       View Timetable
                     </MenuItem>
                   </div>
@@ -564,10 +560,16 @@ const Sidebar = () => {
                 </button>
                 <div className={getSubmenuClasses("enquiry")}>
                   <div className="pl-6 space-y-1">
-                    <MenuItem to="/branch-admin/enquiry/create-enquiry" icon={Plus}>
+                    <MenuItem
+                      to="/branch-admin/enquiry/create-enquiry"
+                      icon={Plus}
+                    >
                       Add Enquiry
                     </MenuItem>
-                    <MenuItem to="/branch-admin/enquiry/view-enquiry" icon={FileText}>
+                    <MenuItem
+                      to="/branch-admin/enquiry/view-enquiry"
+                      icon={FileText}
+                    >
                       View Enquiry
                     </MenuItem>
                   </div>
@@ -654,17 +656,45 @@ const Sidebar = () => {
                     <MenuItem to="/branch-admin/vehicle/create" icon={Bus}>
                       Vehicle Reports
                     </MenuItem>
-                    <MenuItem to="/branch-admin/strengthreports/create" icon={TrendingUp}>
+                    <MenuItem
+                      to="/branch-admin/strengthreports/create"
+                      icon={TrendingUp}
+                    >
                       Strength Reports
                     </MenuItem>
-                    <MenuItem to="/branch-admin/progressreports/create" icon={Award}>
+                    <MenuItem
+                      to="/branch-admin/progressreports/create"
+                      icon={Award}
+                    >
                       Progress Reports
                     </MenuItem>
                   </div>
                 </div>
               </div>
 
-
+              <div className="space-y-1">
+                <button
+                  onClick={() => handleMenuClick("promote")}
+                  className={getMenuButtonClasses("Promote")}
+                >
+                  <div className="flex items-center">
+                    <UserCheck className="w-5 h-5 mr-3" />
+                    <span>Promote</span>
+                  </div>
+                  {activeMenu === "promote" ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+                <div className={getSubmenuClasses("promote")}>
+                  <div className="pl-6 space-y-1">
+                    <MenuItem to="/branch-admin/upgrade" icon={UserPlus}>
+                      Students Upgrade
+                    </MenuItem>
+                  </div>
+                </div>
+              </div>
             </div>
           </nav>
 
@@ -699,7 +729,11 @@ const Sidebar = () => {
       </aside>
 
       {/* Main Content Margin */}
-      <div className={`ml-64 transition-all duration-300 ${isSidebarOpen ? '' : 'ml-0'}`}>
+      <div
+        className={`ml-64 transition-all duration-300 ${
+          isSidebarOpen ? "" : "ml-0"
+        }`}
+      >
         {/* Your main content goes here */}
       </div>
     </>

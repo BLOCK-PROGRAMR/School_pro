@@ -132,6 +132,11 @@ const Allapi = {
     url: (sectionId) => `${backapi}/api/Fee-types/fees-section/${sectionId}`,
     method: "POST",
   },
+  updateFeeStructure: {
+    url: (sectionId) =>
+      `${backapi}/api/Fee-types/fees-section/update/${sectionId}`,
+    method: "POST",
+  },
   deleteFeeStructure: {
     url: (sectionId, feeId) =>
       `${backapi}/api/Fee-types/fees-section/${sectionId}/del/${feeId}`,
@@ -387,9 +392,8 @@ const Allapi = {
     method: "POST",
   },
   updateLedger: {
-
     url: (id) => `${backapi}/api/ledger/${id}`,
-    method: "PUT"
+    method: "PUT",
   },
   deleteLedger: {
     url: (id) => `${backapi}/api/ledger/${id}`,
@@ -400,26 +404,26 @@ const Allapi = {
   deleteLedger: {
     url: (id) => `${backapi}/api/ledger/delete/${id}`,
     method: "DELETE",
-
   },
 
   // Account endpoints
   addAccount: {
     url: `${backapi}/api/accounts`,
-    method: "POST"
+    method: "POST",
   },
   getAccounts: {
-    url: (branchId, academicId) => `${backapi}/api/accounts?branchId=${branchId}&academicId=${academicId}`,
-    method: "GET"
+    url: (branchId, academicId) =>
+      `${backapi}/api/accounts?branchId=${branchId}&academicId=${academicId}`,
+    method: "GET",
   },
   updateAccount: {
     url: (id) => `${backapi}/api/accounts/${id}`,
-    method: "PUT"
+    method: "PUT",
   },
   deleteAccount: {
     url: (id) => `${backapi}/api/accounts/${id}`,
-    method: "DELETE"
-  }
+    method: "DELETE",
+  },
 };
 
 export default Allapi;
