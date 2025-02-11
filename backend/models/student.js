@@ -59,6 +59,16 @@ const studentSchema = new mongoose.Schema({
     hostelFee: String,
     terms: String,
   },
+  oldfeeDetails: [
+    {
+      name: String,
+      amount: Number,
+      terms: String,
+      concession: Number,
+      finalAmount: Number,
+      paidFee: Number,
+    },
+  ],
   feeDetails: [
     {
       name: String,
@@ -69,6 +79,9 @@ const studentSchema = new mongoose.Schema({
       paidFee: Number,
     },
   ],
+  olddue: {
+    type: Number,
+  },
 });
 
 module.exports = mongoose.model("Student", studentSchema);

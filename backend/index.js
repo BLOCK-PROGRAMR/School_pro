@@ -20,15 +20,16 @@ const marksRoutes = require("./routers/MarksRoutes");
 const syllabusRoutes = require("./routers/SyllabusRoutes.js");
 const teacherRoutes = require("./routers/TeacherRoutes");
 const teacherAssignRoutes = require("./routers/TeacherAssignRoutes.js");
-const workingdays = require("./routers/WorkingDaysRoutes.js")
-const attendanceRoutes = require("./routers/AttendanceRoutes.js")
-const homeworkroutes = require("./routers/HomeWorkRoutes.js")
+const workingdays = require("./routers/WorkingDaysRoutes.js");
+const attendanceRoutes = require("./routers/AttendanceRoutes.js");
+const homeworkroutes = require("./routers/HomeWorkRoutes.js");
 const receiptRoutes = require("./routers/RecieptsRoutes.js");
 const ledgerRoutes = require("./routers/ledgerRoutes");
 const enquiryRoutes = require("./routers/enquiryRoutes");
 const voucherRoutes = require("./routers/voucherRoutes");
 const bookRoutes = require("./routers/bookRoutes");
 const accountRoutes = require("./routers/AccountRoutes");
+const PromoteRoutes = require("./routers/PromoteRoutes.js");
 
 app.use(cors());
 app.use(cookieParser());
@@ -49,14 +50,15 @@ app.use("/api/marks", protect.authMiddleware, marksRoutes);
 app.use("/api/syllabus", protect.authMiddleware, syllabusRoutes);
 app.use("/api/teachers", protect.authMiddleware, teacherRoutes);
 app.use("/api/teachersassingn", protect.authMiddleware, teacherAssignRoutes);
-app.use("/api/workingdays",protect.authMiddleware,workingdays);
-app.use("/api/attendance",protect.authMiddleware,attendanceRoutes);
+app.use("/api/workingdays", protect.authMiddleware, workingdays);
+app.use("/api/attendance", protect.authMiddleware, attendanceRoutes);
 app.use("/api/ledger", protect.authMiddleware, ledgerRoutes);
 app.use("/api/receipts", protect.authMiddleware, receiptRoutes);
 app.use("/api/enquiry", protect.authMiddleware, enquiryRoutes);
 app.use("/api/vouchers", protect.authMiddleware, voucherRoutes);
 app.use("/api/books", protect.authMiddleware, bookRoutes);
 app.use("/api/accounts", protect.authMiddleware, accountRoutes);
+app.use("/api/promote", protect.authMiddleware, PromoteRoutes);
 
 database().then(
   app.listen(process.env.PORT, () => {

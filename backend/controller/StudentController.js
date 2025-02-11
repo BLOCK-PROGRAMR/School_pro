@@ -249,4 +249,3 @@ exports.getStudentByIdNo = async (req, res) => {
     });
   }
 };
-

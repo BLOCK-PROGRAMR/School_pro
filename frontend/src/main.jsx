@@ -1,178 +1,99 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider, useNavigate, useLocation } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import { Search, CreditCard } from "lucide-react";
-import React, { useState } from "react";
-import App from "./App";
-import FeeReports from "./components/BranchAdmin/Students/FeeReport";
+import App from "./App.jsx";
+import FeeReports from "./components/BranchAdmin/Students/FeeReport.jsx";
 import "./index.css";
-import "react-toastify/dist/ReactToastify.css";
-import Home from "./pages/Home";
-import ViewAll from "./components/BranchAdmin/Classes/ViewAll";
-import Aboutus from "./pages/Aboutus";
-import Contactus from "./pages/Contactus";
-import AdmissionEnquiry from "./pages/AdmissionEnquiry";
-import Feesubmission from "./pages/Feesubmission";
-import Login from "./pages/Login";
-import Adminlayout from "./pages/Mainadminlayout";
-import Dashboard from "./components/Mainadmin/Dahboard";
-import CreateBranch from "./components/Mainadmin/Branches/CreateBranch";
-import UpdateBranch from "./components/Mainadmin/Branches/UpdateBranch";
-import DeleteBranch from "./components/Mainadmin/Branches/DeleteBranch";
-import ViewBranches from "./components/Mainadmin/Branches/ViewBranches";
-import ViewBadmin from "./components/Mainadmin/BranchAdmin/ViewBadmin";
-import BranchAdminlayout from "./pages/BranchAdminLayout";
-import Bdashboard from "./components/BranchAdmin/Dashboard";
-import Add from "./components/BranchAdmin/AcademicYears/Add";
-import ViewAcademicYears from "./components/BranchAdmin/AcademicYears/view-all";
-import AddClass from "./components/BranchAdmin/Classes/AddClass";
-import AddAcademicYear from "./components/BranchAdmin/AcademicYears/Add";
-import Addsection from "./components/BranchAdmin/Sections/Addsection";
-import ViewSections from "./components/BranchAdmin/Sections/Viewsec";
-import AddFeeType from "./components/BranchAdmin/FeeTypes/AddFeeTypes";
-import AddTown from "./components/BranchAdmin/Transport/AddTown";
-import AddBus from "./components/BranchAdmin/Transport/AddBus";
-import AddStudents from "./components/BranchAdmin/Students/AddStudents";
-import StudentsReports from "./components/BranchAdmin/Students/StudentsReports";
-import FeeReport from "./components/BranchAdmin/Students/FeeReport";
-import StudentEdit from "./components/BranchAdmin/Students/StudentEdit";
-import CreateTimeTable from "./components/BranchAdmin/Exams/CreateTimeTable";
-import ViewTimeTable from "./components/BranchAdmin/Exams/ViewTimeTable";
-import FetchReceipts from "./components/BranchAdmin/Students/Fee-Reciepts";
-import EnterMarks from "./components/BranchAdmin/Marks/EnterMarks";
-import ViewMarks from "./components/BranchAdmin/Marks/ViewMarks";
-import CreateSyllabus from "./components/BranchAdmin/Syllabus/CreateSyllabus";
-import ViewSyllabus from "./components/BranchAdmin/Syllabus/ViewSyllabus";
-import UpdateMarks from "./components/BranchAdmin/Marks/UpdateMarks";
-import CreateHallTicket from "./components/BranchAdmin/Marks/CreateHallTicket";
-import AddEnquiry from "./components/BranchAdmin/Enquiry/AddEnquiry";
-import ViewEnquiry from "./components/BranchAdmin/Enquiry/ViewEnquiry";
-import AddTeacher from "./components/BranchAdmin/Teachers/AddTeacher";
-import ViewTeachers from "./components/BranchAdmin/Teachers/ViewTeachers";
-import AssignTeachers from "./components/BranchAdmin/Teachers/AssignTeachers";
-import ViewPerformance from "./components/BranchAdmin/Teachers/ViewPerfomance";
-import CreateWorkingDays from "./components/BranchAdmin/WorkingDays/CreateWorkingDays";
-import ViewWorkingDays from "./components/BranchAdmin/WorkingDays/ViewWorkingDays";
-import ShowReport from "./components/BranchAdmin/VehicleReport/ShowReport";
-import StrengthReports from "./components/BranchAdmin/StrengthReports/StrengthReports";
-import AddAttendance from "./components/BranchAdmin/Attendance/AddAttendance";
-import ViewAttendance from "./components/BranchAdmin/Attendance/ViewAttendance";
-import ProgressReport from "./components/BranchAdmin/ProgressReport/ProgressReport";
-import TeacherLayout from "./components/Teacher/TeacherLayout";
-import TeacherDashboard from "./components/Teacher/Dashboard/TeacherDashboard";
-import ClassSchedule from "./components/Teacher/Classes/ClassSchedule";
-import CreateHomeWork from "./components/Teacher/Homework/CreateHomeWork";
-import ViewHomeWorks from "./components/Teacher/Homework/ViewHomeWork";
-import MarksTeacher from "./components/Teacher/Marks/MarksTeacher";
-import EditPortfolio from "./components/Teacher/Portfolio/EditPortfolio";
-import TeacherAttendance from "./components/Teacher/attendance/TeacherAttendance";
-import ErrorBoundary from "./components/ErrorBoundary";
-import LedgerCreation from "./components/BranchAdmin/Ledger/LedgerCreation";
-import VoucherBook from "./components/BranchAdmin/VoucherCreation/VoucherBook";
-import CashBook from "./components/BranchAdmin/Books/CashBook";
-import BankBook from "./components/BranchAdmin/Books/BankBook";
-import FeeLedger from "./components/BranchAdmin/Ledger/FeeLedger";
-import Data from "./components/BranchAdmin/Students/Data";
-import AddAccount from "./components/BranchAdmin/Accountant/addAccount";
-import FeeData from "./components/BranchAdmin/Students/FeeData";
-import Info from "./components/BranchAdmin/Students/Info";
-import ViewAccountants from "./components/BranchAdmin/Accountant/ViewAccountants";
+// import CashBook from "./components/BranchAdmin/FeeTypes/CashBook.jsx"
+import { ToastContainer } from "react-toastify";
+import React from "react";
+import Home from "./pages/Home.jsx";
+import ViewAll from "./components/BranchAdmin/Classes/ViewAll.jsx";
+import Aboutus from "./pages/Aboutus.jsx";
+import Contactus from "./pages/Contactus.jsx";
+import AdmissionEnquiry from "./pages/AdmissionEnquiry.jsx";
+import Feesubmission from "./pages/Feesubmission.jsx";
+import Login from "./pages/Login.jsx";
+import Adminlayout from "./pages/Mainadminlayout.jsx";
+import Dashboard from "./components/Mainadmin/Dahboard.jsx";
+import CreateBranch from "./components/Mainadmin/Branches/CreateBranch.jsx";
+import UpdateBranch from "./components/Mainadmin/Branches/UpdateBranch.jsx";
+import DeleteBranch from "./components/Mainadmin/Branches/DeleteBranch.jsx";
+import ViewBranches from "./components/Mainadmin/Branches/ViewBranches.jsx";
+import ViewBadmin from "./components/Mainadmin/BranchAdmin/ViewBadmin.jsx";
+import BranchAdminlayout from "./pages/BranchAdminLayout.jsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Bdashboard from "./components/BranchAdmin/Dashboard.jsx";
+import Add from "./components/BranchAdmin/AcademicYears/Add.jsx";
+import ViewAcademicYears from "./components/BranchAdmin/AcademicYears/view-all.jsx";
+import AddClass from "./components/BranchAdmin/Classes/AddClass.jsx";
+import AddAcademicYear from "./components/BranchAdmin/AcademicYears/Add.jsx";
+import Addsection from "./components/BranchAdmin/Sections/Addsection.jsx";
+import ViewSections from "./components/BranchAdmin/Sections/Viewsec.jsx";
+import AddFeeType from "./components/BranchAdmin/FeeTypes/AddFeeTypes.jsx";
+import AddTown from "./components/BranchAdmin/Transport/AddTown.jsx";
+import AddBus from "./components/BranchAdmin/Transport/AddBus.jsx";
+import AddStudents from "./components/BranchAdmin/Students/AddStudents.jsx";
+import StudentsReports from "./components/BranchAdmin/Students/StudentsReports.jsx";
+import FeeReport from "./components/BranchAdmin/Students/FeeReport.jsx";
+import StudentEdit from "./components/BranchAdmin/Students/StudentEdit.jsx";
+import CreateTimeTable from "./components/BranchAdmin/Exams/CreateTimeTable.jsx";
+import ViewTimeTable from "./components/BranchAdmin/Exams/ViewTimeTable.jsx";
+import FetchReceipts from "./components/BranchAdmin/Students/Fee-Reciepts.jsx";
+import EnterMarks from "./components/BranchAdmin/Marks/EnterMarks.jsx";
+import ViewMarks from "./components/BranchAdmin/Marks/ViewMarks.jsx";
+import CreateSyllabus from "./components/BranchAdmin/Syllabus/CreateSyllabus.jsx";
+import ViewSyllabus from "./components/BranchAdmin/Syllabus/ViewSyllabus.jsx";
+import UpdateMarks from "./components/BranchAdmin/Marks/UpdateMarks.jsx";
 
-// SearchAndPayComponent with improved validation and error handling
-const SearchAndPayComponent = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+import CreateHallTicket from "./components/BranchAdmin/Marks/CreateHallTicket.jsx";
 
-  // Don't show on login page or when paying fees
-  if (location.pathname === "/login" || location.pathname.includes("students-payfee")) {
-    return null;
-  }
+import AddEnquiry from "./components/BranchAdmin/Enquiry/AddEnquiry.jsx";
+import ViewEnquiry from "./components/BranchAdmin/Enquiry/ViewEnquiry.jsx";
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    
-    if (!searchQuery.trim()) {
-      toast.error("Please enter a student ID");
-      return;
-    }
+import AddTeacher from "./components/BranchAdmin/Teachers/AddTeacher.jsx";
+import ViewTeachers from "./components/BranchAdmin/Teachers/ViewTeachers.jsx";
+import AssignTeachers from "./components/BranchAdmin/Teachers/AssignTeachers.jsx";
+import ViewPerformance from "./components/BranchAdmin/Teachers/ViewPerfomance.jsx";
+import CreateWorkingDays from "./components/BranchAdmin/WorkingDays/CreateWorkingDays.jsx";
+import ViewWorkingDays from "./components/BranchAdmin/WorkingDays/ViewWorkingDays.jsx";
 
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("Please log in first");
-        navigate("/login");
-        return;
-      }
+import ShowReport from "./components/BranchAdmin/VehicleReport/ShowReport.jsx";
+import StrengthReports from "./components/BranchAdmin/StrengthReports/StrengthReports.jsx";
+import AddAttendance from "./components/BranchAdmin/Attendance/AddAttendance.jsx";
+import ViewAttendance from "./components/BranchAdmin/Attendance/ViewAttendance.jsx";
+import ProgressReport from "./components/BranchAdmin/ProgressReport/ProgressReport.jsx";
 
-      // First get student by ID number
-      const response = await fetch(`http://localhost:3490/api/students/get-studentById/${searchQuery}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+import TeacherLayout from "./components/Teacher/TeacherLayout.jsx";
+import TeacherDashboard from "./components/Teacher/Dashboard/TeacherDashboard.jsx";
+import ClassSchedule from "./components/Teacher/Classes/ClassSchedule.jsx";
+import CreateHomeWork from "./components/Teacher/Homework/CreateHomeWork.jsx";
+import ViewHomeWorks from "./components/Teacher/Homework/ViewHomeWork.jsx";
+import MarksTeacher from "./components/Teacher/Marks/MarksTeacher.jsx";
 
-      const data = await response.json();
-      
-      if (data.success && data.data) {
-        // Navigate using the MongoDB _id from the response
-        navigate(`/branch-admin/students-payfee/${data.data._id}`);
-        setSearchQuery(""); // Clear search after navigation
-        toast.success("Student found! Redirecting to fee payment...");
-      } else {
-        toast.error("Student not found. Please check the ID and try again.");
-      }
-    } catch (error) {
-      console.error("Error searching for student:", error);
-      toast.error("Error searching for student. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+import EditPortfolio from "./components/Teacher/Portfolio/EditPortfolio.jsx";
+import TeacherAttendance from "./components/Teacher/attendance/TeacherAttendance.jsx";
 
-  return (
-    <div className="fixed top-4 right-4 z-50">
-      <form onSubmit={handleSearch} className="relative flex items-center">
-        <input
-          type="text"
-          placeholder="Student ID"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-20 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 w-64 transition-all"
-          disabled={loading}
-        />
-        <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-        <button
-          type="submit"
-          disabled={loading}
-          className="absolute right-0 top-0 px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center gap-2"
-        >
-          <CreditCard className="h-4 w-4" />
-          {loading ? "Searching..." : "Pay Fee"}
-        </button>
-      </form>
-    </div>
-  );
-};
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import LedgerCreation from "./components/BranchAdmin/Ledger/LedgerCreation.jsx";
+import VoucherBook from "./components/BranchAdmin/VoucherCreation/VoucherBook.jsx";
 
-// AppWrapper component to add search functionality
-const AppWrapper = ({ children }) => {
-  return (
-    <>
-      <SearchAndPayComponent />
-      {children}
-    </>
-  );
-};
+import CashBook from "./components/BranchAdmin/Books/CashBook.jsx";
+import BankBook from "./components/BranchAdmin/Books/BankBook.jsx";
+import FeeLedger from "./components/BranchAdmin/Ledger/FeeLedger.jsx";
 
-// Create router configuration
+import Data from "./components/BranchAdmin/Students/Data.jsx";
+
+import AddAccount from "./components/BranchAdmin/Accountant/addAccount.jsx";
+import FeeData from "./components/BranchAdmin/Students/FeeData.jsx";
+
+import Info from "./components/BranchAdmin/Students/Info.jsx";
+import ViewAccountants from "./components/BranchAdmin/Accountant/ViewAccountants.jsx";
+import Upgrade from "./components/BranchAdmin/Promote/Upgrade.jsx";
+
 const Router = createBrowserRouter([
   {
     path: "/",
-    element: <AppWrapper><App /></AppWrapper>,
+    element: <App />,
     errorElement: <ErrorBoundary />,
     children: [
       {
@@ -205,6 +126,7 @@ const Router = createBrowserRouter([
         element: <Login />,
         errorElement: <ErrorBoundary />,
       },
+
       {
         path: "/teacher",
         element: <TeacherLayout />,
@@ -245,8 +167,11 @@ const Router = createBrowserRouter([
             element: <ViewHomeWorks />,
             errorElement: <ErrorBoundary />,
           },
+
+          // Add more teacher routes here
         ],
       },
+
       {
         path: "/admin",
         element: <Adminlayout />,
@@ -259,12 +184,14 @@ const Router = createBrowserRouter([
           },
           {
             path: "branch",
+
             children: [
               {
                 path: "create",
                 element: <CreateBranch />,
                 errorElement: <ErrorBoundary />,
               },
+
               {
                 path: "view",
                 element: <ViewBranches />,
@@ -299,21 +226,30 @@ const Router = createBrowserRouter([
             element: <FetchReceipts />,
             errorElement: <ErrorBoundary />,
           },
+
           {
             path: "data",
             element: <Data />,
             errorElement: <ErrorBoundary />,
           },
+
           {
             path: "info",
             element: <Info />,
             errorElement: <ErrorBoundary />,
           },
           {
+            path: "upgrade",
+            element: <Upgrade />,
+            errorElement: <ErrorBoundary />,
+          },
+
+          {
             path: "FeeData",
             element: <FeeData />,
             errorElement: <ErrorBoundary />,
           },
+
           {
             path: "account",
             element: <AddAccount />,
@@ -324,6 +260,12 @@ const Router = createBrowserRouter([
             element: <ViewAccountants />,
             errorElement: <ErrorBoundary />,
           },
+
+          // {
+          //   path: "cash-book/:academicYearID",
+          //   element: <CashBook />,
+          //   errorElement: <ErrorBoundary />
+          // },
           {
             path: "cash/:academicYearID",
             element: <CashBook />,
@@ -336,9 +278,14 @@ const Router = createBrowserRouter([
           },
           {
             path: "fee-card/:academicYearID",
-            element: <FeeLedger />,
+            element: <FeeLedger />, //<FeeLedger><FeeLedger/>
             errorElement: <ErrorBoundary />,
           },
+          // {
+          //   path: "fee-report/:academicYearID",
+          //   element: <FeeReport />,//<FeeLedger><FeeLedger/>
+          //   errorElement: <ErrorBoundary />
+          // },
           {
             path: "exam",
             children: [
@@ -384,6 +331,7 @@ const Router = createBrowserRouter([
               },
             ],
           },
+
           {
             path: "marks",
             children: [
@@ -402,6 +350,7 @@ const Router = createBrowserRouter([
                 element: <ViewMarks />,
                 errorElement: <ErrorBoundary />,
               },
+
               {
                 path: "create",
                 element: <CreateHallTicket />,
@@ -409,6 +358,7 @@ const Router = createBrowserRouter([
               },
             ],
           },
+
           {
             path: "enquiry",
             children: [
@@ -439,6 +389,7 @@ const Router = createBrowserRouter([
               },
             ],
           },
+
           {
             path: "vehicle",
             children: [
@@ -494,6 +445,7 @@ const Router = createBrowserRouter([
               },
             ],
           },
+
           {
             path: "class/view-all/:acid",
             element: <ViewAll />,
@@ -506,6 +458,7 @@ const Router = createBrowserRouter([
           },
           {
             path: "academic-year",
+
             children: [
               {
                 path: "",
@@ -517,6 +470,7 @@ const Router = createBrowserRouter([
                 element: <Add />,
                 errorElement: <ErrorBoundary />,
               },
+
               {
                 path: "view",
                 element: <ViewAcademicYears />,
@@ -600,20 +554,10 @@ const Router = createBrowserRouter([
   },
 ]);
 
-// Render the application
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <ToastContainer 
-      position="top-right"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-    />
+  <React.StrictMode>
+    <ToastContainer />
+
     <RouterProvider router={Router} />
-  </StrictMode>
+  </React.StrictMode>
 );
