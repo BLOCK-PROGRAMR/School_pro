@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddAccount = () => {
     const { branchdet } = useContext(mycon);
 
-    const initialFormState = {
+    const [formData, setFormData] = useState({
         name: '',
         username: '',
         password: '',
@@ -24,16 +24,11 @@ const AddAccount = () => {
         aadharNumber: '',
         academic_id: '',
         role: 'Account',
-        branchId: ''
-    };
-
-    const [formData, setFormData] = useState(initialFormState);
-    const [isSubmitting, setIsSubmitting] = useState(false);
         branchId: branchdet?._id || ''
-    };
+    });
 
     useEffect(() => {
-        if (branchdet?.academicYears?.[0] && branchdet?._id) {
+        if (branchdet?.academicYears?.[0]) {
             setFormData(prev => ({
                 ...prev,
                 academic_id: branchdet.academicYears[0],
@@ -70,19 +65,11 @@ const AddAccount = () => {
             toast.error('Username is required');
             return false;
         }
-
-        if (!formData.password.trim()) {
-            toast.error('Password is required');
-            return false;
-        }
-        if (!formData.phone.trim() || !/^\d{10}$/.test(formData.phone)) {
-
         if (!formData.password) {
             toast.error('Password is required');
             return false;
         }
         if (!formData.phone || !/^\d{10}$/.test(formData.phone)) {
- 
             toast.error('Please enter a valid 10-digit phone number');
             return false;
         }
@@ -95,15 +82,11 @@ const AddAccount = () => {
             return false;
         }
         if (!formData.branchId) {
-
-            toast.error('Branch information not available');
-
             toast.error('Branch ID not available');
             return false;
         }
         if (formData.address.pincode && !/^\d{6}$/.test(formData.address.pincode)) {
             toast.error('Please enter a valid 6-digit pincode');
- 
             return false;
         }
         return true;
@@ -111,17 +94,13 @@ const AddAccount = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateForm() || isSubmitting) return;
+        if (!validateForm()) return;
 
         try {
-
-            setIsSubmitting(true);
-
             const token = localStorage.getItem('token');
             console.log('Token from localStorage:', token);
             console.log('Sending form data:', formData);
 
- 
             const response = await fetch(Allapi.addAccount.url, {
                 method: Allapi.addAccount.method,
                 headers: {
@@ -141,13 +120,6 @@ const AddAccount = () => {
 
             if (result.success) {
                 toast.success('Account added successfully!');
- 
-                setFormData(prev => ({
-                    ...initialFormState,
-                    academic_id: branchdet?.academicYears?.[0] || '',
-                    branchId: branchdet?._id || ''
-                }));
- 
                 setFormData({
                     name: '',
                     username: '',
@@ -167,15 +139,12 @@ const AddAccount = () => {
                     role: 'Account',
                     branchId: branchdet?._id || ''
                 });
- 
+            } else {
                 toast.error(result.message || 'Failed to add account');
             }
         } catch (error) {
             console.error('Error adding account:', error);
- 
-        } finally {
-            setIsSubmitting(false);
-
+            toast.error('Failed to add account. Please try again.');
         }
     };
 
@@ -223,23 +192,6 @@ const AddAccount = () => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter username"
                                 required
-
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block mb-1 text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter password"
-                                required
- 
                             />
                         </div>
 
@@ -290,53 +242,6 @@ const AddAccount = () => {
                             />
                         </div>
 
-                        </div>
-                    {/* Address Fields */}
-                    <div className="space-y-4">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Address
-                        </label>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <input
-                                type="text"
-                                name="address.doorNo"
-                                value={formData.address.doorNo}
-                                onChange={handleInputChange}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Door No"
-                            />
-                            <input
-                                type="text"
-                                name="address.street"
-                                value={formData.address.street}
-                                onChange={handleInputChange}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Street"
-                            />
-                            <input
-                                type="text"
-                                name="address.city"
-                                value={formData.address.city}
-                                onChange={handleInputChange}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="City"
-                            />
-                            <input
-                                type="text"
-                                name="address.pincode"
-                                value={formData.address.pincode}
-                                onChange={handleInputChange}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="6-digit Pincode"
-                                maxLength={6}
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    {/* Professional Information */}
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
- 
                         <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">
                                 Qualification
@@ -439,18 +344,6 @@ const AddAccount = () => {
                         </div>
                     </div>
 
- 
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={`w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                    >
-                        {isSubmitting ? 'Adding Accountant...' : 'Add Accountant'}
-                    </button>
- 
                     <div className="flex justify-end mt-6">
                         <button
                             type="submit"
@@ -459,7 +352,6 @@ const AddAccount = () => {
                             Add Accountant
                         </button>
                     </div>
- 
                 </form>
             </div>
         </div>
