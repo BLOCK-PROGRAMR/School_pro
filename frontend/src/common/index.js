@@ -424,6 +424,10 @@ const Allapi = {
     url: (id) => `${backapi}/api/accounts/${id}`,
     method: "DELETE",
   },
+  promoteStudents: {
+    url: () => `${backapi}/api/promote/upgrade`,
+    method: "POST",
+  },
 };
 
 export default Allapi;

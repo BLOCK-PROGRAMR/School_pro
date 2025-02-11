@@ -502,6 +502,7 @@ const ViewSections = () => {
       });
       const result = await response.json();
       if (result.success) {
+        console.log("ckeck result ", result.feeTypes);
         setFeeTypes(result.feeTypes);
       } else {
         toast.error(result.message || "Failed to fetch fee types");

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Allapi from "./../../../common/index"; // Adjust the path as needed
@@ -27,6 +25,7 @@ const StudentsReports = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
+        console.log("academic ear is", acid);
         const response = await fetch(Allapi.getClasses.url(acid), {
           method: Allapi.getClasses.method,
           headers: {
@@ -94,6 +93,9 @@ const StudentsReports = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
+        console.log("selected class is", selectedClass);
+
+        console.log("selected section is", selectedSection);
         const response = await fetch(
           Allapi.getStudentsBySection.url(selectedSection),
           {
@@ -273,19 +275,21 @@ const StudentsReports = () => {
       <div className="mb-4">
         <button
           onClick={() => handleTabChange("studentList")}
-          className={`px-4 py-2 mr-2 ${activeTab === "studentList"
+          className={`px-4 py-2 mr-2 ${
+            activeTab === "studentList"
               ? "bg-blue-500 text-white"
               : "bg-gray-200"
-            }`}
+          }`}
         >
           Student List
         </button>
         <button
           onClick={() => handleTabChange("downloadData")}
-          className={`px-4 py-2 ${activeTab === "downloadData"
+          className={`px-4 py-2 ${
+            activeTab === "downloadData"
               ? "bg-blue-500 text-white"
               : "bg-gray-200"
-            }`}
+          }`}
         >
           Download Data
         </button>
@@ -309,7 +313,9 @@ const StudentsReports = () => {
               <div
                 key={student._id}
                 className="p-4 bg-white shadow-md rounded hover:shadow-lg cursor-pointer"
-                onClick={() => navigate(`/branch-admin/students/${student._id}`)}
+                onClick={() =>
+                  navigate(`/branch-admin/students/${student._id}`)
+                }
               >
                 <img
                   src={student.photo || "/placeholder.jpg"}
@@ -351,8 +357,6 @@ const StudentsReports = () => {
           </button>
         </div>
       )}
-
-
     </div>
   );
 };
