@@ -18,7 +18,15 @@ const promoteStudent = async (req, res) => {
     } = req.body;
 
     // Fetch all students in the selected class & section
-    console.log("section id back", toSection);
+  console.log("from academic,",fromAcademicYear);
+  console.log("from class,",fromClass);
+  console.log("from section,",fromSection);
+  console.log("to academic,",toAcademicYear);
+  console.log("to class,",toClass);
+  console.log("to section",toSection);
+
+
+
 
     const students = await Student.find({
       "class.name": await getClassNameById(fromClass),
@@ -81,10 +89,12 @@ const promoteStudent = async (req, res) => {
 
       // Reset paid fees to 0 for the new academic year
       student.feeDetails.forEach((fee) => (fee.paidFee = 0));
-
+      console.log(student);
       await student.save();
     }
 
+
+    
     return res.json({
       success: true,
       message: "Students promoted successfully!",

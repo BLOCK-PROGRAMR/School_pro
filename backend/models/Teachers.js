@@ -71,5 +71,6 @@ const teacherSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+teacherSchema.index({ aadharNumber: 1, academic_id: 1 }, { unique: true });
 
 module.exports = mongoose.model('Teacher', teacherSchema);

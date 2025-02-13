@@ -41,5 +41,5 @@ const busSchema = new mongoose.Schema(
 );
 
 busSchema.index({ busNo: 1, academicId: 1 }, { unique: true });
-
+busSchema.index({ vehicleNo: 1, academicId: 1 }, { unique: true });
 module.exports = mongoose.model("Bus", busSchema);

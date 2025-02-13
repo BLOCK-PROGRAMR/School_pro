@@ -1272,11 +1272,13 @@ const AddStudents = () => {
                   required
                 >
                   <option value="">Select Town</option>
-                  {towns.map((town) => (
-                    <option key={town._id} value={town.townName}>
-                      {town.townName}
-                    </option>
-                  ))}
+                  {towns?.length > 0 &&
+  towns.map((town) => (
+    <option key={town._id} value={town.townName}>
+      {town.townName}
+    </option>
+))}
+
                 </select>
               </div>
               <div>
@@ -1307,11 +1309,16 @@ const AddStudents = () => {
                   required
                 >
                   <option value="">Select Halts</option>
-                  {halts.map((halt, index) => (
-                    <option key={index} value={halt}>
-                      {halt}
-                    </option>
-                  ))}
+                  {halts?.length > 0 ? (
+  halts.map((halt, index) => (
+    <option key={index} value={halt}>
+      {halt}
+    </option>
+  ))
+) : (
+  <option disabled>No halts available</option>
+)}
+
                 </select>
               </div>
               <div>

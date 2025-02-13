@@ -261,6 +261,7 @@
 // };
 
 // export default Upgrade;
+
 import React, { useState, useEffect, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -274,7 +275,9 @@ const Upgrade = () => {
   const [fromAcademicYear, setFromAcademicYear] = useState("");
   const [toAcademicYear, setToAcademicYear] = useState("");
 
-  const [classes, setClasses] = useState([]);
+  // Separate states for from/to classes and sections
+  const [fromClasses, setFromClasses] = useState([]);
+  const [toClasses, setToClasses] = useState([]);
   const [fromClass, setFromClass] = useState("");
   const [toClass, setToClass] = useState("");
 
@@ -289,11 +292,22 @@ const Upgrade = () => {
     }
   }, [branchdet]);
 
+  // Fetch classes when academic years change
   useEffect(() => {
     if (fromAcademicYear) {
-      fetchClasses(fromAcademicYear);
+      fetchClasses(fromAcademicYear, setFromClasses);
+      setFromClass("");
+      setFromSection("");
     }
   }, [fromAcademicYear]);
+
+  useEffect(() => {
+    if (toAcademicYear) {
+      fetchClasses(toAcademicYear, setToClasses);
+      setToClass("");
+      setToSection("");
+    }
+  }, [toAcademicYear]);
 
   // Fetch Academic Years
   const fetchAcademicYears = async () => {
@@ -325,8 +339,8 @@ const Upgrade = () => {
     }
   };
 
-  // Fetch Classes
-  const fetchClasses = async (academicYearId) => {
+  // Generic class fetcher
+  const fetchClasses = async (academicYearId, setClassState) => {
     try {
       const response = await fetch(Allapi.getClasses.url(academicYearId), {
         method: Allapi.getClasses.method,
@@ -336,7 +350,7 @@ const Upgrade = () => {
       });
       const result = await response.json();
       if (result.success) {
-        setClasses(result.data);
+        setClassState(result.data);
       }
     } catch (error) {
       toast.error("Failed to fetch classes");
@@ -356,20 +370,18 @@ const Upgrade = () => {
       });
       const result = await response.json();
       if (result.success) {
-        if (type === "from") {
-          setFromSections(result.data);
-          setFromSection("");
-        } else if (type === "to") {
-          setToSections(result.data);
-          setToSection("");
-        }
+        type === "from" 
+          ? setFromSections(result.data) 
+          : setToSections(result.data);
+        
+       
       }
     } catch (error) {
       toast.error("Failed to fetch sections");
     }
   };
 
-  // Handle Promote Students
+  // Handle Promote Students (keep the same as before)
   const handlePromoteStudents = async () => {
     if (
       !fromAcademicYear ||
@@ -382,10 +394,6 @@ const Upgrade = () => {
       toast.error("Please select all fields before promoting students.");
       return;
     }
-    console.log("fromacid", fromAcademicYear, "toacid", toAcademicYear);
-    console.log("fromclass", fromClass, "toacid", toClass);
-
-    console.log("fromsec", fromSection, "tosec", toSection);
 
     try {
       const response = await fetch(Allapi.promoteStudents.url(), {
@@ -431,12 +439,7 @@ const Upgrade = () => {
             </label>
             <select
               value={fromAcademicYear}
-              onChange={(e) => {
-                setFromAcademicYear(e.target.value);
-                setFromClass("");
-                setFromSection("");
-                fetchClasses(e.target.value);
-              }}
+              onChange={(e) => setFromAcademicYear(e.target.value)}
               className="w-full p-2 border rounded-md"
             >
               <option value="">Select Academic Year</option>
@@ -475,20 +478,18 @@ const Upgrade = () => {
               value={fromClass}
               onChange={(e) => {
                 setFromClass(e.target.value);
-                setFromSection("");
                 fetchSections(e.target.value, "from");
               }}
               className="w-full p-2 border rounded-md"
             >
               <option value="">Select Class</option>
-              {classes.map((cls) => (
+              {fromClasses.map((cls) => (
                 <option key={cls._id} value={cls._id}>
                   {cls.name}
                 </option>
               ))}
             </select>
 
-            {/* From Section */}
             <select
               value={fromSection}
               onChange={(e) => setFromSection(e.target.value)}
@@ -509,20 +510,18 @@ const Upgrade = () => {
               value={toClass}
               onChange={(e) => {
                 setToClass(e.target.value);
-                setToSection("");
                 fetchSections(e.target.value, "to");
               }}
               className="w-full p-2 border rounded-md"
             >
               <option value="">Select Class</option>
-              {classes.map((cls) => (
+              {toClasses.map((cls) => (
                 <option key={cls._id} value={cls._id}>
                   {cls.name}
                 </option>
               ))}
             </select>
 
-            {/* To Section */}
             <select
               value={toSection}
               onChange={(e) => setToSection(e.target.value)}

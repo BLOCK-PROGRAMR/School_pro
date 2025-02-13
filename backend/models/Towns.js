@@ -33,7 +33,7 @@ const townSchema = new mongoose.Schema(
     timestamps: true, // This will add createdAt and updatedAt fields
   }
 );
-
+townSchema.index({ townName: 1, academicId: 1 }, { unique: true });
 const Town = mongoose.model("Town", townSchema);
 
 module.exports = Town;
