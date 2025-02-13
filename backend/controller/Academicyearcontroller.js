@@ -8,7 +8,9 @@ const Branch = require("../models/Branches");
 const ClassModel = require("../models/Classes");
 const Section = require("../models/sections");
 const FeeType = require("../models/Feetypes");
-
+const Bus =require("../models/Bus");
+const Teacher =require("../models/Teachers")
+const Town=require("../models/Towns");
 
 // Controller function to get student count in an academic year
 exports.getStudentCountByAcademicYear = async (req, res) => {
@@ -121,7 +123,57 @@ exports.createAcademicYear = async (req, res) => {
           await newClass.save();
           academicYear.classes.push(newClass._id);
         }
+
+
+        const previousTeachers = await Teacher.find({ academic_id: previousAcademicYear._id });
+        const newTeachers = previousTeachers.map(teacher => ({
+          name: teacher.name,
+          username: teacher.username,
+          phone: teacher.phone,
+          address: teacher.address,
+          qualification: teacher.qualification,
+          experience: teacher.experience,
+          teachingSubjects: teacher.teachingSubjects,
+          joiningDate: teacher.joiningDate,
+          aadharNumber: teacher.aadharNumber,
+          branchId: teacher.branchId,
+          academic_id: academicYear._id,
+          role: teacher.role
+        }));
+        await Teacher.insertMany(newTeachers);
+
+        const previousTowns = await Town.find({ academicId: previousAcademicYear._id });
+        const newTowns = previousTowns.map(town => ({
+          townName: town.townName,
+          amount: town.amount,
+          halts: town.halts,
+          academicId: academicYear._id,
+          Terms: town.Terms
+        }));
+        const insertedTowns = await Town.insertMany(newTowns);
+
+        const previousBuses = await Bus.find({ academicId: previousAcademicYear._id });
         await academicYear.save();
+        const newBuses = previousBuses.map((bus) => ({
+          busNo: bus.busNo,
+          vehicleNo: bus.vehicleNo,
+          driverName: bus.driverName,
+          driverPhone: bus.driverPhone,
+          destination: bus.destination,
+          viaTowns: bus.viaTowns,
+          academicId: academicYear._id, // Assign new academic year
+        }));
+    
+        // Insert new buses into the database
+        const insertedBuses = await Bus.insertMany(newBuses);
+
+       academicYear.towns.push(...insertedTowns.map(town=>town._id) );
+       academicYear.buses.push(...insertedBuses.map(bus => bus._id));
+        await academicYear.save();
+ 
+        
+    
+
       } catch (error) {
         // Cleanup on error (optional)
         await AcademicYear.findByIdAndDelete(academicYear._id);
