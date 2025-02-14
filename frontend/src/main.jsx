@@ -90,6 +90,9 @@ import Info from "./components/BranchAdmin/Students/Info.jsx";
 import ViewAccountants from "./components/BranchAdmin/Accountant/ViewAccountants.jsx";
 import Upgrade from "./components/BranchAdmin/Promote/Upgrade.jsx";
 
+
+ import Trash from "./components/BranchAdmin/Trash/Trash.jsx";
+
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -230,6 +233,11 @@ const Router = createBrowserRouter([
           {
             path: "data",
             element: <Data />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "trash",
+            element: <Trash />,
             errorElement: <ErrorBoundary />,
           },
 
