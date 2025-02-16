@@ -68,15 +68,13 @@ const Sidebar = () => {
     "w-full flex items-center justify-between p-3 rounded-lg transition-colors";
 
   const getMenuButtonClasses = (menuName) => {
-    return `${menuButton} ${menuItemBase} ${menuItemHover} ${
-      activeMenu === menuName ? menuItemActive : ""
-    }`;
+    return `${menuButton} ${menuItemBase} ${menuItemHover} ${activeMenu === menuName ? menuItemActive : ""
+      }`;
   };
 
   const getSubmenuClasses = (menuName) => {
-    return `${submenuBase} ${
-      activeMenu === menuName ? submenuActive : submenuInactive
-    }`;
+    return `${submenuBase} ${activeMenu === menuName ? submenuActive : submenuInactive
+      }`;
   };
 
   const MenuItem = ({ to, icon: Icon, children }) => (
@@ -94,9 +92,8 @@ const Sidebar = () => {
   return (
     <>
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -123,9 +120,8 @@ const Sidebar = () => {
               {/* Dashboard */}
               <Link
                 to="/branch-admin"
-                className={`${menuItemBase} ${menuItemHover} flex items-center p-3 rounded-lg ${
-                  location.pathname === "/branch-admin" ? menuItemActive : ""
-                }`}
+                className={`${menuItemBase} ${menuItemHover} flex items-center p-3 rounded-lg ${location.pathname === "/branch-admin" ? menuItemActive : ""
+                  }`}
               >
                 <Home className="w-5 h-5 mr-3" />
                 <span>Dashboard</span>
@@ -253,6 +249,9 @@ const Sidebar = () => {
                     </MenuItem>
                     <MenuItem to={`/branch-admin/voucher-creation`} icon={Plus}>
                       Voucher Receipts
+                    </MenuItem>
+                    <MenuItem to={`/branch-admin/bank-creation`} icon={Plus}>
+                      Bank
                     </MenuItem>
                     {/* <MenuItem
                       to={`/branch-admin/fee-report/${currentAcademicYear}`}
@@ -693,7 +692,7 @@ const Sidebar = () => {
                       Students Upgrade
                     </MenuItem>
                     <MenuItem to="/branch-admin/trash" icon={UserPlus}>
-                       Trash
+                      Trash
                     </MenuItem>
                   </div>
                 </div>
@@ -733,9 +732,8 @@ const Sidebar = () => {
 
       {/* Main Content Margin */}
       <div
-        className={`ml-64 transition-all duration-300 ${
-          isSidebarOpen ? "" : "ml-0"
-        }`}
+        className={`ml-64 transition-all duration-300 ${isSidebarOpen ? "" : "ml-0"
+          }`}
       >
         {/* Your main content goes here */}
       </div>

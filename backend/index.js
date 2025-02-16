@@ -30,6 +30,7 @@ const voucherRoutes = require("./routers/voucherRoutes");
 const bookRoutes = require("./routers/bookRoutes");
 const accountRoutes = require("./routers/AccountRoutes");
 const PromoteRoutes = require("./routers/PromoteRoutes.js");
+const BankRoutes = require("./routers/BankRoutes.js");
 
 app.use(cors());
 app.use(cookieParser());
@@ -59,6 +60,7 @@ app.use("/api/vouchers", protect.authMiddleware, voucherRoutes);
 app.use("/api/books", protect.authMiddleware, bookRoutes);
 app.use("/api/accounts", protect.authMiddleware, accountRoutes);
 app.use("/api/promote", protect.authMiddleware, PromoteRoutes);
+app.use("/api/bank", protect.authMiddleware, BankRoutes)
 
 database().then(
   app.listen(process.env.PORT, () => {

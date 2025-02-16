@@ -13,7 +13,7 @@ const cashBookSchema = new mongoose.Schema({
     ledgerType: {
         type: String,
         required: true,
-        enum: ['Expenses', 'Income', 'Loans', 'studentfee']
+        enum: ['Expenses', 'Income', 'Loans', 'studentfee', 'Bank']
     },
     // Add fields for group ledger info
     groupLedger: {
@@ -29,7 +29,7 @@ const cashBookSchema = new mongoose.Schema({
         type: {
             type: String,
             required: true,
-            enum: ['Expenses', 'Income', 'Loans']
+            enum: ['Expenses', 'Income', 'Loans', 'Bank']
         }
     },
     // Add fields for sub-ledger info
