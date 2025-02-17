@@ -17,8 +17,8 @@ const Trash = () => {
   const [loading, setLoading] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [currentAcademicYear, setCurrentAcademicYear] = useState(null);
+  const [paidAmounts, setPaidAmounts] = useState({});
 
-  // Calculate fee due for a student
   const calculateFeeDue = (student) => {
     if (!student.feeDetails) return 0;
     
@@ -27,6 +27,19 @@ const Trash = () => {
       const paidAmount = fee.paidFee || 0;
       return total + (finalAmount - paidAmount);
     }, 0);
+  };
+
+  const handlePaidAmountChange = (studentId, amount) => {
+    setPaidAmounts((prev) => ({
+      ...prev,
+      [studentId]: amount,
+    }));
+  };
+
+  const calculateFinalDue = (student) => {
+    const feeDue = calculateFeeDue(student);
+    const paidAmount = parseFloat(paidAmounts[student._id] || 0);
+    return feeDue - paidAmount;
   };
 
   useEffect(() => {
@@ -320,6 +333,12 @@ const Trash = () => {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Fee Due
                           </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Paid Amount
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Final Due
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
@@ -354,6 +373,19 @@ const Trash = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               ₹{calculateFeeDue(student).toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              <input
+                                type="number"
+                                value={paidAmounts[student._id] || ''}
+                                onChange={(e) =>
+                                  handlePaidAmountChange(student._id, e.target.value)
+                                }
+                                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                              />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              ₹{calculateFinalDue(student).toLocaleString()}
                             </td>
                           </tr>
                         ))}
