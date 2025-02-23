@@ -694,6 +694,9 @@ const Sidebar = () => {
                     <MenuItem to="/branch-admin/trash" icon={UserPlus}>
                       Trash
                     </MenuItem>
+                    <MenuItem to="/branch-admin/prev-data" icon={UserPlus}>
+                      DeletePrev
+                    </MenuItem>
                   </div>
                 </div>
               </div>

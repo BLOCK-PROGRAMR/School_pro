@@ -36,7 +36,8 @@ const AddAccount = () => {
             }));
         }
     }, [branchdet]);
-
+    // console.log("branch det", branchdet.academicYears[0]);
+    console.log("branch det", branchdet);
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         if (name.startsWith('address.')) {

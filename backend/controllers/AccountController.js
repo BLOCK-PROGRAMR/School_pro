@@ -1,4 +1,5 @@
 const Account = require('../models/Account');
+const Academic = require("../models/Acyear");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { validateAccount } = require('../utils/validation');
@@ -7,7 +8,7 @@ const { validateAccount } = require('../utils/validation');
 exports.addAccount = async (req, res) => {
     try {
         console.log('Request body:', req.body);
-        
+
         // Validate request data
         const { error } = validateAccount(req.body);
         if (error) {
@@ -41,7 +42,7 @@ exports.addAccount = async (req, res) => {
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
-
+        console.log("account", req.body);
         // Create new account
         const account = new Account({
             ...req.body,
@@ -74,12 +75,20 @@ exports.addAccount = async (req, res) => {
 // Get all accounts
 exports.getAccounts = async (req, res) => {
     try {
+        //not fetching academic id
         const { branchId, academic_id } = req.query;
+        console.log("branchId", branchId);
+        console.log("academic_id", academic_id);
+        // const _acad = await Academic.find({});
+
+        // console.log("data", _acad);
+
+        // console.log("academic id", academic_id)
         const query = {};
-        
+
         if (branchId) query.branchId = branchId;
         if (academic_id) query.academic_id = academic_id;
-        
+
         const accounts = await Account.find(query)
             .select('-password')
             .sort({ createdAt: -1 });
@@ -98,6 +107,51 @@ exports.getAccounts = async (req, res) => {
         });
     }
 };
+// exports.getAccounts = async (req, res) => {
+//     try {
+//         const { branchId, academic_id } = req.query;
+//         console.log("branchId", branchId);
+
+//         // Fetch and sort academic records in descending order
+//         // const _acad = await Academic.find({}, { _id: 1 }).sort({ startDate: -1 });
+//         const _acad = await Academic.find({}, { _id: 1 }).sort({ startDate: -1 });
+
+
+//         console.log("All academic records:", _acad);
+
+//         // Get the second most recent academic_id
+//         let recentAcademicId = academic_id;
+//         if (!recentAcademicId && _acad.length > 1) {
+//             recentAcademicId = _acad[1]._id; // Second most recent
+//         }
+
+//         console.log("Using academic id:", recentAcademicId);
+
+//         // Prepare query
+//         const query = {};
+//         if (branchId) query.branchId = branchId;
+//         if (recentAcademicId) query.academic_id = recentAcademicId;
+
+//         // Fetch accounts
+//         const accounts = await Account.find(query)
+//             .select('-password')
+//             .sort({ createdAt: -1 });
+
+//         res.status(200).json({
+//             success: true,
+//             error: false,
+//             data: accounts
+//         });
+//     } catch (error) {
+//         console.error('Error in getAccounts:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: true,
+//             message: 'Internal server error'
+//         });
+//     }
+// };
+
 
 // Update account
 exports.updateAccount = async (req, res) => {

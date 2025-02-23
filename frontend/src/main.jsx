@@ -93,6 +93,7 @@ import Upgrade from "./components/BranchAdmin/Promote/Upgrade.jsx";
 
 import Trash from "./components/BranchAdmin/Trash/Trash.jsx";
 import Bank from "./components/BranchAdmin/BankBook/Bank.jsx";
+import Delete from "./components/BranchAdmin/DeletePrev/Delete.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -240,6 +241,9 @@ const Router = createBrowserRouter([
             path: "trash",
             element: <Trash />,
             errorElement: <ErrorBoundary />,
+          }, {
+            path: "prev-data",
+            element: <Delete />
           },
 
           {
