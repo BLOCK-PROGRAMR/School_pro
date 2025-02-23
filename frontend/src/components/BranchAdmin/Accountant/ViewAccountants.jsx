@@ -33,6 +33,7 @@ const ViewAccountants = () => {
 
     const fetchAccountants = async () => {
         try {
+            console.log("console.log", branchdet.academicYears[0]);
             const response = await fetch(
                 `${Allapi.getAccounts.url(branchdet._id, branchdet.academicYears[0])}`,
                 {

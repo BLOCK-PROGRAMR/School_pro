@@ -91,7 +91,9 @@ import ViewAccountants from "./components/BranchAdmin/Accountant/ViewAccountants
 import Upgrade from "./components/BranchAdmin/Promote/Upgrade.jsx";
 
 
- import Trash from "./components/BranchAdmin/Trash/Trash.jsx";
+import Trash from "./components/BranchAdmin/Trash/Trash.jsx";
+import Bank from "./components/BranchAdmin/BankBook/Bank.jsx";
+import Delete from "./components/BranchAdmin/DeletePrev/Delete.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -239,6 +241,9 @@ const Router = createBrowserRouter([
             path: "trash",
             element: <Trash />,
             errorElement: <ErrorBoundary />,
+          }, {
+            path: "prev-data",
+            element: <Delete />
           },
 
           {
@@ -519,6 +524,11 @@ const Router = createBrowserRouter([
           {
             path: "voucher-creation",
             element: <VoucherBook />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "bank-creation",
+            element: <Bank />,
             errorElement: <ErrorBoundary />,
           },
           {
