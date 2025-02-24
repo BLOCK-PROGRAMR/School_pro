@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useContext, Fragment } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { toast } from 'react-toastify';
-import { Trash2, RefreshCw, ChevronDown, CheckSquare, Square, Eye, CreditCard } from 'lucide-react';
-import { Dialog, Transition } from '@headlessui/react';
+import { Trash2, RefreshCw, ChevronDown, CheckSquare, Square, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Allapi from '../../../common';
 import { mycon } from '../../../store/Mycontext';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Trash = () => {
+  const navigate = useNavigate();
   const { branchdet } = useContext(mycon);
   const [classes, setClasses] = useState([]);
   const [sections, setSections] = useState([]);
@@ -19,13 +19,6 @@ const Trash = () => {
   const [loading, setLoading] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [currentAcademicYear, setCurrentAcademicYear] = useState(null);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [paymentAmount, setPaymentAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [processingPayment, setProcessingPayment] = useState(false);
-
-  const navigate = useNavigate(); // Initialize useNavigate
 
   // Calculate fee due for a student
   const calculateFeeDue = (student) => {
@@ -260,98 +253,9 @@ const Trash = () => {
     }
   };
 
-  const handleOpenPaymentModal = (student) => {
-    setSelectedStudent(student);
-    setPaymentAmount('');
-    setPaymentMethod('cash');
-    setIsPaymentModalOpen(true);
-  };
-
-  const handlePaymentSubmit = async () => {
-    if (!paymentAmount || isNaN(paymentAmount) || parseFloat(paymentAmount) <= 0) {
-      toast.error('Please enter a valid payment amount');
-      return;
-    }
-
-    if (!selectedStudent) {
-      toast.error('No student selected for payment');
-      return;
-    }
-
-    setProcessingPayment(true);
-
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Authentication token not found');
-        return;
-      }
-
-      // Calculate fee ledger
-      const feeLedger = [];
-      let remainingAmount = parseFloat(paymentAmount);
-      const totalDue = calculateFeeDue(selectedStudent);
-
-      if (totalDue <= 0) {
-        toast.error("This student has no outstanding fees.");
-        setProcessingPayment(false);
-        return;
-      }
-
-      for (const fee of selectedStudent.feeDetails) {
-        const finalAmount = fee.finalAmount || fee.amount || 0;
-        const paidAmount = fee.paidFee || 0;
-        let dueAmount = finalAmount - paidAmount;
-
-        if (dueAmount > 0 && remainingAmount > 0) {
-          let amountToPay = Math.min(remainingAmount, dueAmount);
-          feeLedger.push({
-            name: fee.name,
-            amount: amountToPay
-          });
-          remainingAmount -= amountToPay;
-        }
-        if (remainingAmount <= 0) break;
-      }
-
-      const paymentData = {
-        studentId: selectedStudent._id,
-        amount: parseFloat(paymentAmount),
-        paymentMethod: paymentMethod,
-        academicYearId: currentAcademicYear,
-        date: new Date().toISOString(),
-        feeLedger: feeLedger,
-        terms: "Term-1"  //  Make sure this is dynamic!
-      };
-
-      const response = await fetch(Allapi.addReciepts.url, {
-        method: Allapi.addReciepts.method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(paymentData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to process payment');
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        // --- Navigate directly, NO toast here ---
-        navigate(`/branch-admin/fee-reciepts/${currentAcademicYear}?studentID=${selectedStudent.idNo}`);
-      } else {
-        throw new Error(result.message || 'Failed to process payment');
-      }
-    } catch (error) {
-      toast.error(error.message || 'Error processing payment');
-    } finally {
-      setProcessingPayment(false);
-      setIsPaymentModalOpen(false); // Close the modal *after* processing (success or failure)
-    }
+  const handlePayFee = (student) => {
+    // Navigate directly to the fee payment page using the student's MongoDB ID
+    navigate(`/branch-admin/students-payfee/${student._id}`);
   };
 
   const handleDeleteStudent = async (studentId) => {
@@ -535,7 +439,7 @@ const Trash = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               <button
-                                onClick={() => handleOpenPaymentModal(student)}
+                                onClick={() => handlePayFee(student)}
                                 className="text-indigo-600 hover:text-indigo-900 mr-4"
                               >
                                 Pay Fee
@@ -648,119 +552,6 @@ const Trash = () => {
           )}
         </div>
       </div>
-
-      {/* Payment Modal */}
-      <Transition appear show={isPaymentModalOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-10"
-          onClose={() => setIsPaymentModalOpen(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 mb-4"
-                  >
-                    Process Payment for {selectedStudent?.name}
-                  </Dialog.Title>
-
-                  {selectedStudent && (
-                    <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-600">
-                        Current Fee Due: ₹{calculateFeeDue(selectedStudent).toLocaleString()}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="mt-4">
-                    <div className="mb-4">
-                      <label
-                        htmlFor="amount"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Payment Amount (₹)
-                      </label>
-                      <input
-                        type="number"
-                        id="amount"
-                        value={paymentAmount}
-                        onChange={(e) => setPaymentAmount(e.target.value)}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        placeholder="Enter amount"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label
-                        htmlFor="paymentMethod"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Payment Method
-                      </label>
-                      <select
-                        id="paymentMethod"
-                        value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="cash">Cash</option>
-                        <option value="bank">Bank Transfer</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={handlePaymentSubmit}
-                      disabled={processingPayment}
-                    >
-                      {processingPayment ? (
-                        <span className="flex items-center">
-                          <RefreshCw className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                          Processing...
-                        </span>
-                      ) : (
-                        'Process Payment'
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                      onClick={() => setIsPaymentModalOpen(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
     </div>
   );
 };
