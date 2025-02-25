@@ -94,6 +94,9 @@ import Upgrade from "./components/BranchAdmin/Promote/Upgrade.jsx";
 import Trash from "./components/BranchAdmin/Trash/Trash.jsx";
 import Bank from "./components/BranchAdmin/BankBook/Bank.jsx";
 import Delete from "./components/BranchAdmin/DeletePrev/Delete.jsx";
+import Timetable from "./components/Teacher/examItems/Timetable.jsx";
+import Syllabus from "./components/Teacher/examItems/Syllabus.jsx";
+import Marks from "./components/Teacher/examItems/Marks.jsx"
 
 const Router = createBrowserRouter([
   {
@@ -141,6 +144,20 @@ const Router = createBrowserRouter([
             path: "",
             element: <TeacherDashboard />,
             errorElement: <ErrorBoundary />,
+          }, {
+            path: "exams/timetable",
+            element: <Timetable />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "exams/syllabus",
+            element: <Syllabus />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "exams/marks",
+            element: <Marks />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "portfolio",
