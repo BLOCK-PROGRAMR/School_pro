@@ -97,6 +97,8 @@ import Delete from "./components/BranchAdmin/DeletePrev/Delete.jsx";
 import Timetable from "./components/Teacher/examItems/Timetable.jsx";
 import Syllabus from "./components/Teacher/examItems/Syllabus.jsx";
 import Marks from "./components/Teacher/examItems/Marks.jsx"
+import AddNotice from "./components/BranchAdmin/Notices/AddNotice.jsx";
+import ViewNotice from "./components/BranchAdmin/Notices/ViewNotice.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -273,7 +275,17 @@ const Router = createBrowserRouter([
             element: <Upgrade />,
             errorElement: <ErrorBoundary />,
           },
-
+          //notice
+          {
+            path: "notice/add",
+            element: <AddNotice />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "notice/view",
+            element: <ViewNotice />,
+            errorElement: <ErrorBoundary />
+          },
           {
             path: "FeeData",
             element: <FeeData />,

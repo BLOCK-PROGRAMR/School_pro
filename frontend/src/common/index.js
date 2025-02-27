@@ -428,6 +428,28 @@ const Allapi = {
     url: () => `${backapi}/api/promote/upgrade`,
     method: "POST",
   },
+
+  // Notice endpoints
+  addNotice: {
+    url: `${backapi}/api/notices/add-notice`,
+    method: "POST",
+  },
+  getNotices: {
+    url: `${backapi}/api/notices/get-notices`,
+    method: "GET",
+  },
+  getNoticeById: {
+    url: (noticeId) => `${backapi}/api/notices/get-notice/${noticeId}`,
+    method: "GET",
+  },
+  deleteNotice: {
+    url: (noticeId) => `${backapi}/api/notices/delete-notice/${noticeId}`,
+    method: "DELETE",
+  },
+  updateNotice: {
+    url: (noticeId) => `${backapi}/api/notices/update-notice/${noticeId}`,
+    method: "PUT",
+  }
 };
 
 export default Allapi;
