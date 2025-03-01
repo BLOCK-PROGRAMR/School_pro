@@ -64,8 +64,13 @@ exports.registerMainAdmin = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log("username is: ",username);
+    console.log("password is: ",password);
     const user = await User.findOne({ username });
+      if(user){
+    console.log("user is: ",user);
 
+      }
     if (!user) {
       return res
         .status(400)
@@ -73,6 +78,7 @@ exports.login = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("isMatch is: ",isMatch);
     if (!isMatch) {
       return res
         .status(400)

@@ -19,6 +19,7 @@ const Trash = () => {
   const [loading, setLoading] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
   const [currentAcademicYear, setCurrentAcademicYear] = useState(null);
+  const [loadingTrash, setLoadingTrash] = useState(false);
 
   // Calculate fee due for a student
   const calculateFeeDue = (student) => {
@@ -77,6 +78,7 @@ const Trash = () => {
   useEffect(() => {
     if (currentAcademicYear) {
       fetchClasses();
+      fetchTrashedStudents();
     }
   }, [currentAcademicYear]);
 
@@ -108,6 +110,40 @@ const Trash = () => {
       }
     } catch (error) {
       toast.error(error.message || 'Error fetching classes');
+    }
+  };
+
+  const fetchTrashedStudents = async () => {
+    setLoadingTrash(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication token not found');
+        return;
+      }
+
+      const response = await fetch(`${Allapi.backapi}/api/trash/get-trashed-students`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch trashed students');
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setTrashedStudents(result.data || []);
+      } else {
+        throw new Error(result.message || 'Failed to fetch trashed students');
+      }
+    } catch (error) {
+      toast.error(error.message || 'Error fetching trashed students');
+    } finally {
+      setLoadingTrash(false);
     }
   };
 
@@ -224,32 +260,82 @@ const Trash = () => {
     setSelectedStudents(selectAll ? [] : students.map((student) => student._id));
   };
 
-  const handleMoveToTrash = () => {
+  const handleMoveToTrash = async () => {
     if (selectedStudents.length === 0) {
       toast.warning('Please select students to move to trash');
       return;
     }
 
-    const trashedStuds = students.filter((student) =>
-      selectedStudents.includes(student._id)
-    );
-    setTrashedStudents((prev) => [...prev, ...trashedStuds]);
-    setStudents((prev) =>
-      prev.filter((student) => !selectedStudents.includes(student._id))
-    );
-    setSelectedStudents([]);
-    setSelectAll(false);
-    toast.success('Students moved to trash successfully');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication token not found');
+        return;
+      }
+
+      // Process each selected student
+      for (const studentId of selectedStudents) {
+        const response = await fetch(`${Allapi.backapi}/api/trash/move-to-trash/${studentId}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to move student ${studentId} to trash`);
+        }
+      }
+
+      // Refresh the student list and trash list
+      fetchStudents();
+      fetchTrashedStudents();
+      
+      // Reset selection
+      setSelectedStudents([]);
+      setSelectAll(false);
+      
+      toast.success('Students moved to trash successfully');
+    } catch (error) {
+      toast.error(error.message || 'Error moving students to trash');
+    }
   };
 
-  const handleRestoreFromTrash = (studentId) => {
-    const studentToRestore = trashedStudents.find((s) => s._id === studentId);
-    if (studentToRestore) {
-      setTrashedStudents((prev) =>
-        prev.filter((student) => student._id !== studentId)
-      );
-      setStudents((prev) => [...prev, studentToRestore]);
-      toast.success('Student restored successfully');
+  const handleRestoreFromTrash = async (studentId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication token not found');
+        return;
+      }
+
+      const response = await fetch(`${Allapi.backapi}/api/trash/restore-student/${studentId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to restore student');
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        // Refresh the trashed students list
+        fetchTrashedStudents();
+        // If the current section matches the restored student's section, refresh the students list
+        if (selectedSection) {
+          fetchStudents();
+        }
+        toast.success('Student restored successfully');
+      } else {
+        throw new Error(result.message || 'Failed to restore student');
+      }
+    } catch (error) {
+      toast.error(error.message || 'Error restoring student');
     }
   };
 
@@ -266,8 +352,8 @@ const Trash = () => {
         return;
       }
 
-      const response = await fetch(Allapi.deletestudentbyId.url(studentId), {
-        method: Allapi.deletestudentbyId.method,
+      const response = await fetch(`${Allapi.backapi}/api/trash/delete-permanently/${studentId}`, {
+        method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -275,20 +361,19 @@ const Trash = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete student');
+        throw new Error('Failed to delete student permanently');
       }
 
       const result = await response.json();
       if (result.success) {
-        setTrashedStudents((prev) =>
-          prev.filter((student) => student._id !== studentId)
-        );
+        // Refresh the trashed students list
+        fetchTrashedStudents();
         toast.success('Student deleted permanently');
       } else {
-        throw new Error(result.message || 'Failed to delete student');
+        throw new Error(result.message || 'Failed to delete student permanently');
       }
     } catch (error) {
-      toast.error(error.message || 'Error deleting student');
+      toast.error(error.message || 'Error deleting student permanently');
     }
   };
 
@@ -369,11 +454,11 @@ const Trash = () => {
                         Select All
                       </span>
                     </div>
-                    <button
+<button
                       onClick={handleMoveToTrash}
                       className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                       disabled={selectedStudents.length === 0}
-                    >
+                    >                    
                       <Trash2 className="h-4 w-4" />
                       <span>Move to Trash</span>
                     </button>
@@ -445,7 +530,7 @@ const Trash = () => {
                                 Pay Fee
                               </button>
                               <button
-                                onClick={() => handleMoveToTrash(student._id)}
+                                onClick={() => handleMoveToTrash([student._id])}
                                 className="text-red-600 hover:text-red-900"
                               >
                                 Delete
@@ -478,7 +563,11 @@ const Trash = () => {
           {showTrash && (
             <div className="mt-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Trash</h2>
-              {trashedStudents.length === 0 ? (
+              {loadingTrash ? (
+                <div className="flex justify-center items-center py-8">
+                  <RefreshCw className="h-8 w-8 animate-spin text-indigo-600" />
+                </div>
+              ) : trashedStudents.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   No students in trash
                 </div>
@@ -501,6 +590,9 @@ const Trash = () => {
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Fee Due
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Deleted On
                         </th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
@@ -527,6 +619,9 @@ const Trash = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             ₹{calculateFeeDue(student).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(student.deletedAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button

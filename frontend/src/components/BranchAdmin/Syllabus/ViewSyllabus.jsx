@@ -63,6 +63,7 @@ const ViewSyllabus = () => {
 
       const result = await response.json();
       if (result.success) {
+        console.log("all exams are",result.data);
         setExamList(result.data);
         const classes = [...new Map(result.data.map(exam =>
           [exam.classId._id, { id: exam.classId._id, name: exam.classId.name }]

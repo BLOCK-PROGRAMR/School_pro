@@ -1,6 +1,7 @@
 const backapi = "http://localhost:3490";
 
 const Allapi = {
+  backapi,
   login: {
     url: `${backapi}/api/signin`,
     method: "Post",
@@ -384,20 +385,12 @@ const Allapi = {
   getLedgers: {
     url: (branchId) => `${backapi}/api/ledger/${branchId}`,
     method: "GET",
-    url: `${backapi}/api/ledger/all`,
-    method: "GET",
   },
   createLedger: {
     url: `${backapi}/api/ledger/create`,
     method: "POST",
   },
   updateLedger: {
-    url: (id) => `${backapi}/api/ledger/${id}`,
-    method: "PUT",
-  },
-  deleteLedger: {
-    url: (id) => `${backapi}/api/ledger/${id}`,
-    method: "DELETE",
     url: (id) => `${backapi}/api/ledger/update/${id}`,
     method: "PUT",
   },
@@ -427,6 +420,24 @@ const Allapi = {
   promoteStudents: {
     url: () => `${backapi}/api/promote/upgrade`,
     method: "POST",
+  },
+  
+  // Trash endpoints
+  moveToTrash: {
+    url: (sid) => `${backapi}/api/trash/move-to-trash/${sid}`,
+    method: "POST",
+  },
+  getTrashedStudents: {
+    url: `${backapi}/api/trash/get-trashed-students`,
+    method: "GET",
+  },
+  restoreFromTrash: {
+    url: (sid) => `${backapi}/api/trash/restore-student/${sid}`,
+    method: "POST",
+  },
+  permanentlyDeleteStudent: {
+    url: (sid) => `${backapi}/api/trash/delete-permanently/${sid}`,
+    method: "DELETE",
   },
 };
 

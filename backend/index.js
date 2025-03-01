@@ -64,6 +64,12 @@ app.use("/api/promote", protect.authMiddleware, PromoteRoutes);
 app.use("/api/bank", protect.authMiddleware, BankRoutes);
 app.use("/api/academic", protect.authMiddleware, DeleteRoutes)
 
+
+
+const trashRoutes = require('./routers/trash.js');
+
+// Add this line where you set up other routes 
+app.use("/api/trash", protect.authMiddleware, trashRoutes);
 database().then(
   app.listen(process.env.PORT, () => {
     console.log("server is running");

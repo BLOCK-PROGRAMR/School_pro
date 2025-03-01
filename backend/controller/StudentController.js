@@ -2,6 +2,7 @@ const Student = require("../models/student");
 // const cloudinary = require('cloudinary').v2;
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const Trash = require("../models/trash");
 
 // Add a new student
 exports.addStudent = async (req, res) => {
@@ -148,13 +149,14 @@ exports.updateStudent = async (req, res) => {
     });
   }
 };
-// Delete student by ID
+
+// Delete student by ID - Modified to move to trash
 exports.deleteStudent = async (req, res) => {
   try {
     const { sid } = req.params; // Get the student ID from URL parameters
 
-    // Find and delete the student by ID
-    const student = await Student.findByIdAndDelete(sid);
+    // Find the student by ID
+    const student = await Student.findById(sid);
 
     if (!student) {
       return res.status(404).json({
@@ -163,12 +165,19 @@ exports.deleteStudent = async (req, res) => {
       });
     }
 
-    // Optionally, delete the associated user from the User model if needed
+    // Create a new trash entry with the student data
+    const trashEntry = new Trash(student.toObject());
+    await trashEntry.save();
+
+    // Delete the student from the Student collection
+    await Student.findByIdAndDelete(sid);
+
+    // Delete the associated user from the User model
     await mongoose.model("User").deleteOne({ username: student.idNo });
 
     res.status(200).json({
       success: true,
-      message: "Student and associated user deleted successfully",
+      message: "Student moved to trash successfully",
     });
   } catch (error) {
     console.error("Error deleting student:", error);
@@ -220,6 +229,7 @@ exports.updateFeeDetails = async (req, res) => {
     });
   }
 };
+
 // Get student details by idNo
 exports.getStudentByIdNo = async (req, res) => {
   try {
