@@ -34,6 +34,8 @@ import {
   MapPin,
   Bell,
   Layers,
+  PlusCircle,
+  List
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -700,6 +702,35 @@ const Sidebar = () => {
                   </div>
                 </div>
               </div>
+              {/* notice bar */}
+
+              <div className="space-y-1">
+                <button
+                  onClick={() => handleMenuClick("noticebar")}
+                  className={getMenuButtonClasses("noticebar")}
+                >
+                  <div className="flex items-center">
+                    <Bell className="w-5 h-5 mr-3" />
+                    <span>Notice Bar</span>
+                  </div>
+                  {activeMenu === "noticebar" ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+                <div className={getSubmenuClasses("noticebar")}>
+                  <div className="pl-6 space-y-1">
+                    <MenuItem to="/branch-admin/notice/add" icon={PlusCircle}>
+                      Add Notice
+                    </MenuItem>
+                    <MenuItem to="/branch-admin/notice/view" icon={List}>
+                      View Notices
+                    </MenuItem>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </nav>
 

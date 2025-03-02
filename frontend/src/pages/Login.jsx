@@ -65,7 +65,7 @@ const Login = () => {
             navigate("/teacher");
             break;
           case "Student":
-            navigate("/");
+            navigate("/student");
             break;
           default:
             toast.error("Invalid role");

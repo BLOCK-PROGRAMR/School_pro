@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const database = require("./config/database");
 require("dotenv").config();
 const app = express();
+
+// Import all routes
 const router = require("./routers/route");
 const branchRoutes = require("./routers/BranchRoutes");
 const protect = require("./middleware/Authtoken");
@@ -32,11 +34,15 @@ const accountRoutes = require("./routers/AccountRoutes");
 const PromoteRoutes = require("./routers/PromoteRoutes.js");
 const BankRoutes = require("./routers/BankRoutes.js");
 const DeleteRoutes = require("./routers/DeleteRoutes.js");
+const NoticeRoutes = require("./routers/NoticeRoutes.js");
+const trashRoutes = require('./routers/trash.js');
 
+// Middleware
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
+// Routes
 app.use("/api", router);
 app.use("/api/branch", protect.authMiddleware, branchRoutes);
 app.use("/api/branch", protect.authMiddleware, userRoutes);
@@ -54,6 +60,7 @@ app.use("/api/teachers", protect.authMiddleware, teacherRoutes);
 app.use("/api/teachersassingn", protect.authMiddleware, teacherAssignRoutes);
 app.use("/api/workingdays", protect.authMiddleware, workingdays);
 app.use("/api/attendance", protect.authMiddleware, attendanceRoutes);
+app.use("/api/homework", protect.authMiddleware, homeworkroutes);
 app.use("/api/ledger", protect.authMiddleware, ledgerRoutes);
 app.use("/api/receipts", protect.authMiddleware, receiptRoutes);
 app.use("/api/enquiry", protect.authMiddleware, enquiryRoutes);
@@ -62,14 +69,11 @@ app.use("/api/books", protect.authMiddleware, bookRoutes);
 app.use("/api/accounts", protect.authMiddleware, accountRoutes);
 app.use("/api/promote", protect.authMiddleware, PromoteRoutes);
 app.use("/api/bank", protect.authMiddleware, BankRoutes);
-app.use("/api/academic", protect.authMiddleware, DeleteRoutes)
-
-
-
-const trashRoutes = require('./routers/trash.js');
-
-// Add this line where you set up other routes 
+app.use("/api/academic", protect.authMiddleware, DeleteRoutes);
+app.use("/api/notices", protect.authMiddleware, NoticeRoutes);
 app.use("/api/trash", protect.authMiddleware, trashRoutes);
+
+// Start server
 database().then(
   app.listen(process.env.PORT, () => {
     console.log("server is running");

@@ -266,7 +266,7 @@ const Allapi = {
   // Teacher endpoints
   addTeacher: {
     url: `${backapi}/api/teachers/add-teacher`,
-    method: "POST", // Make sure method is uppercase
+    method: "POST",
   },
   getTeachers: {
     url: (academicId) => `${backapi}/api/teachers/all-teachers/${academicId}`,
@@ -352,10 +352,6 @@ const Allapi = {
     url: `${backapi}/api/attendance/update-absentees`,
     method: "PUT",
   },
-  getMonthlyAbsents: {
-    url: `${backapi}/api/attendance/monthly-absents`,
-    method: "GET",
-  },
   createHomeWork: {
     url: `${backapi}/api/homework/`,
     method: "POST",
@@ -439,6 +435,28 @@ const Allapi = {
     url: (sid) => `${backapi}/api/trash/delete-permanently/${sid}`,
     method: "DELETE",
   },
+  
+  // Notice endpoints
+  addNotice: {
+    url: `${backapi}/api/notices/add-notice`,
+    method: "POST",
+  },
+  getNotices: {
+    url: `${backapi}/api/notices/get-notices`,
+    method: "GET",
+  },
+  getNoticeById: {
+    url: (noticeId) => `${backapi}/api/notices/get-notice/${noticeId}`,
+    method: "GET",
+  },
+  deleteNotice: {
+    url: (noticeId) => `${backapi}/api/notices/delete-notice/${noticeId}`,
+    method: "DELETE",
+  },
+  updateNotice: {
+    url: (noticeId) => `${backapi}/api/notices/update-notice/${noticeId}`,
+    method: "PUT",
+  }
 };
 
 export default Allapi;
