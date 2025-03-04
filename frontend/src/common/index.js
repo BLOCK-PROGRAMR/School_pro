@@ -402,7 +402,7 @@ const Allapi = {
   },
   getAccounts: {
     url: (branchId, academicId) =>
-      `${backapi}/api/accounts?branchId=${branchId}&academicId=${academicId}`,
+      `${backapi}/api/accounts?branchId=${branchId}&academic_id=${academicId}`,
     method: "GET",
   },
   updateAccount: {

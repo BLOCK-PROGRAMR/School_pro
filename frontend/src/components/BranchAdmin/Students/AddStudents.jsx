@@ -116,6 +116,7 @@ const AddStudents = () => {
       const years = res.data;
       const present_Acad = years.find((year) => year._id == acid);
       const yearSuffix = present_Acad.year.slice(-2);
+      
       console.log("present academic is", yearSuffix);
       const studentCountResponse = await fetch(
         Allapi.getStudentCountByAcademicYear.url(acid),
@@ -133,10 +134,20 @@ const AddStudents = () => {
 
       const studentCountData = await studentCountResponse.json();
       if (studentCountData.success) {
-        const currentCount = studentCountData.count; // Increment for the new student
+        
+        const currentCount = studentCountData.count;
+     
+        const paddedCount = currentCount.toString().padStart(6, '0');
+        alert(paddedCount)
+        // Get the first two digits
+        const lastFourDigits = parseInt(paddedCount.slice(-4));
+   
+// Increment for the new student
         setstdcount(currentCount);
         setysuffix(yearSuffix);
-        const id = `${String(currentCount)}`;
+        const prefix=parseInt(yearSuffix.padEnd(6,"0"))
+        console.log("last four digits are",lastFourDigits);
+        const id = `${String( prefix+lastFourDigits)}`;
 
         // alert(id)
         // Update the form data
