@@ -1,13 +1,14 @@
- 
+
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Home, UserCircle, GraduationCap, ClipboardList, Users, Menu, LogOut, X, Calendar, Book, PieChart } from 'lucide-react';
+import { Home, UserCircle, GraduationCap, ClipboardList, Users, Menu, LogOut, X, Calendar, Book, PieChart, PenIcon, BookCheckIcon } from 'lucide-react';
 
 const TeacherSidebar = ({ isSidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [examDropdownOpen, setExamDropdownOpen] = useState(false);
+  const [homeDropdownOpen, setHomeDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -20,12 +21,20 @@ const TeacherSidebar = ({ isSidebarOpen, setSidebarOpen }) => {
   const menuItems = [
     { path: "/teacher", icon: Home, label: "Dashboard" },
     { path: "/teacher/portfolio", icon: UserCircle, label: "Edit Portfolio" },
+    // { path: "/teacher/homework", icon: GraduationCap, label: "Homework" },
+    // { path: "/teacher/viewhomework", icon: GraduationCap, label: "View Homework" },
+    // { path: "/teacher/marks", icon: ClipboardList, label: "Marks" },
+    { path: "/teacher/attendance", icon: Users, label: "Attendance" }, {
+
+      path: "/teacher/enquiry", icon: PenIcon, label: "Enquiry"
+    }, {
+      path: "/teacher/compain", icon: BookCheckIcon, label: "Compain"
+    }
+  ];
+  const Home_work = [
     { path: "/teacher/homework", icon: GraduationCap, label: "Homework" },
     { path: "/teacher/viewhomework", icon: GraduationCap, label: "View Homework" },
-    { path: "/teacher/marks", icon: ClipboardList, label: "Marks" },
-    { path: "/teacher/attendance", icon: Users, label: "Attendance" }
-  ];
-
+  ]
   const examItems = [
     { path: "/teacher/exams/timetable", icon: Calendar, label: "Timetable" },
     { path: "/teacher/exams/syllabus", icon: Book, label: "Syllabus" },
@@ -66,6 +75,50 @@ const TeacherSidebar = ({ isSidebarOpen, setSidebarOpen }) => {
                 <span>{item.label}</span>
               </Link>
             ))}
+            <div className='relative'>
+
+              <button
+                onClick={() => setHomeDropdownOpen(!homeDropdownOpen)}
+                className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 hover:bg-blue-200 ${location.pathname.includes('/teacher/exams') ? 'bg-blue-800' : ''
+                  }`}
+              >
+                <GraduationCap className="w-5 h-5 mr-3" />
+                <span>Homeworks</span>
+                <svg
+                  className={`w-4 h-4 ml-auto transition-transform duration-200 ${homeDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              {/* Homework */}
+              <div
+                className={`pl-4 mt-2 space-y-2 transition-all duration-200 ${homeDropdownOpen ? 'block' : 'hidden'
+                  }`}
+              >
+                {Home_work.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-blue-800 ${location.pathname === item.path ? 'bg-blue-800' : ''
+                      }`}
+                  >
+                    <item.icon className="w-5 h-5 mr-3" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+
+
+            </div>
 
             {/* Exams Dropdown */}
             <div className="relative">

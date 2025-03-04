@@ -97,6 +97,15 @@ import StudentDashboard from "./components/Student/StudentDashboard.jsx";
 
 // Import CSS
 import "./index.css";
+import Enquiry from "./components/Teacher/Enquiry/Enquiry.jsx";
+import Compain from "./components/Teacher/compain/Compain.jsx";
+import AddGallery from "./components/BranchAdmin/Gallery/AddGallery.jsx";
+import ViewGallery from "./components/BranchAdmin/Gallery/viewGallery.jsx";
+import AddLink from "./components/BranchAdmin/Links/addLink.jsx";
+import ViewLinks from "./components/BranchAdmin/Links/ViewLinks.jsx";
+import Checkbar from "./components/BranchAdmin/checkbar.jsx";
+import MBranchAdminlayout from "./components/BranchAdmin/MobileView/MBranchAdminLayout.jsx";
+import MDashBoard from "./components/BranchAdmin/MobileView/MDashBoard.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -159,7 +168,7 @@ const Router = createBrowserRouter([
             path: "",
             element: <TeacherDashboard />,
             errorElement: <ErrorBoundary />,
-          }, 
+          },
           {
             path: "exams/timetable",
             element: <Timetable />,
@@ -174,6 +183,15 @@ const Router = createBrowserRouter([
             path: "exams/marks",
             element: <Marks />,
             errorElement: <ErrorBoundary />
+          }, {
+            path: "enquiry",
+            element: <Enquiry />,
+            errorElement: <ErrorBoundary />
+          }, {
+            path: "compain",
+            element: <Compain />,
+            errorElement: <ErrorBoundary />
+
           },
           {
             path: "portfolio",
@@ -250,13 +268,17 @@ const Router = createBrowserRouter([
       // Branch Admin Routes
       {
         path: "/branch-admin",
-        element: <BranchAdminlayout />,
+        element: <Checkbar />,
         errorElement: <ErrorBoundary />,
         children: [
           {
             path: "",
             element: <Bdashboard />,
             errorElement: <ErrorBoundary />,
+          }, {
+            path: "mdashboard",
+            element: <MDashBoard />,
+            errorElement: <ErrorBoundary />
           },
           {
             path: "fee-reciepts/:academicYearID",
@@ -272,7 +294,7 @@ const Router = createBrowserRouter([
             path: "trash",
             element: <Trash />,
             errorElement: <ErrorBoundary />,
-          }, 
+          },
           {
             path: "prev-data",
             element: <Delete />
@@ -295,6 +317,25 @@ const Router = createBrowserRouter([
           {
             path: "notice/view",
             element: <ViewNotice />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "gallery/add",
+            element: <AddGallery />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "gallery/view",
+            element: <ViewGallery />,
+            errorElement: <ErrorBoundary />
+          }, {
+            path: "links/add",
+            element: <AddLink />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "links/view",
+            element: <ViewLinks />,
             errorElement: <ErrorBoundary />
           },
           {

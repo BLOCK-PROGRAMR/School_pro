@@ -727,6 +727,21 @@ const Sidebar = () => {
                     <MenuItem to="/branch-admin/notice/view" icon={List}>
                       View Notices
                     </MenuItem>
+
+                    <MenuItem to="/branch-admin/gallery/add" icon={PlusCircle}>
+                      AddGallery
+                    </MenuItem>
+                    <MenuItem to="/branch-admin/gallery/view" icon={List}>
+                      ViewGallery
+                    </MenuItem>
+                    <MenuItem to="/branch-admin/links/add" icon={PlusCircle}>
+                      AddLink
+                    </MenuItem>
+                    <MenuItem to="/branch-admin/links/view" icon={List}>
+                      ViewLink
+                    </MenuItem>
+
+
                   </div>
                 </div>
               </div>
