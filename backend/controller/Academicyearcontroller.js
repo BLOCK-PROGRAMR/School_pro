@@ -1,6 +1,6 @@
 
 const Student = require('../models/student'); // Assuming you have a Student model
-
+const Account= require("../models/Account");
 
 const mongoose = require("mongoose");
 const AcademicYear = require("../models/Acyear");
@@ -166,6 +166,26 @@ exports.createAcademicYear = async (req, res) => {
     
         // Insert new buses into the database
         const insertedBuses = await Bus.insertMany(newBuses);
+        // Copy Accountants
+const previousAccountants = await Account.find({ academic_id: previousAcademicYear._id });
+const newAccountants = previousAccountants.map(accountant => ({
+  name: accountant.name,
+  username: accountant.username,
+  password: accountant.password, // Assuming passwords are hashed already
+  phone: accountant.phone,
+  address: accountant.address,
+  qualification: accountant.qualification,
+  experience: accountant.experience,
+  joiningDate: accountant.joiningDate,
+  aadharNumber: accountant.aadharNumber,
+  branchId: accountant.branchId,
+  academic_id: academicYear._id, // Assign new academic year
+  role: accountant.role,
+  isActive: accountant.isActive
+}));
+
+await Account.insertMany(newAccountants);
+
 
        academicYear.towns.push(...insertedTowns.map(town=>town._id) );
        academicYear.buses.push(...insertedBuses.map(bus => bus._id));

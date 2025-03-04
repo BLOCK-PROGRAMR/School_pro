@@ -65,7 +65,8 @@ exports.addAccount = async (req, res) => {
 exports.getAccounts = async (req, res) => {
     try {
         const { branchId, academic_id } = req.query;
-        
+        // console.log('branchId:', branchId);
+        console.log('academic_id:', academic_id);
         const query = { 
             isActive: true,
             ...(branchId && { branchId }),

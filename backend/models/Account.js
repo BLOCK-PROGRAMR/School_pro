@@ -79,7 +79,9 @@ const accountSchema = new mongoose.Schema({
 
 // Index for faster queries
 accountSchema.index({ branchId: 1, academic_id: 1 });
-accountSchema.index({ username: 1 }, { unique: true });
-accountSchema.index({ aadharNumber: 1 }, { unique: true });
+accountSchema.index({ username: 1, academic_id: 1 }, { unique: true });
+
+accountSchema.index({ aadharNumber: 1, academic_id: 1 }, { unique: true });
+
 
 module.exports = mongoose.model('Account', accountSchema);
