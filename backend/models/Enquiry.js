@@ -14,7 +14,7 @@ const enquirySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  
+
   // Address Information
   town: {
     type: String,
@@ -36,6 +36,7 @@ const enquirySchema = new mongoose.Schema({
     required: true
   },
   class: {
+
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Class',
     required: true
@@ -83,7 +84,7 @@ const enquirySchema = new mongoose.Schema({
 });
 
 // Update timestamp on save
-enquirySchema.pre('save', function(next) {
+enquirySchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
