@@ -66,11 +66,20 @@ exports.login = async (req, res) => {
     const { username, password } = req.body;
     console.log("username is: ",username);
     console.log("password is: ",password);
-    const user = await User.findOne({ username });
-      if(user){
-    console.log("user is: ",user);
-
+    
+    // First check in User model
+    let user = await User.findOne({ username });
+    let isAccountant = false;
+    
+    // If user not found in User model, check in Account model
+    if (!user) {
+      const Account = require("../models/Account");
+      user = await Account.findOne({ username });
+      if (user) {
+        isAccountant = true;
       }
+    }
+    
     if (!user) {
       return res
         .status(400)
@@ -99,7 +108,7 @@ exports.login = async (req, res) => {
       id: user._id,
       role: user.role,
       name: user.name,
-      branch: user.branch ? user.branch : null,
+      branch: user.branch ? user.branch : (user.branchId ? user.branchId : null),
       ...(teacherData && { teacherData }), // Include teacher data if present
     };
     console.log("token payload: ",tokenPayload)

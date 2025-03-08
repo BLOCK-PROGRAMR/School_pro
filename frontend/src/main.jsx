@@ -107,6 +107,11 @@ import Checkbar from "./components/BranchAdmin/checkbar.jsx";
 import MBranchAdminlayout from "./components/BranchAdmin/MobileView/MBranchAdminLayout.jsx";
 import MDashBoard from "./components/BranchAdmin/MobileView/MDashBoard.jsx";
 
+// Accountant Components
+import AccountantLayout from "./components/Accountant/AccountantLayout.jsx";
+import AccountantDashboard from "./components/Accountant/Dashboard/AccountantDashboard.jsx";
+import AccountantProfile from "./components/Accountant/Profile/AccountantProfile.jsx";
+
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -628,6 +633,26 @@ const Router = createBrowserRouter([
             element: <FeeReport />,
             errorElement: <ErrorBoundary />,
           },
+        ],
+      },
+
+      // Accountant Routes
+      {
+        path: "/accountant",
+        element: <AccountantLayout />,
+        errorElement: <ErrorBoundary />,
+        children: [
+          {
+            path: "",
+            element: <AccountantDashboard />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "profile",
+            element: <AccountantProfile />,
+            errorElement: <ErrorBoundary />,
+          },
+          // Additional accountant routes will be added here as needed
         ],
       },
     ],
