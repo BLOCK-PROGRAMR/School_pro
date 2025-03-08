@@ -24,12 +24,14 @@ const TeacherSidebar = ({ isSidebarOpen, setSidebarOpen }) => {
     // { path: "/teacher/homework", icon: GraduationCap, label: "Homework" },
     // { path: "/teacher/viewhomework", icon: GraduationCap, label: "View Homework" },
     // { path: "/teacher/marks", icon: ClipboardList, label: "Marks" },
-    { path: "/teacher/attendance", icon: Users, label: "Attendance" }, {
+    // { path: "/teacher/attendance", icon: Users, label: "Attendance" }, 
+    , {
 
       path: "/teacher/enquiry", icon: PenIcon, label: "Enquiry"
-    }, {
-      path: "/teacher/compain", icon: BookCheckIcon, label: "Compain"
-    }
+    },
+    //  {
+    //   path: "/teacher/compain", icon: BookCheckIcon, label: "Compain"
+    // }
   ];
   const Home_work = [
     { path: "/teacher/homework", icon: GraduationCap, label: "Homework" },
