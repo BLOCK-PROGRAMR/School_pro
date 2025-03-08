@@ -1,421 +1,459 @@
-import React, { useContext, useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Allapi from "../../common";
-import { mycon } from "../../store/Mycontext";
+import React, { useState, useEffect, useContext } from 'react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Printer } from 'lucide-react';
+import Allapi from '../../common';
+import { mycon } from '../../store/Mycontext';
 
 const ExamSyllabus = () => {
   const { branchdet } = useContext(mycon);
-  const [acid, setAcid] = useState("");
-  const [currentAcademicYear, setCurrentAcademicYear] = useState("");
-
-  // Form states
-  const [examList, setExamList] = useState([]);
-  const [uniqueClasses, setUniqueClasses] = useState([]);
-  const [uniqueSections, setUniqueSections] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("");
-  const [selectedSection, setSelectedSection] = useState("");
-  const [selectedExam, setSelectedExam] = useState(null);
-  const [filteredExams, setFilteredExams] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [student, setStudent] = useState(null);
+  const [exams, setExams] = useState([]);
+  const [selectedExam, setSelectedExam] = useState('');
   const [syllabusData, setSyllabusData] = useState(null);
+  const [academicYear, setAcademicYear] = useState(null);
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
 
-  //new
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedSyllabus, setEditedSyllabus] = useState({});
-
-  const curracad = async (bid) => {
-    try {
-      const response = await fetch(Allapi.getAcademicYears.url(bid), {
-        method: Allapi.getAcademicYears.method,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch academic years");
-
-      const res = await response.json();
-      if (res.success && res.data.length > 0) {
-        const latestAcademicYear = res.data
-          .sort((a, b) => {
-            const [startA, endA] = a.year.split("-").map(Number);
-            const [startB, endB] = b.year.split("-").map(Number);
-            return startB - startA || endB - endA;
-          })[0];
-
-        setAcid(latestAcademicYear._id);
-        setCurrentAcademicYear(latestAcademicYear.year);
-      }
-    } catch (error) {
-      toast.error("Failed to fetch academic year");
+  useEffect(() => {
+    if (userData.username) {
+      fetchStudentDetails();
+    } else {
+      setError('User data not found');
+      setLoading(false);
     }
-  };
+  }, [userData.username]);
 
-  const fetchAllExams = async () => {
+  const fetchStudentDetails = async () => {
     try {
-      const response = await fetch(Allapi.getEveryExam.url(branchdet._id), {
-        method: Allapi.getEveryExam.method,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        console.log("all exams are", result.data);
-        setExamList(result.data);
-        const classes = [...new Map(result.data.map(exam =>
-          [exam.classId._id, { id: exam.classId._id, name: exam.classId.name }]
-        )).values()];
-        setUniqueClasses(classes);
-      } else {
-        toast.error("Failed to fetch exams");
-      }
-    } catch (error) {
-      toast.error("Error fetching exams");
-    }
-  };
-
-  const fetchSyllabus = async () => {
-    if (!selectedExam) return;
-
-    try {
+      setLoading(true);
+      console.log("Fetching student details for:", userData.username);
       const response = await fetch(
-        Allapi.getAllSyllabus.url(branchdet._id, acid),
+        `${Allapi.backapi}/api/students/get-studentById/${userData.username}`,
         {
-          method: Allapi.getAllSyllabus.method,
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
 
-      const result = await response.json();
-      if (result.success) {
-        // Filter syllabus for selected class, section and exam
-        const relevantSyllabus = result.data.find(
-          s =>
-            s.classId === selectedClass &&
-            s.sectionId === selectedSection &&
-            s.examName === selectedExam.examName
+      const data = await response.json();
+      console.log("Student data response:", data);
+      
+      if (data.success && data.data) {
+        setStudent(data.data);
+        
+        // Extract class and section IDs, handling different possible structures
+        let classId, sectionId;
+        
+        // Check for class ID in different possible locations
+        if (data.data.class && data.data.class._id) {
+          classId = data.data.class._id;
+        } else if (data.data.class && data.data.class.id) {
+          classId = data.data.class.id;
+        } else if (data.data.classId) {
+          classId = data.data.classId;
+        }
+        
+        // Check for section ID in different possible locations
+        if (data.data.section && data.data.section._id) {
+          sectionId = data.data.section._id;
+        } else if (data.data.section && data.data.section.id) {
+          sectionId = data.data.section.id;
+        } else if (data.data.sectionId) {
+          sectionId = data.data.sectionId;
+        }
+        
+        console.log("Extracted IDs:", { classId, sectionId, branchId: branchdet?._id });
+        
+        // Fetch academic year
+        if (data.data.academic_id) {
+          setAcademicYear(data.data.academic_id);
+        }
+        
+        // Now fetch exams using the extracted IDs
+        if (classId && sectionId && branchdet && branchdet._id) {
+          console.log("Fetching exams with params:", {
+            classId,
+            sectionId,
+            branchId: branchdet._id
+          });
+          
+          await fetchExams(classId, sectionId, branchdet._id);
+        } else {
+          console.error('Missing required data:', {
+            classId,
+            sectionId,
+            branchId: branchdet?._id
+          });
+          toast.error('Student class or section information is missing');
+        }
+      } else {
+        setError('Failed to fetch student details');
+        toast.error('Failed to fetch student details');
+      }
+    } catch (err) {
+      console.error('Error fetching student details:', err);
+      setError('Error fetching student details');
+      toast.error('Error fetching student details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchExams = async (classId, sectionId, branchId) => {
+    try {
+      console.log(`Calling API: ${Allapi.backapi}/api/exams/all-exams/${classId}/${sectionId}/${branchId}`);
+      
+      // First try with the standard endpoint
+      let response = await fetch(
+        `${Allapi.backapi}/api/exams/all-exams/${classId}/${sectionId}/${branchId}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      let data = await response.json();
+      console.log("Exams API response:", data);
+      
+      // If the first attempt fails or returns no exams, try with the alternative endpoint
+      if (!data.success || !data.data || data.data.length === 0) {
+        console.log("First attempt failed or returned no exams, trying alternative endpoint");
+        
+        // Try with the branch-only endpoint as a fallback
+        response = await fetch(
+          `${Allapi.backapi}/api/exams/all-exams/${branchId}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          }
         );
-
-        setSyllabusData(relevantSyllabus);
-      } else {
-        toast.error("Failed to fetch syllabus");
+        
+        data = await response.json();
+        console.log("Alternative API response:", data);
+        
+        // If we got exams from the alternative endpoint, filter them for this class and section
+        if (data.success && data.data && data.data.length > 0) {
+          // Helper function to compare MongoDB IDs which might be in different formats
+          const compareIds = (id1, id2) => {
+            if (!id1 || !id2) return false;
+            
+            // Convert to string if they're objects with toString method
+            const str1 = typeof id1 === 'object' && id1 !== null && id1.toString ? id1.toString() : String(id1);
+            const str2 = typeof id2 === 'object' && id2 !== null && id2.toString ? id2.toString() : String(id2);
+            
+            return str1 === str2;
+          };
+          
+          const filteredExams = data.data.filter(exam => {
+            // Get the class ID from the exam (might be an object or a string)
+            const examClassId = exam.classId && exam.classId._id ? exam.classId._id : exam.classId;
+            
+            // Get the section ID from the exam (might be an object or a string)
+            const examSectionId = exam.sectionId && exam.sectionId._id ? exam.sectionId._id : exam.sectionId;
+            
+            // Compare the IDs
+            return compareIds(examClassId, classId) && compareIds(examSectionId, sectionId);
+          });
+          
+          console.log("Filtered exams:", filteredExams);
+          
+          if (filteredExams.length > 0) {
+            setExams(filteredExams);
+            setSelectedExam(filteredExams[0]._id);
+            console.log("Exams loaded successfully from alternative endpoint:", filteredExams.length, "exams found");
+            
+            // Fetch syllabus for the first exam
+            await fetchSyllabus(filteredExams[0]._id);
+            return;
+          }
+        }
       }
-    } catch (error) {
-      toast.error("Error fetching syllabus");
+      
+      // Process the original response if it was successful
+      if (data.success) {
+        if (data.data && data.data.length > 0) {
+          setExams(data.data);
+          setSelectedExam(data.data[0]._id);
+          console.log("Exams loaded successfully:", data.data.length, "exams found");
+          
+          // Fetch syllabus for the first exam
+          await fetchSyllabus(data.data[0]._id);
+        } else {
+          console.log("No exams found for this student's class and section");
+          setExams([]);
+        }
+      } else {
+        console.error('Failed to fetch exams:', data);
+        toast.error(data.message || 'Failed to fetch exams');
+      }
+    } catch (err) {
+      console.error('Error fetching exams:', err);
+      toast.error('Error fetching exams: ' + (err.message || 'Unknown error'));
     }
   };
 
-  const handleDeleteSyllabus = async () => {
-    if (!syllabusData?._id) return;
+  const fetchSyllabus = async (examId) => {
+    if (!branchdet || !branchdet._id || !academicYear) {
+      console.error('Missing required data for syllabus fetch:', {
+        branchId: branchdet?._id,
+        academicYear
+      });
+      return;
+    }
 
     try {
-      const confirmDelete = window.confirm("Are you sure you want to delete this syllabus?");
-      if (!confirmDelete) return;
-
+      console.log(`Fetching syllabus for exam: ${examId}`);
       const response = await fetch(
-        Allapi.deleteSyllabus.url(syllabusData._id),
+        `${Allapi.backapi}/api/syllabus/${branchdet._id}/syllabus/${academicYear}`,
         {
-          method: Allapi.deleteSyllabus.method,
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
 
-      if (response.ok) {
-        toast.success("Syllabus deleted successfully");
-        setSyllabusData(null);
-        setSelectedExam(null);
-        setSelectedClass("");
-        setSelectedSection("");
+      const data = await response.json();
+      console.log("Syllabus API response:", data);
+
+      if (data.success && data.data) {
+        // Find the syllabus for the selected exam
+        const selectedExamData = exams.find(exam => exam._id === examId);
+        
+        if (selectedExamData) {
+          const relevantSyllabus = data.data.find(
+            s => s.examName === selectedExamData.examName
+          );
+          
+          console.log("Found syllabus:", relevantSyllabus);
+          setSyllabusData(relevantSyllabus);
+        } else {
+          console.log("No exam found with ID:", examId);
+          setSyllabusData(null);
+        }
       } else {
-        const result = await response.json();
-        toast.error(result.message || "Failed to delete syllabus");
+        console.error('Failed to fetch syllabus:', data);
+        toast.error(data.message || 'Failed to fetch syllabus');
+        setSyllabusData(null);
       }
-    } catch (error) {
-      toast.error("Error deleting syllabus");
+    } catch (err) {
+      console.error('Error fetching syllabus:', err);
+      toast.error('Error fetching syllabus: ' + (err.message || 'Unknown error'));
+      setSyllabusData(null);
     }
-  };
-
-  const handleClassChange = (e) => {
-    setSelectedClass(e.target.value);
-    setSelectedSection("");
-    setSelectedExam(null);
-    setSyllabusData(null);
-  };
-
-  const handleSectionChange = (e) => {
-    setSelectedSection(e.target.value);
-    setSelectedExam(null);
-    setSyllabusData(null);
   };
 
   const handleExamChange = (e) => {
-    const exam = filteredExams.find((ex) => ex._id === e.target.value);
-    setSelectedExam(exam);
-    setSyllabusData(null);
+    const examId = e.target.value;
+    setSelectedExam(examId);
+    fetchSyllabus(examId);
   };
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-    // Initialize edited syllabus with current values
-    const initialEditedSyllabus = {};
-    selectedExam.subjects.forEach((subject) => {
-      initialEditedSyllabus[subject._id] = syllabusData.syllabus[subject._id] || "";
-    });
-    setEditedSyllabus(initialEditedSyllabus);
-  };
+  const handlePrint = () => {
+    if (!syllabusData) return;
 
-  const handleSyllabusChange = (subjectId, value) => {
-    setEditedSyllabus(prev => ({
-      ...prev,
-      [subjectId]: value
-    }));
-  };
+    const printWindow = window.open('', '_blank');
+    const selectedExamData = exams.find(exam => exam._id === selectedExam);
 
-  const handleUpdateSyllabus = async () => {
-    console.log("subjed data._id: ", syllabusData._id);
-    try {
-      const response = await fetch(
+    if (printWindow && selectedExamData && syllabusData) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${selectedExamData.examName} - Syllabus</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                color: #333;
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 20px;
+              }
+              .exam-title {
+                font-size: 24px;
+                color: #4338ca;
+                margin-bottom: 8px;
+              }
+              .exam-info {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 20px;
+              }
+              .subject-container {
+                margin-bottom: 20px;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                overflow: hidden;
+              }
+              .subject-header {
+                background-color: #f3f4f6;
+                padding: 12px 16px;
+                font-weight: bold;
+                border-bottom: 1px solid #e5e7eb;
+              }
+              .subject-content {
+                padding: 16px;
+                white-space: pre-wrap;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="exam-title">${selectedExamData.examName} - Syllabus</div>
+              <div class="exam-info">
+                Student: ${student.name} (${student.idNo})<br>
+                Class: ${student.class?.name || 'N/A'} | Section: ${student.section?.name || 'N/A'}
+              </div>
+            </div>
+            ${Array.from(syllabusData.syllabus.entries()).map(([subject, content]) => `
+              <div class="subject-container">
+                <div class="subject-header">${subject}</div>
+                <div class="subject-content">${content}</div>
+              </div>
+            `).join('')}
+          </body>
+        </html>
+      `);
 
-        Allapi.updateSyllabus.url(branchdet._id, syllabusData._id),
-        {
-          method: Allapi.updateSyllabus.method,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            syllabus: editedSyllabus
-          })
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          toast.success("Syllabus updated successfully");
-          setIsEditing(false);
-          // Refresh syllabus data
-          fetchSyllabus();
-        } else {
-          toast.error(result.message || "Failed to update syllabus");
-        }
-      } else {
-        toast.error("Failed to update syllabus");
-      }
-    } catch (error) {
-      toast.error("Error updating syllabus");
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.onafterprint = () => printWindow.close();
     }
   };
 
-  useEffect(() => {
-    if (branchdet?._id) {
-      curracad(branchdet._id);
-    }
-  }, [branchdet]);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-16 h-16 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (acid) {
-      fetchAllExams();
-    }
-  }, [acid]);
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="p-4 text-red-500 bg-red-100 rounded-lg">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (selectedClass) {
-      const sections = examList
-        .filter((exam) => exam.classId._id === selectedClass)
-        .map((exam) => ({
-          id: exam.sectionId._id,
-          name: exam.sectionId.name,
-        }));
-      const uniqueSections = [...new Map(sections.map((section) => [section.id, section])).values()];
-      setUniqueSections(uniqueSections);
-    }
-  }, [selectedClass]);
+  if (!student) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="p-4 text-yellow-700 bg-yellow-100 rounded-lg">
+          No student data available
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (selectedClass && selectedSection) {
-      const exams = examList.filter(
-        (exam) =>
-          exam.classId._id === selectedClass &&
-          exam.sectionId._id === selectedSection
-      );
-      setFilteredExams(exams);
-    }
-  }, [selectedClass, selectedSection]);
-
-  useEffect(() => {
-    if (selectedExam) {
-      fetchSyllabus();
-    }
-  }, [selectedExam]);
+  const selectedExamData = exams.find(exam => exam._id === selectedExam);
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-gray-100">
-      <div className="p-8 mx-auto bg-white rounded-lg shadow-lg max-w-7xl">
-        <h2 className="mb-6 text-3xl font-bold text-gray-800">View Syllabus</h2>
-
-        <div className="mb-6">
-          <label className="block mb-2 text-sm font-medium text-gray-700">
-            Academic Year
-          </label>
-          <input
-            type="text"
-            value={currentAcademicYear}
-            disabled
-            className="w-full p-3 text-gray-700 border rounded bg-gray-50"
-          />
+    <div className="p-6 bg-white rounded-lg shadow-lg">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">My Exam Syllabus</h1>
+        <div className="text-sm text-gray-600">
+          <p>Name: {student.name}</p>
+          <p>ID: {student.idNo}</p>
+          <p>
+            Class: {student.class?.name || 'N/A'} - Section:{' '}
+            {student.section?.name || 'N/A'}
+          </p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-          <div>
+      {exams.length > 0 ? (
+        <>
+          <div className="mb-6">
             <label className="block mb-2 text-sm font-medium text-gray-700">
-              Class
+              Select Exam
             </label>
             <select
-              value={selectedClass}
-              onChange={handleClassChange}
-              className="w-full p-3 text-gray-700 bg-white border rounded"
+              value={selectedExam}
+              onChange={handleExamChange}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">Select Class</option>
-              {uniqueClasses.map((cls) => (
-                <option key={cls.id} value={cls.id}>
-                  {cls.name}
+              {exams.map(exam => (
+                <option key={exam._id} value={exam._id}>
+                  {exam.examName}
                 </option>
               ))}
             </select>
           </div>
 
-          {selectedClass && (
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Section
-              </label>
-              <select
-                value={selectedSection}
-                onChange={handleSectionChange}
-                className="w-full p-3 text-gray-700 bg-white border rounded"
-              >
-                <option value="">Select Section</option>
-                {uniqueSections.map((section) => (
-                  <option key={section.id} value={section.id}>
-                    {section.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          {syllabusData ? (
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {selectedExamData?.examName} Syllabus
+                </h2>
+                <button
+                  onClick={handlePrint}
+                  className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print Syllabus
+                </button>
+              </div>
 
-          {selectedSection && (
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                Exam
-              </label>
-              <select
-                value={selectedExam?._id || ""}
-                onChange={handleExamChange}
-                className="w-full p-3 text-gray-700 bg-white border rounded"
-              >
-                <option value="">Select Exam</option>
-                {filteredExams.map((exam) => (
-                  <option key={exam._id} value={exam._id}>
-                    {exam.examName}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-4">
+                {syllabusData.syllabus && syllabusData.syllabus.size > 0 ? (
+                  Array.from(syllabusData.syllabus.entries()).map(([subject, content]) => (
+                    <div key={subject} className="overflow-hidden border rounded-lg">
+                      <div className="px-4 py-3 font-medium text-gray-700 bg-gray-50">
+                        {subject}
+                      </div>
+                      <div className="p-4 whitespace-pre-wrap">
+                        {content}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-lg">
+                    No syllabus content available for this exam.
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-lg">
+              <p>No syllabus available for the selected exam.</p>
+              <p className="mt-2 text-sm">This could be because:</p>
+              <ul className="mt-1 text-sm list-disc list-inside">
+                <li>The syllabus has not been uploaded yet</li>
+                <li>There might be a technical issue with the syllabus data</li>
+              </ul>
+              <p className="mt-3 text-sm">Please contact your teacher or administrator if you believe this is an error.</p>
             </div>
           )}
+        </>
+      ) : (
+        <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-lg">
+          <p>No exams available at the moment.</p>
+          <p className="mt-2 text-sm">This could be because:</p>
+          <ul className="mt-1 text-sm list-disc list-inside">
+            <li>No exams have been scheduled for your class yet</li>
+            <li>Your class or section information may be incorrect</li>
+            <li>There might be a technical issue with the exam data</li>
+          </ul>
+          <p className="mt-3 text-sm">Please contact your administrator if you believe this is an error.</p>
         </div>
-
-        {syllabusData && selectedExam?.subjects?.length > 0 && (
-          <div className="mt-6">
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white border border-collapse border-gray-300">
-                <thead>
-                  <tr className="bg-gray-100 border-b border-gray-300">
-                    <th className="p-4 font-semibold text-left text-gray-700 border-r border-gray-300">
-                      Subject Name
-                    </th>
-                    <th className="p-4 font-semibold text-left text-gray-700">
-                      Syllabus
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedExam.subjects.map((subject) => (
-                    <tr key={subject._id} className="border-b border-gray-300">
-                      <td className="p-4 font-medium text-gray-700 border-r border-gray-300">
-                        {subject.name}
-                      </td>
-                      <td className="p-4 text-gray-900">
-                        {isEditing ? (
-                          <textarea
-                            value={editedSyllabus[subject._id] || ""}
-                            onChange={(e) => handleSyllabusChange(subject._id, e.target.value)}
-                            className="w-full p-2 text-gray-900 bg-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows="3"
-                          />
-                        ) : (
-                          syllabusData.syllabus[subject._id] || "No syllabus added"
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex gap-4 mt-6">
-              {isEditing ? (
-                <>
-                  <button
-                    onClick={handleUpdateSyllabus}
-                    className="px-6 py-3 text-white transition-colors bg-green-600 rounded hover:bg-green-700"
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="px-6 py-3 text-white transition-colors bg-gray-600 rounded hover:bg-gray-700"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={handleEditClick}
-                    className="px-6 py-3 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
-                  >
-                    Edit Syllabus
-                  </button>
-                  <button
-                    onClick={handleDeleteSyllabus}
-                    className="px-6 py-3 text-white transition-colors bg-red-600 rounded hover:bg-red-700"
-                  >
-                    Delete Syllabus
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {selectedExam && !syllabusData && (
-          <div className="p-4 mt-6 text-center text-gray-700 bg-gray-100 rounded">
-            No syllabus found for the selected criteria
-          </div>
-        )}
-
-        <ToastContainer />
-      </div>
+      )}
     </div>
   );
 };
 
-export default ExamSyllabus;
+export default ExamSyllabus; 
