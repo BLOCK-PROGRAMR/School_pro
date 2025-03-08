@@ -1,11 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { 
   User, 
-  BookOpen, 
   Bell, 
-  Bus, 
   DollarSign, 
   Calendar, 
   FileText,
@@ -15,7 +12,7 @@ import {
 import Allapi from '../../common';
 
 const StudentDashboard = () => {
-  const [student] = useOutletContext();
+  const student = useOutletContext(); // Ensure useOutletContext is used correctly
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
 
