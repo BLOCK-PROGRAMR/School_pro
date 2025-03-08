@@ -105,6 +105,7 @@ const FeeReport = () => {
           (ledger) => ledger.ledgerType === "Bank"
         );
         // Flatten the bank and branch structure into a single array
+        console.log("bankedgers", bankLedgers)
         const allBranches = bankLedgers.reduce((acc, bank) => {
           const bankBranches = bank.subLedgers.map((branch) => ({
             _id: branch._id,
@@ -114,8 +115,10 @@ const FeeReport = () => {
             branchId: branch._id,
             branchName: branch.name,
           }));
+          console.log("bankBranches", bankBranches)
           return [...acc, ...bankBranches];
         }, []);
+        console.log("all branches", allBranches)
         setBankBranches(allBranches);
       }
     } catch (error) {
@@ -189,11 +192,11 @@ const FeeReport = () => {
         type === "Bank"
           ? prev.bankDetails
           : {
-              bankId: "",
-              branchId: "",
-              bankName: "",
-              branchName: "",
-            },
+            bankId: "",
+            branchId: "",
+            bankName: "",
+            branchName: "",
+          },
     }));
     setSelectedBankBranch("");
   };

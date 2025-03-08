@@ -36,6 +36,8 @@ const BankRoutes = require("./routers/BankRoutes.js");
 const DeleteRoutes = require("./routers/DeleteRoutes.js");
 const NoticeRoutes = require("./routers/NoticeRoutes.js");
 const trashRoutes = require('./routers/trash.js');
+const galleryRoutes = require("./routers/galleryRoutes.js");
+const linkRoutes = require("./routers/linkRoutes.js");
 
 // Middleware
 app.use(cors());
@@ -72,6 +74,8 @@ app.use("/api/bank", protect.authMiddleware, BankRoutes);
 app.use("/api/academic", protect.authMiddleware, DeleteRoutes);
 app.use("/api/notices", protect.authMiddleware, NoticeRoutes);
 app.use("/api/trash", protect.authMiddleware, trashRoutes);
+app.use("/api/gallery", protect.authMiddleware, galleryRoutes);
+app.use("/api/links", protect.authMiddleware, linkRoutes);
 
 // Start server
 database().then(

@@ -92,7 +92,7 @@ const ViewTimeTable = () => {
 
   const fetchExams = async () => {
     if (!selectedClass || !selectedSection || !branchdet?._id) return;
-    
+
     setLoading(true);
     try {
       const response = await fetch(Allapi.getAllExams.url(selectedClass, selectedSection, branchdet._id), {
@@ -143,7 +143,7 @@ const ViewTimeTable = () => {
     // Create a new window for printing
     const printWindow = window.open('', '_blank');
     const selectedExamData = exams.find(exam => exam._id === selectedExam);
-    
+
     if (printWindow && selectedExamData) {
       printWindow.document.write(`
         <html>
@@ -228,14 +228,14 @@ const ViewTimeTable = () => {
           </body>
         </html>
       `);
-      
+
       printWindow.document.close();
       printWindow.focus();
-      
+
       // Wait for content to load before printing
-      printWindow.onload = function() {
+      printWindow.onload = function () {
         printWindow.print();
-        printWindow.onafterprint = function() {
+        printWindow.onafterprint = function () {
           printWindow.close();
         };
       };
@@ -355,7 +355,7 @@ const ViewTimeTable = () => {
                 <div>
                   <h3 className="text-xl font-semibold text-indigo-700">{selectedExamData.examName}</h3>
                   <p className="text-sm text-gray-600">
-                    Class: {selectedExamData.classId.name} | Section: {selectedExamData.sectionId.name} | 
+                    Class: {selectedExamData.classId.name} | Section: {selectedExamData.sectionId.name} |
                     Academic Year: {selectedExamData.academicId.year}
                   </p>
                 </div>
@@ -375,10 +375,10 @@ const ViewTimeTable = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="p-6 print:p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left text-gray-500">
+                <div className="overflow-x-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <table className="w-full text-sm text-left text-gray-500  min-w-max border-collapse border ">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 print:bg-white">
                       <tr>
                         <th className="px-6 py-3 border">Subject</th>
@@ -407,9 +407,9 @@ const ViewTimeTable = () => {
         ) : (
           <div className="py-8 text-center text-gray-500 print:hidden">
             {!selectedClass ? "Please select a class to view exam timetables" :
-             !selectedSection ? "Please select a section to view exam timetables" :
-             !exams.length ? "No exam timetables found for the selected class and section" :
-             "Please select an exam to view its timetable"}
+              !selectedSection ? "Please select a section to view exam timetables" :
+                !exams.length ? "No exam timetables found for the selected class and section" :
+                  "Please select an exam to view its timetable"}
           </div>
         )}
 
