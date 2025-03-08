@@ -137,7 +137,7 @@ const Router = createBrowserRouter([
 
       // Student Routes
       {
-        path: "/student",
+        path: "/student/*",
         element: <StudentLayout />,
         errorElement: <ErrorBoundary />,
         children: [

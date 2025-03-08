@@ -3,6 +3,7 @@ const Student = require("../models/student");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const Trash = require("../models/trash");
+const bus=require("../models/Bus");
 
 // Add a new student
 exports.addStudent = async (req, res) => {
@@ -237,6 +238,9 @@ exports.getStudentByIdNo = async (req, res) => {
 
     // Find student with the matching idNo
     const student = await Student.findOne({ idNo });
+    console.log("student is",student.transportDetails.bus);
+    const busDetails=await bus.findById(student.transportDetails.bus);
+    console.log("bus details is",busDetails);
 
     if (!student) {
       return res.status(404).json({
@@ -248,6 +252,7 @@ exports.getStudentByIdNo = async (req, res) => {
     res.status(200).json({
       success: true,
       data: student,
+      bus:busDetails,
     });
   } catch (error) {
     console.error("Error fetching student by idNo:", error);
