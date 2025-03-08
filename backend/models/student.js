@@ -5,6 +5,7 @@ const studentSchema = new mongoose.Schema({
   admissionNo: String,
   academic_id: String,
   surname: String,
+  branch: String,
   name: String,
   gender: String,
   class: {

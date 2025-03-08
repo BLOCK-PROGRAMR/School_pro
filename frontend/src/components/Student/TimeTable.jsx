@@ -3,17 +3,18 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Printer, Loader, AlertCircle, Calendar, Clock } from 'lucide-react';
 import Allapi from '../../common';
-import { mycon } from '../../store/Mycontext';
+// import { mycon } from '../../store/Mycontext';
 
 const TimeTable = () => {
-  const { branchdet } = useContext(mycon);
+  // const { branchdet } = useContext(mycon);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [student, setStudent] = useState(null);
   const [exams, setExams] = useState([]);
   const [selectedExam, setSelectedExam] = useState('');
-  const [debugInfo, setDebugInfo] = useState(null);
+
   const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const [branch_id, setbranch_id] = useState("");
 
   useEffect(() => {
     if (userData.username) {
@@ -28,7 +29,7 @@ const TimeTable = () => {
     try {
       setLoading(true);
       console.log("Fetching student details for:", userData.username);
-      
+
       // First try to get student data
       const response = await fetch(
         `${Allapi.backapi}/api/students/get-studentById/${userData.username}`,
@@ -42,82 +43,63 @@ const TimeTable = () => {
 
       const data = await response.json();
       console.log("Student data response:", data);
-      
+
       if (!data.success || !data.data) {
         throw new Error(data.message || 'Failed to fetch student details');
       }
-      
+
       // Store the student data
       const studentData = data.data;
       setStudent(studentData);
-      
-      // Debug the student data structure
-      const debugData = {
-        studentData: {
-          id: studentData._id,
-          name: studentData.name,
-          idNo: studentData.idNo,
-          classData: studentData.class,
-          sectionData: studentData.section,
-          hasClass: !!studentData.class,
-          hasSection: !!studentData.section,
-          hasClassId: !!studentData.classId,
-          hasSectionId: !!studentData.sectionId
-        }
-      };
-      
-      setDebugInfo(debugData);
-      console.log("Debug data:", debugData);
-      
+
+
+
+
       // Extract class and section IDs
       let classId = null;
       let sectionId = null;
-      
+
       // Based on the debug information, we know the structure is:
       // studentData.class = { name: "LKG", id: "67c67b533161761a10a2e068" }
       // studentData.section = { name: "secA", id: "67c67b533161761a10a2e06a" }
-      
+
       if (studentData.class && typeof studentData.class === 'object') {
         if (studentData.class.id) {
           classId = studentData.class.id;
           console.log("Found class ID from class.id:", classId);
-        } else if (studentData.class._id) {
-          classId = studentData.class._id;
-          console.log("Found class ID from class._id:", classId);
         }
       }
-      
+
       if (studentData.section && typeof studentData.section === 'object') {
         if (studentData.section.id) {
           sectionId = studentData.section.id;
           console.log("Found section ID from section.id:", sectionId);
-        } else if (studentData.section._id) {
-          sectionId = studentData.section._id;
-          console.log("Found section ID from section._id:", sectionId);
         }
       }
-      
-      console.log("Extracted IDs:", { classId, sectionId, branchId: branchdet?._id });
-      
+      const branchId = studentData.branch;
+      setbranch_id(branchId);
+
+      console.log("Extracted IDs:", { classId, sectionId, branchId });
+
       // Final check - if we have class and section IDs, fetch exams
-      if (classId && sectionId && branchdet && branchdet._id) {
+      if (classId && sectionId && branchId) {
         console.log("Fetching exams with params:", {
           classId,
           sectionId,
-          branchId: branchdet._id
+          branchId
         });
-        
-        await fetchExams(classId, sectionId, branchdet._id);
+
+        await fetchExams(classId, sectionId, branchId);
       } else {
         // If we still don't have the required IDs, try to fetch all exams and filter them client-side
-        if (branchdet && branchdet._id) {
+        if (branchId) {
           console.log("Missing class or section ID, trying to fetch all exams for the branch");
-          await fetchAllExamsAndFilter(branchdet._id, studentData);
+          await fetchAllExamsAndFilter(branchId, studentData);
         } else {
           console.error('Missing required data:', {
             classId,
             sectionId,
-            branchId: branchdet?._id
+            branchId
           });
           setError('Student class or section information is missing. Please contact your administrator.');
           setLoading(false);
@@ -133,7 +115,7 @@ const TimeTable = () => {
   const fetchAllExamsAndFilter = async (branchId, studentData) => {
     try {
       console.log("Fetching all exams for branch:", branchId);
-      
+
       const response = await fetch(
         `${Allapi.backapi}/api/exams/all-exams/${branchId}`,
         {
@@ -143,34 +125,34 @@ const TimeTable = () => {
           },
         }
       );
-      
+
       const data = await response.json();
       console.log("All exams response:", data);
-      
+
       if (data.success && data.data && data.data.length > 0) {
         // Get class and section names from student data
         let className, sectionName;
-        
+
         if (studentData.class) {
           className = typeof studentData.class === 'object' ? studentData.class.name : studentData.class;
         }
-        
+
         if (studentData.section) {
           sectionName = typeof studentData.section === 'object' ? studentData.section.name : studentData.section;
         }
-        
+
         console.log("Filtering exams by class and section names:", { className, sectionName });
-        
+
         // Filter exams by class and section names
         const filteredExams = data.data.filter(exam => {
           const examClassName = exam.classId && typeof exam.classId === 'object' ? exam.classId.name : null;
           const examSectionName = exam.sectionId && typeof exam.sectionId === 'object' ? exam.sectionId.name : null;
-          
+
           return (examClassName === className && examSectionName === sectionName);
         });
-        
+
         console.log("Filtered exams by name:", filteredExams);
-        
+
         if (filteredExams.length > 0) {
           setExams(filteredExams);
           setSelectedExam(filteredExams[0]._id);
@@ -194,7 +176,7 @@ const TimeTable = () => {
   const fetchExams = async (classId, sectionId, branchId) => {
     try {
       console.log(`Calling API: ${Allapi.backapi}/api/exams/all-exams/${classId}/${sectionId}/${branchId}`);
-      
+
       // First try with the standard endpoint
       let response = await fetch(
         `${Allapi.backapi}/api/exams/all-exams/${classId}/${sectionId}/${branchId}`,
@@ -208,11 +190,11 @@ const TimeTable = () => {
 
       let data = await response.json();
       console.log("Exams API response:", data);
-      
+
       // If the first attempt fails or returns no exams, try with the alternative endpoint
       if (!data.success || !data.data || data.data.length === 0) {
         console.log("First attempt failed or returned no exams, trying alternative endpoint");
-        
+
         // Try with the branch-only endpoint as a fallback
         response = await fetch(
           `${Allapi.backapi}/api/exams/all-exams/${branchId}`,
@@ -223,36 +205,36 @@ const TimeTable = () => {
             },
           }
         );
-        
+
         data = await response.json();
         console.log("Alternative API response:", data);
-        
+
         // If we got exams from the alternative endpoint, filter them for this class and section
         if (data.success && data.data && data.data.length > 0) {
           // Helper function to compare MongoDB IDs which might be in different formats
           const compareIds = (id1, id2) => {
             if (!id1 || !id2) return false;
-            
+
             // Convert to string if they're objects with toString method
             const str1 = typeof id1 === 'object' && id1 !== null && id1.toString ? id1.toString() : String(id1);
             const str2 = typeof id2 === 'object' && id2 !== null && id2.toString ? id2.toString() : String(id2);
-            
+
             return str1 === str2;
           };
-          
+
           const filteredExams = data.data.filter(exam => {
             // Get the class ID from the exam (might be an object or a string)
             const examClassId = exam.classId && exam.classId._id ? exam.classId._id : exam.classId;
-            
+
             // Get the section ID from the exam (might be an object or a string)
             const examSectionId = exam.sectionId && exam.sectionId._id ? exam.sectionId._id : exam.sectionId;
-            
+
             // Compare the IDs
             return compareIds(examClassId, classId) && compareIds(examSectionId, sectionId);
           });
-          
+
           console.log("Filtered exams:", filteredExams);
-          
+
           if (filteredExams.length > 0) {
             setExams(filteredExams);
             setSelectedExam(filteredExams[0]._id);
@@ -262,7 +244,7 @@ const TimeTable = () => {
           }
         }
       }
-      
+
       // Process the original response if it was successful
       if (data.success) {
         if (data.data && data.data.length > 0) {
@@ -290,7 +272,7 @@ const TimeTable = () => {
       console.error("Invalid subjects data:", subjects);
       return [];
     }
-    
+
     return [...subjects].sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
@@ -367,8 +349,8 @@ const TimeTable = () => {
               </thead>
               <tbody>
                 ${getSortedSubjects(selectedExamData.subjects)
-                  .map(
-                    subject => `
+          .map(
+            subject => `
                   <tr>
                     <td>${subject.name}</td>
                     <td>${new Date(subject.date).toLocaleDateString()}</td>
@@ -377,8 +359,8 @@ const TimeTable = () => {
                     <td>${subject.passMarks}</td>
                   </tr>
                 `
-                  )
-                  .join('')}
+          )
+          .join('')}
               </tbody>
             </table>
           </body>
@@ -413,16 +395,9 @@ const TimeTable = () => {
               <h3 className="text-lg font-semibold">Error Loading Timetable</h3>
               <p className="mt-2">{error}</p>
               <p className="mt-4">Please contact the administrator for assistance.</p>
-              
-              {/* Debug info in development mode */}
-              {process.env.NODE_ENV === 'development' && debugInfo && (
-                <div className="mt-4 p-4 bg-white rounded border border-red-200 text-gray-800 text-xs">
-                  <h4 className="font-bold mb-2">Debug Information:</h4>
-                  <pre className="whitespace-pre-wrap overflow-auto max-h-60">
-                    {JSON.stringify(debugInfo, null, 2)}
-                  </pre>
-                </div>
-              )}
+
+
+
             </div>
           </div>
         </div>
@@ -471,7 +446,7 @@ const TimeTable = () => {
               <label htmlFor="examSelector" className="block text-gray-700 font-medium">
                 Select Exam
               </label>
-              <button 
+              <button
                 onClick={handlePrint}
                 className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
@@ -505,7 +480,7 @@ const TimeTable = () => {
                 {selectedExamData.academicId?.year ? `Academic Year: ${selectedExamData.academicId.year}` : ''}
               </p>
             </div>
-            
+
             <div className="p-6">
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -581,19 +556,15 @@ const TimeTable = () => {
             )}
           </div>
         )}
-        
-        {/* Debug info in development mode */}
-        {process.env.NODE_ENV === 'development' && debugInfo && (
-          <div className="mt-6 bg-gray-100 p-4 rounded-lg text-xs">
-            <h4 className="font-bold mb-2">Debug Information:</h4>
-            <pre className="whitespace-pre-wrap overflow-auto max-h-60">
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
-          </div>
-        )}
+
+
+
       </div>
     </div>
   );
 };
 
 export default TimeTable;
+
+
+

@@ -80,6 +80,8 @@ const ViewMarks = () => {
           });
 
           const res = await response.json();
+          console.log("response data", res.data);
+          console.log("branchdet?id", branchdet._id);
           if (res.success && res.data.length > 0) {
             const latestYear = res.data.sort((a, b) => {
               const [startA] = a.year.split("-").map(Number);
@@ -312,11 +314,10 @@ const ViewMarks = () => {
             <button
               onClick={fetchMarksData}
               disabled={!examId || !selectedClass || !selectedSection}
-              className={`px-8 py-3 text-white rounded-lg font-medium transition-colors duration-200 ${
-                !examId || !selectedClass || !selectedSection
+              className={`px-8 py-3 text-white rounded-lg font-medium transition-colors duration-200 ${!examId || !selectedClass || !selectedSection
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
-              }`}
+                }`}
             >
               View Results
             </button>

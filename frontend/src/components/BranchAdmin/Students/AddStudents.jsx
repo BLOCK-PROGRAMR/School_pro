@@ -21,6 +21,7 @@ const AddStudents = () => {
     surname: "",
     name: "",
     gender: "",
+    branch: String(branchdet._id),
     class: { name: "", id: "" },
     section: { name: "", id: "" },
     dob: "",
@@ -116,7 +117,7 @@ const AddStudents = () => {
       const years = res.data;
       const present_Acad = years.find((year) => year._id == acid);
       const yearSuffix = present_Acad.year.slice(-2);
-      
+
       console.log("present academic is", yearSuffix);
       const studentCountResponse = await fetch(
         Allapi.getStudentCountByAcademicYear.url(acid),
@@ -134,20 +135,20 @@ const AddStudents = () => {
 
       const studentCountData = await studentCountResponse.json();
       if (studentCountData.success) {
-        
+
         const currentCount = studentCountData.count;
-     
+
         const paddedCount = currentCount.toString().padStart(6, '0');
         alert(paddedCount)
         // Get the first two digits
         const lastFourDigits = parseInt(paddedCount.slice(-4));
-   
-// Increment for the new student
+
+        // Increment for the new student
         setstdcount(currentCount);
         setysuffix(yearSuffix);
-        const prefix=parseInt(yearSuffix.padEnd(6,"0"))
-        console.log("last four digits are",lastFourDigits);
-        const id = `${String( prefix+lastFourDigits)}`;
+        const prefix = parseInt(yearSuffix.padEnd(6, "0"))
+        console.log("last four digits are", lastFourDigits);
+        const id = `${String(prefix + lastFourDigits)}`;
 
         // alert(id)
         // Update the form data
@@ -507,8 +508,8 @@ const AddStudents = () => {
               name: "Transport-fee",
               amount: parseInt(formData.transportDetails.amount),
               terms: parseInt(formData.transportDetails.terms),
-              concession:parseFloat(formData.transportDetails.concession)|| 0,
-              finalAmount:parseInt(formData.transportDetails.amount-(formData.transportDetails.amount*(formData.transportDetails.concession?formData.transportDetails.concession:0)))
+              concession: parseFloat(formData.transportDetails.concession) || 0,
+              finalAmount: parseInt(formData.transportDetails.amount - (formData.transportDetails.amount * (formData.transportDetails.concession ? formData.transportDetails.concession : 0)))
             },
           ],
         }));
@@ -534,8 +535,8 @@ const AddStudents = () => {
             name: "hostel-fee",
             amount: parseInt(formData.hostelDetails.hostelFee),
             terms: parseInt(formData.hostelDetails.terms),
-            concession:parseFloat(formData.hostelDetails.concession)|| 0,
-              finalAmount:parseInt(formData.hostelDetails.hostelFee-(formData.hostelDetails.hostelFee*(formData.hostelDetails.concession?formData.hostelDetails.concession:0)))
+            concession: parseFloat(formData.hostelDetails.concession) || 0,
+            finalAmount: parseInt(formData.hostelDetails.hostelFee - (formData.hostelDetails.hostelFee * (formData.hostelDetails.concession ? formData.hostelDetails.concession : 0)))
           },
         ],
       }));
@@ -1284,11 +1285,11 @@ const AddStudents = () => {
                 >
                   <option value="">Select Town</option>
                   {towns?.length > 0 &&
-  towns.map((town) => (
-    <option key={town._id} value={town.townName}>
-      {town.townName}
-    </option>
-))}
+                    towns.map((town) => (
+                      <option key={town._id} value={town.townName}>
+                        {town.townName}
+                      </option>
+                    ))}
 
                 </select>
               </div>
@@ -1321,14 +1322,14 @@ const AddStudents = () => {
                 >
                   <option value="">Select Halts</option>
                   {halts?.length > 0 ? (
-  halts.map((halt, index) => (
-    <option key={index} value={halt}>
-      {halt}
-    </option>
-  ))
-) : (
-  <option disabled>No halts available</option>
-)}
+                    halts.map((halt, index) => (
+                      <option key={index} value={halt}>
+                        {halt}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No halts available</option>
+                  )}
 
                 </select>
               </div>
