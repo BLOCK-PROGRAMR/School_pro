@@ -1,3 +1,72 @@
+
+
+
+
+// const mongoose = require('mongoose');
+
+// const enquirySchema = new mongoose.Schema({
+//   // Student Information
+//   studentName: {
+//     type: String,
+//     required: true
+//   },
+//   age: {
+//     type: Number,
+//     required: true,
+//     min: 1,
+//     max: 100
+//   },
+//   address: {
+//     type: String,
+//     required: true
+//   },
+
+//   // Academic Information
+//   academicYear: {
+//     type: mongoose.Schema.Types.ObjectId || String,
+//     ref: 'AcademicYear',
+//     required: true
+//   },
+//   class: {
+//     type: String,
+//     required: true
+//   },
+
+//   // Reference Information
+//   reference: {
+//     type: String,
+//     default: 'None'
+//   },
+
+//   // Branch Information
+//   branchId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Branch',
+//     required: true
+//   },
+
+
+
+//   // Timestamps
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   updatedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// });
+
+// // Update timestamp on save
+// enquirySchema.pre('save', function (next) {
+//   this.updatedAt = Date.now();
+//   next();
+// });
+
+// module.exports = mongoose.model('Enquiry', enquirySchema);
+
+
 const mongoose = require('mongoose');
 
 const enquirySchema = new mongoose.Schema({
@@ -6,56 +75,31 @@ const enquirySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  fatherName: {
+  age: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 100
+  },
+  address: {
     type: String,
     required: true
-  },
-  phoneNo: {
-    type: String,
-    required: true
-  },
-
-  // Address Information
-  town: {
-    type: String,
-    required: true
-  },
-  street: {
-    type: String,
-    required: false
-  },
-  street2: {
-    type: String,
-    required: false
   },
 
   // Academic Information
   academicYear: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'AcademicYear',
+    type: mongoose.Schema.Types.Mixed, // Accepts both ObjectId and String
     required: true
   },
   class: {
-
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Class',
-    required: true
-  },
-  section: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Section',
-    required: true
-  },
-  student: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student',
+    type: String,
     required: true
   },
 
   // Reference Information
   reference: {
     type: String,
-    required: true
+    default: 'None'
   },
 
   // Branch Information
@@ -63,13 +107,6 @@ const enquirySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Branch',
     required: true
-  },
-
-  // Status tracking
-  status: {
-    type: String,
-    enum: ['pending', 'inProgress', 'completed', 'cancelled'],
-    default: 'pending'
   },
 
   // Timestamps

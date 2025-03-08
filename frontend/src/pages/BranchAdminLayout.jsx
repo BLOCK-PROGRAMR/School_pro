@@ -74,7 +74,7 @@ const BranchAdminlayout = () => {
       });
 
       const data = await response.json();
-      
+
       if (data.success && data.data) {
         // Navigate to fee payment page with MongoDB _id
         navigate(`/branch-admin/students-payfee/${data.data._id}`);
@@ -124,11 +124,10 @@ const BranchAdminlayout = () => {
                     <button
                       onClick={handlePayFee}
                       disabled={loading}
-                      className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                        loading 
-                          ? 'bg-blue-400 cursor-not-allowed' 
+                      className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${loading
+                          ? 'bg-blue-400 cursor-not-allowed'
                           : 'bg-blue-600 hover:bg-blue-700'
-                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200`}
+                        } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200`}
                     >
                       {loading ? 'Searching...' : 'Pay Fee'}
                     </button>
