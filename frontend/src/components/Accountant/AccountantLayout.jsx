@@ -9,31 +9,54 @@ const AccountantLayout = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is logged in and has the correct role
     const token = localStorage.getItem('token');
     const userDataStr = localStorage.getItem('userData');
+    const expiryTime = localStorage.getItem('expiryTime');
+    
+    console.log("Checking authentication for accountant layout");
     
     if (!token || !userDataStr) {
+      console.error("Missing token or user data");
       toast.error('Please login to access this page');
+      navigate('/login');
+      return;
+    }
+
+    // Check if token is expired
+    if (expiryTime && new Date().getTime() > parseInt(expiryTime)) {
+      console.error("Token expired");
+      toast.error('Your session has expired. Please login again.');
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('expiryTime');
       navigate('/login');
       return;
     }
 
     try {
       const userData = JSON.parse(userDataStr);
+      console.log("User role:", userData.role);
       setUserData(userData);
       
       // Check if user is an accountant
       if (userData.role !== 'Account') {
-        toast.error('Unauthorized access');
+        console.error("Unauthorized access attempt. Role:", userData.role);
+        toast.error('Unauthorized access. You must be an accountant to view this page.');
         navigate('/login');
+        return;
       }
+      
+      setLoading(false);
     } catch (error) {
       console.error('Error parsing user data:', error);
+      toast.error('Authentication error. Please login again.');
       localStorage.removeItem('token');
       localStorage.removeItem('userData');
+      localStorage.removeItem('expiryTime');
       navigate('/login');
     }
   }, [navigate]);
@@ -42,7 +65,7 @@ const AccountantLayout = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  if (!userData) {
+  if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 

@@ -652,7 +652,70 @@ const Router = createBrowserRouter([
             element: <AccountantProfile />,
             errorElement: <ErrorBoundary />,
           },
-          // Additional accountant routes will be added here as needed
+          // Fee Management Routes
+          {
+            path: "fee/collect",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "fee/reports",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "fee/structure",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          // Financial Records Routes
+          {
+            path: "finance/cash-book",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "finance/bank-book",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "finance/ledger",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "finance/vouchers",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          // Reports Routes
+          {
+            path: "reports/daily",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "reports/monthly",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "reports/outstanding",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          // Student Records Routes
+          {
+            path: "students/view",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "students/fee-history",
+            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            errorElement: <ErrorBoundary />,
+          },
         ],
       },
     ],

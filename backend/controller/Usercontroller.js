@@ -103,27 +103,35 @@ exports.login = async (req, res) => {
       ); // Exclude sensitive fields like `password`
     }
 
-    // Generate JWT token with teacher data if applicable
+    // Generate JWT token with appropriate data
     const tokenPayload = {
       id: user._id,
       role: user.role,
       name: user.name,
-      branch: user.branch ? user.branch : (user.branchId ? user.branchId : null),
+      // Handle different field names for branch between User and Account models
+      branch: user.branch || user.branchId || null,
+      isAccountant: isAccountant,
       ...(teacherData && { teacherData }), // Include teacher data if present
     };
+    
     console.log("token payload: ",tokenPayload)
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
       expiresIn: "2h",
     });
 
+    // Create a sanitized user object for the response
+    const userData = user.toObject();
+    delete userData.password;
+
     res.json({
-      data: user,
+      data: userData,
       teacherData, // Include teacher data in the response
       success: true,
       message: "Logged in successfully",
       token,
     });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

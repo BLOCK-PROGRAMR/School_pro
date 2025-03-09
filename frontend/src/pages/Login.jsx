@@ -53,6 +53,8 @@ const Login = () => {
 
         toast.success(data.message);
 
+        console.log("Login successful for role:", data.data.role);
+        
         // Role-based navigation
         switch (data.data.role) {
           case "MainAdmin":
@@ -68,17 +70,20 @@ const Login = () => {
             navigate("/student");
             break;
           case "Account":
+            console.log("Navigating to accountant dashboard");
             navigate("/accountant");
             break;
           default:
-            toast.error("Invalid role");
+            console.error("Invalid role:", data.data.role);
+            toast.error(`Invalid role: ${data.data.role}`);
         }
       } else {
+        console.error("Login failed:", data.message);
         toast.error(data.message);
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("An error occurred during login");
+      toast.error("An error occurred during login. Please try again.");
     }
   };
 

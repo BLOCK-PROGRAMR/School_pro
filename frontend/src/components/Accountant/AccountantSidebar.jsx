@@ -16,11 +16,24 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   const handleLogout = () => {
+    // Clear all authentication data
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     localStorage.removeItem('expiryTime');
+    
+    console.log("Logging out accountant");
     toast.success('Logged out successfully');
     navigate('/login');
+  };
+
+  // Check if a menu item is active
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
+  // Check if a dropdown menu has an active item
+  const hasActiveChild = (items) => {
+    return items.some(item => location.pathname === item.path);
   };
 
   const menuItems = [
@@ -101,49 +114,39 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            ></path>
+              d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+            />
           </svg>
         </button>
       </div>
 
       {/* Sidebar */}
       <aside
-        className={`${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 fixed lg:sticky top-0 left-0 z-30 w-64 h-screen transition-transform duration-300 ease-in-out bg-gray-800 text-white overflow-y-auto`}
+        className={`bg-gray-800 text-white w-64 min-h-screen flex-shrink-0 ${
+          isOpen ? 'block' : 'hidden'
+        } lg:block transition-all duration-300 ease-in-out`}
       >
-        <div className="p-5 border-b border-gray-700">
+        <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-bold">Accountant Panel</h2>
         </div>
 
-        <nav className="mt-5">
-          <ul className="space-y-2 px-4">
+        <nav className="mt-4">
+          <ul>
             {menuItems.map((item, index) => (
-              <li key={index}>
-                {!item.dropdown ? (
-                  <Link
-                    to={item.path}
-                    className={`flex items-center p-2 rounded-md hover:bg-gray-700 ${
-                      location.pathname === item.path ? 'bg-gray-700' : ''
-                    }`}
-                  >
-                    {item.icon}
-                    <span>{item.title}</span>
-                  </Link>
-                ) : (
+              <li key={index} className="mb-1">
+                {item.dropdown ? (
                   <div>
                     <button
                       onClick={() => toggleDropdown(item.key)}
-                      className="flex items-center justify-between w-full p-2 rounded-md hover:bg-gray-700"
+                      className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-700 transition-colors ${
+                        hasActiveChild(item.items) ? 'bg-gray-700' : ''
+                      }`}
                     >
-                      <div className="flex items-center">
-                        {item.icon}
-                        <span>{item.title}</span>
-                      </div>
+                      {item.icon}
+                      <span>{item.title}</span>
                       <svg
-                        className={`w-4 h-4 transition-transform ${
-                          dropdowns[item.key] ? 'rotate-180' : ''
+                        className={`ml-auto w-4 h-4 transition-transform ${
+                          dropdowns[item.key] ? 'transform rotate-180' : ''
                         }`}
                         fill="none"
                         stroke="currentColor"
@@ -155,17 +158,17 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M19 9l-7 7-7-7"
-                        ></path>
+                        />
                       </svg>
                     </button>
                     {dropdowns[item.key] && (
-                      <ul className="mt-2 space-y-1 pl-8">
+                      <ul className="pl-8 mt-1">
                         {item.items.map((subItem, subIndex) => (
                           <li key={subIndex}>
                             <Link
                               to={subItem.path}
-                              className={`block p-2 rounded-md hover:bg-gray-700 ${
-                                location.pathname === subItem.path ? 'bg-gray-700' : ''
+                              className={`block px-4 py-2 hover:bg-gray-700 transition-colors ${
+                                isActive(subItem.path) ? 'bg-gray-700 text-blue-400' : ''
                               }`}
                             >
                               {subItem.title}
@@ -175,15 +178,23 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
                       </ul>
                     )}
                   </div>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className={`flex items-center px-4 py-2 hover:bg-gray-700 transition-colors ${
+                      isActive(item.path) ? 'bg-gray-700 text-blue-400' : ''
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.title}</span>
+                  </Link>
                 )}
               </li>
             ))}
-
-            {/* Logout Button */}
-            <li className="mt-10">
+            <li className="mt-4">
               <button
                 onClick={handleLogout}
-                className="flex items-center w-full p-2 rounded-md hover:bg-red-600 bg-red-700"
+                className="flex items-center w-full px-4 py-2 text-left text-red-400 hover:bg-gray-700 transition-colors"
               >
                 <FaSignOutAlt className="mr-2" />
                 <span>Logout</span>
@@ -192,14 +203,6 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
           </ul>
         </nav>
       </aside>
-
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
-          onClick={toggleSidebar}
-        ></div>
-      )}
     </>
   );
 };
