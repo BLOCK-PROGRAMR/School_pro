@@ -28,8 +28,8 @@ services:
   - type: static
     name: projectvidy-frontend
     rootDir: frontend
-    buildCommand: npm ci && npm run build
-    publishDir: frontend/dist
+    buildCommand: npm install terser && npm install && npm run build
+    publishDir: dist
     envVars:
       - key: VITE_API_URL
         value: https://projectvidy-backend.onrender.com/api

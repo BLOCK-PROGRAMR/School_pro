@@ -7,14 +7,8 @@ export default defineConfig({
   build: {
     // Reduce chunk size
     chunkSizeWarningLimit: 1000,
-    // Optimize build
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    // Use esbuild for minification (faster and uses less memory than terser)
+    minify: 'esbuild',
     // Split chunks more aggressively
     rollupOptions: {
       output: {
