@@ -1,4 +1,6 @@
-const backapi = "http://localhost:3490";
+import API_URL from '../config/api';
+
+const backapi = API_URL.replace('/api', '');
 
 const Allapi = {
   backapi,

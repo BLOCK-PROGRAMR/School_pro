@@ -39,8 +39,18 @@ const trashRoutes = require('./routers/trash.js');
 const galleryRoutes = require("./routers/galleryRoutes.js");
 const linkRoutes = require("./routers/linkRoutes.js");
 
+// CORS configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || '*'] 
+    : 'http://localhost:5173',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
@@ -78,8 +88,9 @@ app.use("/api/gallery", protect.authMiddleware, galleryRoutes);
 app.use("/api/links", protect.authMiddleware, linkRoutes);
 
 // Start server
+const PORT = process.env.PORT || 3490;
 database().then(
-  app.listen(process.env.PORT, () => {
-    console.log("server is running");
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   })
 );

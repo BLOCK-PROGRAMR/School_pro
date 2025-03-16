@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { X, Pencil, Trash2 } from 'lucide-react';
+import API_URL from '../../../config/api';
 
-const BASE_URL = 'http://localhost:3490';
+const BASE_URL = API_URL.replace('/api', '');
 
 const LEDGER_TYPES = ['Expenses', 'Income', 'Loans', 'Bank'];
 
