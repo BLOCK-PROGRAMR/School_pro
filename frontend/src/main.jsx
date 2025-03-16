@@ -111,6 +111,7 @@ import MDashBoard from "./components/BranchAdmin/MobileView/MDashBoard.jsx";
 import AccountantLayout from "./components/Accountant/AccountantLayout.jsx";
 import AccountantDashboard from "./components/Accountant/Dashboard/AccountantDashboard.jsx";
 import AccountantProfile from "./components/Accountant/Profile/AccountantProfile.jsx";
+import AccountantCheckbar from "./components/Accountant/AccountantCheckbar.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -639,7 +640,7 @@ const Router = createBrowserRouter([
       // Accountant Routes
       {
         path: "/accountant",
-        element: <AccountantLayout />,
+        element: <AccountantCheckbar />,
         errorElement: <ErrorBoundary />,
         children: [
           {
@@ -648,72 +649,357 @@ const Router = createBrowserRouter([
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "profile",
-            element: <AccountantProfile />,
-            errorElement: <ErrorBoundary />,
-          },
-          // Fee Management Routes
-          {
-            path: "fee/collect",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
-            errorElement: <ErrorBoundary />,
+            path: "mdashboard",
+            element: <MDashBoard />,
+            errorElement: <ErrorBoundary />
           },
           {
-            path: "fee/reports",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "fee-reciepts/:academicYearID",
+            element: <FetchReceipts />,
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "fee/structure",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
-            errorElement: <ErrorBoundary />,
-          },
-          // Financial Records Routes
-          {
-            path: "finance/cash-book",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "data",
+            element: <Data />,
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "finance/bank-book",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "trash",
+            element: <Trash />,
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "finance/ledger",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "prev-data",
+            element: <Delete />
+          },
+          {
+            path: "info",
+            element: <Info />,
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "finance/vouchers",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
-            errorElement: <ErrorBoundary />,
-          },
-          // Reports Routes
-          {
-            path: "reports/daily",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "upgrade",
+            element: <Upgrade />,
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "reports/monthly",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "notice/add",
+            element: <AddNotice />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "notice/view",
+            element: <ViewNotice />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "gallery/add",
+            element: <AddGallery />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "gallery/view",
+            element: <ViewGallery />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "links/add",
+            element: <AddLink />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "links/view",
+            element: <ViewLinks />,
+            errorElement: <ErrorBoundary />
+          },
+          {
+            path: "FeeData",
+            element: <FeeData />,
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "reports/outstanding",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
-            errorElement: <ErrorBoundary />,
-          },
-          // Student Records Routes
-          {
-            path: "students/view",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "account",
+            element: <AddAccount />,
             errorElement: <ErrorBoundary />,
           },
           {
-            path: "students/fee-history",
-            element: <AccountantDashboard />, // Temporary placeholder until component is created
+            path: "viewaccount",
+            element: <ViewAccountants />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "cash/:academicYearID",
+            element: <CashBook />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "bank/:academicYearID",
+            element: <BankBook />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "fee-card/:academicYearID",
+            element: <FeeLedger />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "exam",
+            children: [
+              {
+                path: "create-timetable",
+                element: <CreateTimeTable />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view-timetable",
+                element: <ViewTimeTable />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "workingdays",
+            children: [
+              {
+                path: "create",
+                element: <CreateWorkingDays />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view",
+                element: <ViewWorkingDays />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "attendance",
+            children: [
+              {
+                path: "add/:acid",
+                element: <AddAttendance />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view/:acid",
+                element: <ViewAttendance />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "marks",
+            children: [
+              {
+                path: "enter",
+                element: <EnterMarks />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "update",
+                element: <UpdateMarks />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view",
+                element: <ViewMarks />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "create",
+                element: <CreateHallTicket />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "enquiry",
+            children: [
+              {
+                path: "create-enquiry",
+                element: <AddEnquiry />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view-enquiry",
+                element: <ViewEnquiry />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "syllabus",
+            children: [
+              {
+                path: "create",
+                element: <CreateSyllabus />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view",
+                element: <ViewSyllabus />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "vehicle",
+            children: [
+              {
+                path: "create",
+                element: <ShowReport />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "strengthreports",
+            children: [
+              {
+                path: "create",
+                element: <StrengthReports />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "progressreports",
+            children: [
+              {
+                path: "create",
+                element: <ProgressReport />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "teachers",
+            children: [
+              {
+                path: "add-teacher",
+                element: <AddTeacher />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view-teachers",
+                element: <ViewTeachers />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "assign-teachers",
+                element: <AssignTeachers />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view-perfomance",
+                element: <ViewPerformance />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "class/view-all/:acid",
+            element: <ViewAll />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "class/view-all",
+            element: <Add />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "academic-year",
+            children: [
+              {
+                path: "",
+                element: <ViewAcademicYears />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+                path: "add",
+                element: <Add />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+                path: "view",
+                element: <ViewAcademicYears />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+                path: "add-class/",
+                element: <AddAcademicYear />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+                path: "add-class/:acid",
+                element: <AddClass />,
+            errorElement: <ErrorBoundary />,
+          },
+              {
+                path: "add-section/:classId",
+                element: <Addsection />,
+                errorElement: <ErrorBoundary />,
+              },
+              {
+                path: "view-sections",
+                element: <ViewSections />,
+                errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "fee-type/:acid",
+            element: <AddFeeType />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "ledger-creation",
+            element: <LedgerCreation />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "voucher-creation",
+            element: <VoucherBook />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "bank-creation",
+            element: <Bank />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "transport",
+            children: [
+              {
+                path: "add-town",
+                element: <AddTown />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+                path: "add-bus",
+                element: <AddBus />,
+            errorElement: <ErrorBoundary />,
+              },
+            ],
+          },
+          {
+            path: "add-student/:acid",
+            element: <AddStudents />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "students-report/:acid",
+            element: <StudentsReports />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "students/:sid",
+            element: <StudentEdit />,
+            errorElement: <ErrorBoundary />,
+          },
+          {
+            path: "students-payfee/:sid",
+            element: <FeeReport />,
             errorElement: <ErrorBoundary />,
           },
         ],
