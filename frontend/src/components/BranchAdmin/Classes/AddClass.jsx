@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaPlusCircle, FaTrash } from "react-icons/fa";
 import Allapi from "../../../common/index";
-import "./AddClassForm.css";
+import "./Addclassform.css";
 import { mycon } from "../../../store/Mycontext";
 
 const AddClassForm = () => {
