@@ -67,7 +67,7 @@ import CashBook from "./components/BranchAdmin/Books/CashBook.jsx";
 import BankBook from "./components/BranchAdmin/Books/BankBook.jsx";
 import FeeLedger from "./components/BranchAdmin/Ledger/FeeLedger.jsx";
 import Data from "./components/BranchAdmin/Students/Data.jsx";
-import AddAccount from "./components/BranchAdmin/Accountant/addAccount.jsx";
+import AddAccount from "./components/BranchAdmin/Accountant/AddAccount.jsx";
 import FeeData from "./components/BranchAdmin/Students/FeeData.jsx";
 import Info from "./components/BranchAdmin/Students/Info.jsx";
 import ViewAccountants from "./components/BranchAdmin/Accountant/ViewAccountants.jsx";
