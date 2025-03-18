@@ -46,5 +46,6 @@ router.get('/:id', galleryController.getGalleryById);
 router.put('/:id', upload.array('images', 5), galleryController.updateGallery);
 router.delete('/:id', galleryController.deleteGallery);
 router.delete('/:galleryId/images/:imageId', galleryController.deleteImage);
+router.get('/branch/:branchId', galleryController.getGalleryByBranchId);
 
 module.exports = router;

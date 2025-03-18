@@ -12,7 +12,7 @@ cloudinary.config({
 // Add a new gallery with images
 exports.addGallery = async (req, res) => {
     try {
-        const { title, description } = req.body;
+        const { title, description, branchId } = req.body;
 
         // Validate required fields
         if (!title) {
@@ -29,7 +29,12 @@ exports.addGallery = async (req, res) => {
                 message: "Please upload at least one image"
             });
         }
-
+        if (!branchId) {
+            return res.status(400).json({
+                success: false,
+                message: "Branch is required"
+            });
+        }
         // Limit to 5 images
         if (req.files.length > 5) {
             return res.status(400).json({
@@ -67,6 +72,7 @@ exports.addGallery = async (req, res) => {
         // Create new gallery with uploaded images
         const newGallery = new Gallery({
             title,
+            branchId,
             description,
             images: uploadedImages
         });
@@ -108,7 +114,33 @@ exports.getGalleries = async (req, res) => {
         });
     }
 };
+exports.getGalleryByBranchId = async (req, res) => {
+    try {
+        const { branchId } = req.params;
+        console.log("branchId", branchId)
+        const galleries = await Gallery.find({ branchId });
+        if (!galleries) {
+            return res.status(404).json({
+                success: false,
+                message: "Gallery errror not found"
+            });
+        }
+        res.status(200).json({
+            success: true,
+            count: galleries.length,
+            data: galleries
+        });
 
+    }
+    catch (error) {
+        console.error("Error fetching galleries:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching galleries",
+            error: error.message
+        });
+    }
+}
 // Get gallery by ID
 exports.getGalleryById = async (req, res) => {
     try {
@@ -119,7 +151,7 @@ exports.getGalleryById = async (req, res) => {
         if (!gallery) {
             return res.status(404).json({
                 success: false,
-                message: "Gallery not found"
+                message: "Gallery not happening"
             });
         }
 
@@ -157,7 +189,7 @@ exports.deleteGallery = async (req, res) => {
         if (!gallery) {
             return res.status(404).json({
                 success: false,
-                message: "Gallery not found"
+                message: "Gallery not deleting"
             });
         }
 
@@ -213,7 +245,7 @@ exports.updateGallery = async (req, res) => {
         if (!gallery) {
             return res.status(404).json({
                 success: false,
-                message: "Gallery not found"
+                message: "Gallery not updating"
             });
         }
 
@@ -295,7 +327,7 @@ exports.deleteImage = async (req, res) => {
         if (!gallery) {
             return res.status(404).json({
                 success: false,
-                message: "Gallery not found"
+                message: "Gallery not delete"
             });
         }
 

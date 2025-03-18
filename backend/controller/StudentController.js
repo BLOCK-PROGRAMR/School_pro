@@ -3,7 +3,7 @@ const Student = require("../models/student");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const Trash = require("../models/trash");
-const bus=require("../models/Bus");
+const bus = require("../models/Bus");
 
 // Add a new student
 exports.addStudent = async (req, res) => {
@@ -230,6 +230,31 @@ exports.updateFeeDetails = async (req, res) => {
     });
   }
 };
+exports.getStudentIdByBranch = async (req, res) => {
+
+  try {
+    const { branch } = req.params;
+    const students = await Student.find({ branch });
+    if (!students || students.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No students found for this branch",
+        data: students,
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: students,
+    });
+  }
+  catch (error) {
+    console.error("Error fetching students by branchId:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching students by BranchId", error });
+
+  }
+}
 
 // Get student details by idNo
 exports.getStudentByIdNo = async (req, res) => {
@@ -238,9 +263,9 @@ exports.getStudentByIdNo = async (req, res) => {
 
     // Find student with the matching idNo
     const student = await Student.findOne({ idNo });
-    console.log("student is",student.transportDetails.bus);
-    const busDetails=await bus.findById(student.transportDetails.bus);
-    console.log("bus details is",busDetails);
+    console.log("student is", student.transportDetails.bus);
+    const busDetails = await bus.findById(student.transportDetails.bus);
+    console.log("bus details is", busDetails);
 
     if (!student) {
       return res.status(404).json({
@@ -252,7 +277,7 @@ exports.getStudentByIdNo = async (req, res) => {
     res.status(200).json({
       success: true,
       data: student,
-      bus:busDetails,
+      bus: busDetails,
     });
   } catch (error) {
     console.error("Error fetching student by idNo:", error);

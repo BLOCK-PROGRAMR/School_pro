@@ -9,5 +9,6 @@ router.get('/date-range', linkController.getLinkCollectionsByDateRange);
 router.get('/:id', linkController.getLinkCollectionById);
 router.put('/:id', linkController.updateLinkCollection);
 router.delete('/:id', linkController.deleteLinkCollection);
+router.get("/branch/:branchId", linkController.getLinkCollectionsByBranch);
 
 module.exports = router;

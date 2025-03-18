@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { Upload, Calendar, FileText, X } from "lucide-react";
 import Allapi from "../../../common/index";
+import { mycon } from "../../../store/Mycontext";
 
 const AddNotice = () => {
     const [title, setTitle] = useState("");
@@ -11,6 +12,7 @@ const AddNotice = () => {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const { branchdet } = useContext(mycon);
 
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
@@ -40,6 +42,8 @@ const AddNotice = () => {
             formData.append("title", title);
             formData.append("description", description);
             formData.append("date", date);
+            console.log("branchdet", branchdet._id);
+            formData.append("branchId", branchdet._id);
 
             // Append all files to the form data
             files.forEach((file, index) => {

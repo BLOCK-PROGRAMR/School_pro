@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { Link, Plus, Trash2, Calendar, ExternalLink, Loader } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { mycon } from '../../../store/Mycontext';
 
 const backendUrl = "http://localhost:3490";
 
@@ -11,6 +12,7 @@ const AddLink = () => {
     const [links, setLinks] = useState([{ url: '', description: '' }]);
     const [date, setDate] = useState('');
     const [loading, setLoading] = useState(false);
+    const { branchdet } = useContext(mycon);
 
     const handleLinkChange = (index, field, value) => {
         const updatedLinks = [...links];
@@ -76,6 +78,7 @@ const AddLink = () => {
             const response = await axios.post(`${backendUrl}/api/links`, {
                 title,
                 date,
+                branchId: branchdet._id,
                 links
             }, {
                 headers: {

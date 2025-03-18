@@ -5,6 +5,10 @@ const linkSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide a title for the link collection'],
         trim: true
+    }, branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        Ref: 'Branch',
+        required: [true, 'Please provide a branch for the link collection']
     },
     date: {
         type: Date,

@@ -1,3 +1,5 @@
+
+
 const backapi = "http://localhost:3490";
 
 const Allapi = {
@@ -189,6 +191,10 @@ const Allapi = {
   },
   getstudentbyId: {
     url: (sid) => `${backapi}/api/students/get-student/${sid}`,
+    method: "GET",
+  },
+  getstudentBybranch: {
+    url: (branchId) => `${backapi}/api/students/get-students/branch/${branchId}`,
     method: "GET",
   },
   getstudentbyIdNo: {
@@ -417,7 +423,7 @@ const Allapi = {
     url: () => `${backapi}/api/promote/upgrade`,
     method: "POST",
   },
-  
+
   // Trash endpoints
   moveToTrash: {
     url: (sid) => `${backapi}/api/trash/move-to-trash/${sid}`,
@@ -435,7 +441,7 @@ const Allapi = {
     url: (sid) => `${backapi}/api/trash/delete-permanently/${sid}`,
     method: "DELETE",
   },
-  
+
   // Notice endpoints
   addNotice: {
     url: `${backapi}/api/notices/add-notice`,
@@ -444,6 +450,10 @@ const Allapi = {
   getNotices: {
     url: `${backapi}/api/notices/get-notices`,
     method: "GET",
+  },
+  getNoticeByBranchId: {
+    url: (branchId) => `${backapi}/api/notices/branch/get-notice/${branchId}`,
+    method: "GET"
   },
   getNoticeById: {
     url: (noticeId) => `${backapi}/api/notices/get-notice/${noticeId}`,

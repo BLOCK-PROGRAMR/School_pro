@@ -10,6 +10,11 @@ const gallerySchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        Ref: 'Branch'
+    },
     images: [
         {
             url: {

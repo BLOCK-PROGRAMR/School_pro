@@ -15,7 +15,7 @@ const bankBookSchema = new mongoose.Schema({
         required: true,
         enum: ['Expenses', 'Income', 'Loans', 'studentfee', 'Bank']
     },
-    // Add fields for group ledger info
+
     groupLedger: {
         id: {
             type: mongoose.Schema.Types.ObjectId,

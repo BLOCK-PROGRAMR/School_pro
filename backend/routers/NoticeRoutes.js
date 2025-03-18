@@ -27,5 +27,6 @@ router.get("/get-notice/:noticeId", NoticeController.getNoticeById);
 router.put("/update-notice/:noticeId", upload.array("files", 10), NoticeController.updateNotice);
 router.delete("/delete-notice/:noticeId", NoticeController.deleteNotice);
 router.delete("/delete-file/:noticeId/:fileId", NoticeController.deleteFile);
+router.get("/branch/get-notice/:branchId", NoticeController.getNoticeByBranchId);
 
 module.exports = router;

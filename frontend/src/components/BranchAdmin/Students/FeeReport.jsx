@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Allapi from "../../../common"; // Adjust according to your API utility file
 import { mycon } from "../../../store/Mycontext";
+import { jwtDecode } from "jwt-decode";
 
 const FeeReport = () => {
   const [student, setStudent] = useState(null);
@@ -38,6 +39,9 @@ const FeeReport = () => {
   const fetchStudentById = async (sid) => {
     try {
       const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+      const branchId = decoded.branch;
+      console.log("branchid", branchId);
       const response = await fetch(Allapi.getstudentbyId.url(sid), {
         method: Allapi.getstudentbyId.method,
         headers: {

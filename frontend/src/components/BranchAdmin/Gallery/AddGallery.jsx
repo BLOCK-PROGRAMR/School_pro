@@ -1,17 +1,20 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { Image, Upload, X, Loader } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { mycon } from '../../../store/Mycontext';
 
 const backendUrl = "http://localhost:3490";
 
 const AddGallery = () => {
+    const { branchdet } = useContext(mycon)
     const [images, setImages] = useState([]);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
+
 
     const onDrop = useCallback(acceptedFiles => {
         // Limit to 5 images
@@ -70,10 +73,13 @@ const AddGallery = () => {
             const formData = new FormData();
             formData.append('title', title);
             formData.append('description', description);
+            formData.append('branchId', branchdet._id);
 
             images.forEach((image, index) => {
                 formData.append('images', image);
             });
+            console.log("branchdet", branchdet._id);
+            console.log("formdata", formData);
 
             const response = await axios.post(`${backendUrl}/api/gallery`, formData, {
                 headers: {
