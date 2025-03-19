@@ -34,11 +34,21 @@ const AddClassForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Filter out empty strings from subjects arrays
+    const filteredMainSubjects = mainSubjects.filter(subject => subject.trim() !== "");
+    const filteredAdditionalSubjects = additionalSubjects.filter(subject => subject.trim() !== "");
+
+    // Validate that there's at least one main subject
+    if (filteredMainSubjects.length === 0) {
+      toast.error("Please add at least one main subject");
+      return;
+    }
+
     const classData = {
       name: className,
       academicYear: acid,
-      mainSubjects,
-      additionalSubjects,
+      mainSubjects: filteredMainSubjects,
+      additionalSubjects: filteredAdditionalSubjects,
     };
 
     const token = localStorage.getItem("token");
@@ -83,11 +93,23 @@ const AddClassForm = () => {
   };
 
   const addMainSubjectField = () => {
-    setMainSubjects([...mainSubjects, ""]);
+    // Only add a new field if the last field is not empty
+    const lastField = mainSubjects[mainSubjects.length - 1];
+    if (lastField.trim() !== "") {
+      setMainSubjects([...mainSubjects, ""]);
+    } else {
+      toast.info("Please fill the current subject field before adding a new one");
+    }
   };
 
   const addAdditionalSubjectField = () => {
-    setAdditionalSubjects([...additionalSubjects, ""]);
+    // Only add a new field if the last field is not empty
+    const lastField = additionalSubjects[additionalSubjects.length - 1];
+    if (lastField.trim() !== "") {
+      setAdditionalSubjects([...additionalSubjects, ""]);
+    } else {
+      toast.info("Please fill the current additional subject field before adding a new one");
+    }
   };
 
   const removeMainSubjectField = (index) => {

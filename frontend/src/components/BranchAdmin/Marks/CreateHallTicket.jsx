@@ -229,7 +229,7 @@ const CreateHallTicket = () => {
     const totalDue = calculateTotalDue(details.feeDetails);
     
     return (
-      <div className="bg-white border border-gray-300 h-[138mm] w-[190mm] mx-auto overflow-hidden relative">
+      <div className="hall-ticket bg-white border border-gray-300 mx-auto overflow-hidden relative">
         <div className="text-center border-b py-4">
           <h1 className="text-xl font-bold text-red-600 leading-tight">SRI VIDYANIDHI EM SCHOOL</h1>
           <h2 className="text-base text-green-600 leading-tight">PEDDAPURAM</h2>
@@ -288,7 +288,7 @@ const CreateHallTicket = () => {
             </tbody>
           </table>
   
-          <div className="absolute bottom-1 left-0 right-0 px-6">
+          <div className="absolute bottom-4 left-0 right-0 px-6">
             <div className="flex justify-between items-center">
               <div className="text-left">
                 <div className="border-t border-gray-400 mt-2 pt-1 w-32">
@@ -318,16 +318,17 @@ const CreateHallTicket = () => {
     }
   
     return studentPairs.map((pair, index) => (
-      <div key={index} className="w-[210mm] mx-auto flex flex-col items-center justify-center gap-8 page-break-after-always">
+      <div key={index} className="print-page">
         <HallTicket student={pair[0]} />
         {pair[1] && <HallTicket student={pair[1]} />}
       </div>
     ));
   };
+
   return (
     <>
       {/* Main content - hidden during print */}
-      <div id="main-content" className="min-h-screen px-4 py-8 bg-gray-100 print:hidden">
+      <div className="min-h-screen px-4 py-8 bg-gray-100 print:hidden">
         <div className="max-w-7xl mx-auto">
           {!showHallTickets ? (
             <div className="bg-white p-8 rounded-lg shadow-lg">
@@ -449,7 +450,6 @@ const CreateHallTicket = () => {
               )}
             </div>
           ) : (
-            <>
             <div className="print:hidden">
               <button
                 onClick={() => {
@@ -472,116 +472,90 @@ const CreateHallTicket = () => {
                 </button>
               </div>
             </div>
-
-            <div className="print:block">
-              {renderHallTicketPairs()}
-            </div>
-          </>
-        )}
-      </div>
-      <ToastContainer />
+          )}
+        </div>
       </div>
 
-         {/* Print-only content */}
-         {showHallTickets && (
-  <div id="print-content" className="hidden print:block print:bg-white w-full">
-    <div className="w-full flex flex-col items-center justify-center">
-      {renderHallTicketPairs()}
-    </div>
-  </div>
-)};
+      {/* Print-only content */}
+      {showHallTickets && (
+        <div className="hidden print:block print:bg-white" id="print-section">
+          {renderHallTicketPairs()}
+        </div>
+      )}
 
-<style jsx global>{`
-  @media print {
-    @page {
-      size: A4;
-      margin: 0;
-    }
-    
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: white !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    
-    #print-content {
-      background-color: white !important;
-      padding: 0;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    /* Container for each pair of hall tickets */
-    .page-break-after-always {
-      width: 210mm;  /* A4 width */
-      min-height: 297mm; /* A4 height */
-      padding: 10mm;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      page-break-after: always;
-      break-after: page;
-      margin: 0 auto !important;
-      box-sizing: border-box;
-    }
-    
-    /* Individual hall ticket */
-    .page-break-after-always > div {
-      margin: 0 auto;
-      width: 190mm;  /* Slightly less than A4 to account for margins */
-    }
-    
-    .print\\:hidden {
-      display: none !important;
-    }
-    
-    nav, header, footer, aside {
-      display: none !important;
-    }
-    
-    /* Remove any unwanted backgrounds */
-    #main-content,
-    .bg-gray-100,
-    .bg-gray-50,
-    .bg-white {
-      background-color: white !important;
-    }
-    
-    /* Reset flex gap for print */
-    .gap-8 {
-      gap: 10mm !important;
-    }
-    
-    /* Maintain colors in print */
-    * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      background-color: white !important;
-    }
-    
-    /* Keep only essential borders */
-    .border {
-      border-color: #000 !important;
-    }
-    
-    /* Ensure proper margin between tickets */
-    #print-content > div > div {
-      margin-bottom: 10mm;
-    }
-    
-    /* Remove margin from last ticket in pair */
-    #print-content > div > div:last-child {
-      margin-bottom: 0;
-    }
-  }
-`}</style>
+      {/* Toast notifications - hidden during print */}
+      <div className="print:hidden">
+        <ToastContainer />
+      </div>
+
+      <style jsx global>{`
+        @media print {
+          /* Basic page setup */
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          
+          /* Hide everything except the hall tickets */
+          body * {
+            visibility: hidden;
+          }
+          
+          /* Only show the print section and its contents */
+          #print-section, 
+          #print-section * {
+            visibility: visible !important;
+          }
+          
+          /* Full page layout */
+          #print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: white !important;
+          }
+          
+          /* Hall ticket page layout */
+          .print-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm;
+            margin: 0 auto;
+            display: flex !important;
+            flex-direction: column;
+            gap: 10mm;
+            page-break-after: always;
+            box-sizing: border-box;
+          }
+
+          /* Individual hall ticket */
+          .hall-ticket {
+            width: 190mm;
+            height: 138mm;
+            margin: 0 auto;
+            display: block !important;
+            border: 1px solid black !important;
+            background-color: white !important;
+          }
+
+          /* Ensure colors print correctly */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+
+          /* Make borders visible */
+          .border, table, th, td {
+            border-color: #000 !important;
+          }
+        }
+      `}</style>
     </>
-  
   );
 };
 

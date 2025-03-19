@@ -69,40 +69,29 @@
 import React, { useState, useEffect } from "react";
 import BranchAdminlayout from "../../pages/BranchAdminLayout";
 import MBranchAdminLayout from "./MobileView/MBranchAdminLayout";
-import { Sidebar } from "lucide-react";
+import { useViewport } from "../../utils/responsive";
 
 const Checkbar = () => {
-    console.log("Checkbar Component Rendered"); // ✅ Log when component renders
-
-    const [isMobile, setIsMobile] = useState(() => {
-        const initial = window.innerWidth < 768;
-        console.log(`Initial isMobile: ${initial}`);
-        return initial;
+    const { isMobile } = useViewport();
+    
+    // Using state derived from the useViewport hook
+    const [componentToRender, setComponentToRender] = useState(() => {
+        return isMobile ? "mobile" : "desktop";
     });
 
+    // Update the state when viewport changes
     useEffect(() => {
-        console.log("Checkbar useEffect Running"); // ✅ Log when useEffect runs
+        setComponentToRender(isMobile ? "mobile" : "desktop");
+    }, [isMobile]);
 
-        const handleResize = () => {
-            const newIsMobile = window.innerWidth < 768;
-            console.log(`Window resized: isMobile = ${newIsMobile}`);
-            setIsMobile(newIsMobile);
-        };
-
-        window.addEventListener("resize", handleResize);
-        handleResize(); // Run once on mount
-
-        return () => {
-            console.log("Checkbar Unmounted");
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
-
-    console.log(`Rendering: Showing ${isMobile ? "Mobile" : "Desktop"} View`);
+    // Log for debugging
+    useEffect(() => {
+        console.log(`Checkbar Rendering: ${componentToRender} view`);
+    }, [componentToRender]);
 
     return (
         <div className="h-screen">
-            {isMobile ? <MBranchAdminLayout /> : <BranchAdminlayout />}
+            {componentToRender === "mobile" ? <MBranchAdminLayout /> : <BranchAdminlayout />}
         </div>
     );
 };

@@ -1,7 +1,8 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { mycon } from "../../store/Mycontext";
+import { ThemeContext } from "../../store/ThemeContext";
 import {
   Home,
   GraduationCap,
@@ -42,10 +43,44 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState("");
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const { branchdet } = useContext(mycon);
+  const { theme } = useContext(ThemeContext);
 
   const currentAcademicYear = branchdet?.academicYears?.[0] || "";
+
+  // Listen for toggle-sidebar event from the main layout
+  useEffect(() => {
+    const handleToggle = () => {
+      setSidebarOpen(prev => !prev);
+    };
+    
+    document.addEventListener('toggle-sidebar', handleToggle);
+    
+    return () => {
+      document.removeEventListener('toggle-sidebar', handleToggle);
+    };
+  }, []);
+
+  // Handle window resize to auto-show sidebar on desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Initial check
+    handleResize();
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleMenuClick = (menu) => {
     setActiveMenu(activeMenu === menu ? "" : menu);
@@ -57,6 +92,13 @@ const Sidebar = () => {
     localStorage.removeItem("userData");
     toast.error("Logged out Successfully");
     navigate("/login");
+  };
+
+  // When navigating on mobile, auto-close the sidebar
+  const handleNavigationClick = () => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   // Styling classes
@@ -93,6 +135,24 @@ const Sidebar = () => {
 
   return (
     <>
+      {/* Show sidebar button when sidebar is hidden */}
+      {!isSidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className={`fixed z-50 p-3 rounded-r-md shadow-lg top-20 left-0 transition-transform duration-300 ease-in-out ${theme === 'light' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-800 hover:bg-blue-700'} text-white`}
+          aria-label="Show sidebar"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* Overlay for mobile - closes sidebar when clicked outside */}
+      {isSidebarOpen && window.innerWidth < 768 && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
 
       <aside
         className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -125,6 +185,7 @@ const Sidebar = () => {
                 to="/branch-admin"
                 className={`${menuItemBase} ${menuItemHover} flex items-center p-3 rounded-lg ${location.pathname === "/branch-admin" ? menuItemActive : ""
                   }`}
+                onClick={handleNavigationClick}
               >
                 <Home className="w-5 h-5 mr-3" />
                 <span>Dashboard</span>
@@ -780,9 +841,9 @@ const Sidebar = () => {
         `}</style>
       </aside>
 
-      {/* Main Content Margin */}
+      {/* Main Content Margin - only apply on desktop */}
       <div
-        className={`ml-64 transition-all duration-300 ${isSidebarOpen ? "" : "ml-0"
+        className={`md:ml-64 transition-all duration-300 ${isSidebarOpen && window.innerWidth >= 768 ? "" : "md:ml-0"
           }`}
       >
         {/* Your main content goes here */}

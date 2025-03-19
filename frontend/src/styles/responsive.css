@@ -1,0 +1,249 @@
+/* Responsive Styles - Mobile First Approach */
+
+/* Extra small screens (phones, 475px and down) */
+.container {
+  width: 100%;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Small screens (tablets, 640px and up) */
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .hide-sm {
+    display: none !important;
+  }
+}
+
+/* Medium screens (tablets, 768px and up) */
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+
+  .hide-md {
+    display: none !important;
+  }
+
+  /* Adjust form layouts for tablets */
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -0.75rem;
+    margin-left: -0.75rem;
+  }
+
+  .form-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+}
+
+/* Large screens (laptops/desktops, 1024px and up) */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+
+  .hide-lg {
+    display: none !important;
+  }
+
+  /* Three-column layouts for large screens */
+  .grid-3-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Extra large screens (large desktops, 1280px and up) */
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+
+  .hide-xl {
+    display: none !important;
+  }
+}
+
+/* Utilities for different screen sizes */
+@media (max-width: 639px) {
+  .mobile-only {
+    display: block !important;
+  }
+
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Stack elements in mobile view */
+  .mobile-stack {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+  }
+}
+
+/* Adjust font sizes responsively */
+h1 {
+  font-size: 1.75rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.75rem;
+  }
+}
+
+/* Sidebar adjustments for responsive views */
+.sidebar {
+  width: 100%;
+  height: auto;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+
+  .content-with-sidebar {
+    margin-left: 250px;
+  }
+}
+
+/* Responsive spacing utilities */
+.m-responsive {
+  margin: 0.75rem;
+}
+
+.p-responsive {
+  padding: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .m-responsive {
+    margin: 1.25rem;
+  }
+
+  .p-responsive {
+    padding: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .m-responsive {
+    margin: 1.5rem;
+  }
+
+  .p-responsive {
+    padding: 1.5rem;
+  }
+}
+
+/* Responsive grid system */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Responsive flex utilities */
+.flex-responsive {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-responsive {
+    flex-direction: row;
+  }
+}
+
+/* Responsive navigation */
+.nav-responsive {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .nav-responsive {
+    flex-direction: row;
+    align-items: center;
+  }
+} 

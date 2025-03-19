@@ -1,0 +1,213 @@
+/* Utility classes for theme-based styling */
+
+/* Text colors */
+.text-theme-primary {
+  @apply text-gray-900 dark:text-white;
+}
+
+.text-theme-secondary {
+  @apply text-gray-700 dark:text-gray-300;
+}
+
+.text-theme-muted {
+  @apply text-gray-500 dark:text-gray-400;
+}
+
+/* Background colors */
+.bg-theme-primary {
+  @apply bg-white dark:bg-gray-900;
+}
+
+.bg-theme-secondary {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+.bg-theme-accent {
+  @apply bg-blue-600 dark:bg-blue-500;
+}
+
+/* Border colors */
+.border-theme {
+  @apply border-gray-200 dark:border-gray-700;
+}
+
+.border-theme-focus {
+  @apply focus:border-blue-500 dark:focus:border-blue-400;
+}
+
+/* Form elements */
+.input-theme {
+  @apply bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500
+         dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
+}
+
+.select-theme {
+  @apply bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500
+         dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
+}
+
+/* Cards and containers */
+.card-theme {
+  @apply bg-white border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700;
+}
+
+.card-header-theme {
+  @apply bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-200;
+}
+
+/* Tables */
+.table-theme {
+  @apply bg-white text-gray-900 dark:bg-gray-800 dark:text-white;
+}
+
+.table-header-theme {
+  @apply bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-200;
+}
+
+.table-row-theme {
+  @apply border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700;
+}
+
+/* Buttons */
+.btn-primary-theme {
+  @apply bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white
+         dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400;
+}
+
+.btn-secondary-theme {
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500
+         dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white dark:focus:ring-gray-400;
+}
+
+.btn-outline-theme {
+  @apply border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500
+         dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-400;
+}
+
+/* Box shadows */
+.shadow-theme {
+  @apply shadow-md dark:shadow-gray-900/30;
+}
+
+/* Dividers */
+.divider-theme {
+  @apply border-gray-200 dark:border-gray-700;
+}
+
+/* Status colors */
+.success-theme {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.error-theme {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.warning-theme {
+  @apply text-yellow-600 dark:text-yellow-400;
+}
+
+.info-theme {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+/* Responsive utilities */
+.responsive-container {
+  @apply px-4 sm:px-6 md:px-8 lg:px-10 w-full max-w-7xl mx-auto;
+}
+
+.responsive-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+}
+
+.responsive-flex {
+  @apply flex flex-col md:flex-row;
+}
+
+.responsive-justify {
+  @apply justify-center md:justify-between;
+}
+
+.responsive-spacing {
+  @apply space-y-4 md:space-y-0 md:space-x-4;
+}
+
+.hide-on-mobile {
+  @apply hidden md:block;
+}
+
+.hide-on-desktop {
+  @apply block md:hidden;
+}
+
+/* Responsive typography */
+.responsive-heading {
+  @apply text-xl sm:text-2xl lg:text-3xl font-bold;
+}
+
+.responsive-subheading {
+  @apply text-lg sm:text-xl lg:text-2xl font-semibold;
+}
+
+.responsive-text {
+  @apply text-sm sm:text-base;
+}
+
+/* Responsive padding/margin */
+.responsive-p {
+  @apply p-4 sm:p-6 md:p-8;
+}
+
+.responsive-px {
+  @apply px-4 sm:px-6 md:px-8;
+}
+
+.responsive-py {
+  @apply py-4 sm:py-6 md:py-8;
+}
+
+.responsive-m {
+  @apply m-4 sm:m-6 md:m-8;
+}
+
+.responsive-mx {
+  @apply mx-4 sm:mx-6 md:mx-8;
+}
+
+.responsive-my {
+  @apply my-4 sm:my-6 md:my-8;
+}
+
+/* Table responsiveness */
+.table-responsive {
+  @apply overflow-x-auto -mx-4 sm:-mx-6 md:mx-0;
+}
+
+/* Form responsiveness */
+.form-responsive {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6;
+}
+
+/* Card responsiveness */
+.card-responsive {
+  @apply flex flex-col md:flex-row;
+}
+
+/* Navigation responsiveness */
+.nav-responsive {
+  @apply flex flex-col md:flex-row items-center;
+}
+
+/* Button responsiveness */
+.btn-responsive {
+  @apply w-full md:w-auto;
+}
+
+/* Width utilities for responsive design */
+.w-responsive {
+  @apply w-full md:w-auto;
+}
+
+.max-w-responsive {
+  @apply max-w-full md:max-w-md lg:max-w-lg;
+} 

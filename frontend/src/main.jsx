@@ -4,6 +4,11 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import React from "react";
+import { ThemeProvider } from "./store/ThemeContext.jsx";
+
+// CSS imports
+import "./index.css";
+import "./styles/globals.css"; // Import the global theme utilities
 
 // Main App Components
 import App from "./App.jsx";
@@ -112,6 +117,29 @@ import AccountantLayout from "./components/Accountant/AccountantLayout.jsx";
 import AccountantDashboard from "./components/Accountant/Dashboard/AccountantDashboard.jsx";
 import AccountantProfile from "./components/Accountant/Profile/AccountantProfile.jsx";
 import AccountantCheckbar from "./components/Accountant/AccountantCheckbar.jsx";
+
+// Create a responsive context provider for use across the application
+const ResponsiveContextProvider = ({ children }) => {
+  return (
+    <StrictMode>
+      <ThemeProvider>
+        {children}
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
+      </ThemeProvider>
+    </StrictMode>
+  );
+};
 
 const Router = createBrowserRouter([
   {
@@ -1008,9 +1036,11 @@ const Router = createBrowserRouter([
   },
 ]);
 
-createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <ToastContainer />
+// Create the root and render the app
+const container = document.getElementById("root");
+const root = createRoot(container);
+root.render(
+  <ResponsiveContextProvider>
     <RouterProvider router={Router} />
-  </React.StrictMode>
+  </ResponsiveContextProvider>
 );
