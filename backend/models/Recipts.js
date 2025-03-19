@@ -5,6 +5,11 @@ const Reciepts = new mongoose.Schema({
     type: String,
     required: true,
   },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    Ref: "Branch",
+    required: true
+  },
   academicYearID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "AcademicYear", // Reference to the AcademicYear model
@@ -33,7 +38,7 @@ const Reciepts = new mongoose.Schema({
           type: Number,
           required: true,
         },
-        
+
       },
     ],
     required: true,

@@ -1,9 +1,8 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = 'http://localhost:3490';
 
@@ -25,15 +24,20 @@ const BankBook = () => {
 
     const fetchBankBookEntries = async () => {
         setLoading(true);
+        const token = localStorage.getItem('token');
+        const decoded = jwtDecode(token);
+        const branchId = decoded.branch;
+        console.log("branchid", branchId);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}/api/books/bank`, {
+            const response = await axios.get(`${BASE_URL}/api/books/bank/${branchId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
 
             if (response.data.success) {
+                console.log('Bank book entries:', response.data.data);
                 const processedEntries = response.data.data.map(entry => ({
                     ...entry,
                     groupLedger: entry.groupLedger || { name: 'N/A' },

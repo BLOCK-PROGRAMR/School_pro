@@ -11,7 +11,8 @@ const createTransaction = async (req, res) => {
             transactionType,
             bankLedgerId,
             bankSubLedgerId,
-            bankBranch
+            bankBranch,
+            branchId
         } = req.body;
 
         // Validate required fields
@@ -58,7 +59,8 @@ const createTransaction = async (req, res) => {
             transactionType,
             bankLedgerId,
             bankSubLedgerId,
-            bankBranch
+            bankBranch,
+            branchId
         });
 
         await transaction.save();
@@ -83,7 +85,8 @@ const createTransaction = async (req, res) => {
                 amount: parseFloat(amount),
                 transactionType: 'paid',
                 description: description,
-                voucherRef: transaction._id
+                voucherRef: transaction._id,
+                branchId
             };
 
             const bankBookData = {
@@ -102,7 +105,8 @@ const createTransaction = async (req, res) => {
                 amount: parseFloat(amount),
                 transactionType: 'received',
                 description: description,
-                voucherRef: transaction._id
+                voucherRef: transaction._id,
+                branchId
             };
 
             await Promise.all([
@@ -127,7 +131,8 @@ const createTransaction = async (req, res) => {
                 amount: parseFloat(amount),
                 transactionType: 'paid',
                 description: description,
-                voucherRef: transaction._id
+                voucherRef: transaction._id,
+                branchId
             };
 
             const cashBookData = {
@@ -144,7 +149,8 @@ const createTransaction = async (req, res) => {
                 amount: parseFloat(amount),
                 transactionType: 'received',
                 description: description,
-                voucherRef: transaction._id
+                voucherRef: transaction._id,
+                branchId
             };
 
             await Promise.all([

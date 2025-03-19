@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { jwtDecode } from 'jwt-decode';
 
 const BASE_URL = 'http://localhost:3490';
 
@@ -25,7 +26,10 @@ const CashBook = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}/api/books/cash`, {
+            const decoded = jwtDecode(token);
+            const branchId = decoded.branch;
+            console.log("branchid", branchId);
+            const response = await axios.get(`${BASE_URL}/api/books/cash/${branchId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

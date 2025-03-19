@@ -40,6 +40,12 @@ const bankTransactionSchema = new mongoose.Schema({
         branchName: {
             type: String,
             required: true
+        },
+        branchId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            Ref: 'Branch'
+
         }
     }
 }, {

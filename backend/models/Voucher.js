@@ -45,6 +45,10 @@ const voucherSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
     voucherType: {
         type: String,
         required: true,
@@ -105,7 +109,7 @@ const voucherSchema = new mongoose.Schema({
     },
     bankBranch: {
         type: bankBranchSchema,
-        required: function() {
+        required: function () {
             return this.paymentMethod === 'bank';
         }
     },

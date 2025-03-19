@@ -5,6 +5,10 @@ const bankBookSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
     rcNo: {
         type: String,
         required: true,
