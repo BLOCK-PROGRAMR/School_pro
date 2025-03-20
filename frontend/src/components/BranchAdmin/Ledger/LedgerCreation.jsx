@@ -296,14 +296,14 @@ const LedgerCreation = () => {
                 </form>
 
                 <div className="mt-8">
-                    <h3 className="text-xl font-semibold mb-4 text-gray-800">Created Ledgers</h3>
+                    <h3 className="text-xl font-semibold mb-4 text-red-800">Created Ledgers</h3>
                     {loading ? (
                         <div className="text-center py-4">Loading...</div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="min-w-full bg-white border border-gray-300">
+                            <table className="min-w-full bg-white border border-gray-600">
                                 <thead>
-                                    <tr className="bg-gray-100">
+                                    <tr className="bg-gray-600">
                                         <th className="py-2 px-4 border-b">Group Ledger Name</th>
                                         <th className="py-2 px-4 border-b">Ledger Type</th>
                                         <th className="py-2 px-4 border-b">Sub Ledgers</th>
@@ -313,7 +313,7 @@ const LedgerCreation = () => {
                                 <tbody>
                                     {ledgers.length > 0 ? (
                                         ledgers.map((ledger) => (
-                                            <tr key={ledger._id} className="hover:bg-gray-50">
+                                            <tr key={ledger._id} className="hover:bg-gray-800 text-black">
                                                 <td className="py-2 px-4 border-b text-center">{ledger.groupLedgerName}</td>
                                                 <td className="py-2 px-4 border-b text-center">{ledger.ledgerType}</td>
                                                 <td className="py-2 px-4 border-b text-center">

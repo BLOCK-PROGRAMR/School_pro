@@ -306,7 +306,7 @@ const Info = () => {
           <p className="text-gray-600">Manage and view student details, fees, and receipts</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8 text-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label htmlFor="class" className="block text-sm font-semibold text-gray-700 mb-2">

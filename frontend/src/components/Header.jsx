@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+ 
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Dialog } from "@headlessui/react";
+import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "../assets/logo.png";
-import ThemeToggle from "./ThemeToggle";
-import { ThemeContext } from "../store/ThemeContext";
-import { useViewport } from "../utils/responsive";
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,8 +12,6 @@ function Header() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const token = localStorage.getItem("token");
-  const { theme } = useContext(ThemeContext);
-  const { isMobile } = useViewport();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -28,117 +24,106 @@ function Header() {
     localStorage.removeItem("token");
     localStorage.removeItem("expiryTime");
     setIsLoggedIn(false);
-    toast.error("Logged out Successfully");
-    navigate("/login");
-  };
+    toast.error("Logged out Succesfully");
 
-  // Function to close mobile menu when a link is clicked
-  const handleLinkClick = () => {
-    if (mobileMenuOpen) {
-      setMobileMenuOpen(false);
-    }
+    navigate("/login");
   };
 
   return (
     <>
-      <header className={`fixed w-full top-0 left-0 z-30 ${theme === 'light' ? 'bg-white' : 'bg-gray-900'} shadow-md`}>
+      <header className="fixed w-full top-0 left-0 z-30 bg-white px-4 sm:px-5 md:px-8">
         <nav
           aria-label="Global"
-          className={`flex justify-between items-center py-2 md:py-4 lg:py-6 ${theme === 'light' ? 'bg-white' : 'bg-gray-900'} px-4 md:px-6 lg:px-10`}
+          className="flex justify-between items-center py-4 md:py-6 bg-white px-10"
         >
-          <div className="flex items-center">
-            <Link to="/" className="-m-1.5 p-1.5">
-              <span className="sr-only">Vidya Nidhi Schools</span>
+          <div className="flex lg:flex-1">
+            <a href="#" className="-m-1.5 p-1.5">
+              <span className="sr-only">Your Company</span>
               <img
                 alt="logo"
                 src={Logo}
-                className="w-[50px] h-[50px] sm:w-[70px] sm:h-[70px] lg:w-[100px] lg:h-[100px]"
+                className="w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px]"
               />
-            </Link>
+            </a>
           </div>
 
-          {/* Theme Toggle and Mobile menu button */}
-          <div className="flex items-center space-x-4 lg:hidden">
-            <ThemeToggle />
+          {/* Mobile menu button */}
+          <div className="flex lg:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className={`inline-flex items-center justify-center rounded-md p-2 ${theme === 'light' ? 'text-gray-700' : 'text-white'}`}
-              aria-expanded="false"
+              className="inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
             >
               <span className="sr-only">Open main menu</span>
               <Bars3Icon aria-hidden="true" className="h-6 w-6" />
             </button>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex lg:gap-x-6 lg:gap-y-0 lg:items-center">
+          {/* Desktop Links */}
+          <div className="hidden lg:flex lg:gap-x-10">
             <Link
               to="/"
-              className={`text-sm md:text-base lg:text-lg font-semibold leading-6 ${
-                location.pathname === "/" 
-                  ? "text-blue-500" 
-                  : theme === 'light' ? "text-gray-900" : "text-white"
+              className={`text-sm md:text-lg font-semibold leading-6 ${
+                location.pathname === "/" ? "text-blue-500" : "text-gray-900"
               }`}
             >
               Home
             </Link>
             <Link
               to="/about-us"
-              className={`text-sm md:text-base lg:text-lg font-semibold leading-6 ${
+              className={`text-sm md:text-lg font-semibold leading-6 ${
                 location.pathname === "/about-us"
                   ? "text-blue-500"
-                  : theme === 'light' ? "text-gray-900" : "text-white"
+                  : "text-gray-900"
               }`}
             >
               About Us
             </Link>
             <Link
               to="/contact-us"
-              className={`text-sm md:text-base lg:text-lg font-semibold leading-6 ${
+              className={`text-sm md:text-lg font-semibold leading-6 ${
                 location.pathname === "/contact-us"
                   ? "text-blue-500"
-                  : theme === 'light' ? "text-gray-900" : "text-white"
+                  : "text-gray-900"
               }`}
             >
               Contact Us
             </Link>
             <Link
               to="/fee-submission"
-              className={`text-sm md:text-base lg:text-lg font-semibold leading-6 ${
+              className={`text-sm md:text-lg font-semibold leading-6 ${
                 location.pathname === "/fee-submission"
                   ? "text-blue-500"
-                  : theme === 'light' ? "text-gray-900" : "text-white"
+                  : "text-gray-900"
               }`}
             >
               Fee Submission
             </Link>
             <Link
               to="/admission-enquiry"
-              className={`text-sm md:text-base lg:text-lg font-semibold leading-6 ${
+              className={`text-sm md:text-lg font-semibold leading-6 ${
                 location.pathname === "/admission-enquiry"
                   ? "text-blue-500"
-                  : theme === 'light' ? "text-gray-900" : "text-white"
+                  : "text-gray-900"
               }`}
             >
               Admission Enquiry
             </Link>
-            <ThemeToggle />
           </div>
 
-          {/* Login / Logout Button - Desktop */}
+          {/* Login / Logout Button */}
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="text-md lg:text-lg font-semibold leading-6 text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-md md:text-xl font-semibold leading-6 text-gray-900"
               >
                 Logout <span aria-hidden="true">&rarr;</span>
               </button>
             ) : (
               <Link
                 to="/login"
-                className="text-md lg:text-lg font-semibold leading-6 text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-md md:text-xl font-semibold leading-6 text-gray-900"
               >
                 Log in <span aria-hidden="true">&rarr;</span>
               </Link>
@@ -147,78 +132,77 @@ function Header() {
         </nav>
 
         {/* Mobile Menu Dialog */}
-        <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
-          <div className="fixed inset-0 z-50" />
-          <Dialog.Panel className={`fixed inset-y-0 right-0 z-50 w-full overflow-y-auto ${theme === 'light' ? 'bg-white' : 'bg-gray-900'} px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10`}>
+        <Dialog
+          open={mobileMenuOpen}
+          onClose={setMobileMenuOpen}
+          className="lg:hidden"
+        >
+          <div className="fixed inset-0 z-10" />
+          <DialogPanel className="fixed inset-y-0 right-0 z-50 w-[300px] bg-white max-w-xs overflow-y-auto  p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
-              <Link to="/" className="-m-1.5 p-1.5" onClick={handleLinkClick}>
-                <span className="sr-only">Vidya Nidhi Schools</span>
+              <a href="#" className="-m-1.5 p-1.5">
+                <span className="sr-only">Your Company</span>
                 <img alt="logo" src={Logo} className="w-[50px] h-[50px]" />
-              </Link>
+              </a>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`-m-2.5 rounded-md p-2.5 ${theme === 'light' ? 'text-gray-700' : 'text-white'}`}
+                className="-m-2.5 rounded-md p-2.5 text-gray-700"
               >
                 <span className="sr-only">Close menu</span>
                 <XMarkIcon aria-hidden="true" className="h-6 w-6" />
               </button>
             </div>
-            <div className="mt-6 flow-root">
+            <div className="mt-6 flow-root ">
               <div className="-my-6 divide-y divide-gray-500/10">
-                <div className="space-y-2 py-6">
+                <div className="space-y-6 py-6 flex flex-col">
                   <Link
                     to="/"
-                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 ${
+                    className={`text-base font-semibold leading-7 ${
                       location.pathname === "/"
                         ? "text-blue-500"
-                        : theme === 'light' ? "text-gray-900" : "text-white"
-                    } hover:bg-gray-50 dark:hover:bg-gray-800`}
-                    onClick={handleLinkClick}
+                        : "text-gray-900"
+                    }`}
                   >
                     Home
                   </Link>
                   <Link
                     to="/about-us"
-                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 ${
+                    className={`text-base font-semibold leading-7 ${
                       location.pathname === "/about-us"
                         ? "text-blue-500"
-                        : theme === 'light' ? "text-gray-900" : "text-white"
-                    } hover:bg-gray-50 dark:hover:bg-gray-800`}
-                    onClick={handleLinkClick}
+                        : "text-gray-900"
+                    }`}
                   >
                     About Us
                   </Link>
                   <Link
                     to="/contact-us"
-                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 ${
+                    className={`text-base font-semibold leading-7 ${
                       location.pathname === "/contact-us"
                         ? "text-blue-500"
-                        : theme === 'light' ? "text-gray-900" : "text-white"
-                    } hover:bg-gray-50 dark:hover:bg-gray-800`}
-                    onClick={handleLinkClick}
+                        : "text-gray-900"
+                    }`}
                   >
                     Contact Us
                   </Link>
                   <Link
                     to="/fee-submission"
-                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 ${
+                    className={`text-base font-semibold leading-7 ${
                       location.pathname === "/fee-submission"
                         ? "text-blue-500"
-                        : theme === 'light' ? "text-gray-900" : "text-white"
-                    } hover:bg-gray-50 dark:hover:bg-gray-800`}
-                    onClick={handleLinkClick}
+                        : "text-gray-900"
+                    }`}
                   >
                     Fee Submission
                   </Link>
                   <Link
                     to="/admission-enquiry"
-                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 ${
+                    className={`text-base font-semibold leading-7 ${
                       location.pathname === "/admission-enquiry"
                         ? "text-blue-500"
-                        : theme === 'light' ? "text-gray-900" : "text-white"
-                    } hover:bg-gray-50 dark:hover:bg-gray-800`}
-                    onClick={handleLinkClick}
+                        : "text-gray-900"
+                    }`}
                   >
                     Admission Enquiry
                   </Link>
@@ -226,19 +210,15 @@ function Header() {
                 <div className="py-6">
                   {isLoggedIn ? (
                     <button
-                      onClick={() => {
-                        handleLogout();
-                        handleLinkClick();
-                      }}
-                      className={`-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 ${theme === 'light' ? 'text-gray-900 hover:bg-gray-50' : 'text-white hover:bg-gray-800'}`}
+                      onClick={handleLogout}
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                     >
                       Log Out
                     </button>
                   ) : (
                     <Link
                       to="/login"
-                      className={`-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 ${theme === 'light' ? 'text-gray-900 hover:bg-gray-50' : 'text-white hover:bg-gray-800'}`}
-                      onClick={handleLinkClick}
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                     >
                       Log In
                     </Link>
@@ -246,11 +226,9 @@ function Header() {
                 </div>
               </div>
             </div>
-          </Dialog.Panel>
+          </DialogPanel>
         </Dialog>
       </header>
-      {/* Spacer to account for fixed header height */}
-      <div className="h-[60px] sm:h-[80px] lg:h-[120px]"></div>
     </>
   );
 }

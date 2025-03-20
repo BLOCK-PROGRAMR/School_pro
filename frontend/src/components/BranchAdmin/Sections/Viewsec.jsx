@@ -238,7 +238,7 @@ const ViewSections = () => {
   };
 
   return (
-    <div className="mt-16 p-8 max-w-3xl mx-auto bg-white shadow-lg rounded-2xl text-gray-700">
+    <div className="mt-16 p-8 max-w-3xl mx-auto bg-white shadow-lg rounded-2xl text-white-700">
       <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
         View Sections
       </h2>

@@ -277,11 +277,11 @@ const Data = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Student Data</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="relative">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-gray-700">
+        <div className="relative ">
           <label
             htmlFor="class"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-black-700 mb-1"
           >
             Select Class
           </label>
@@ -290,7 +290,7 @@ const Data = () => {
             value={selectedClass}
             onChange={handleClassChange}
             disabled={loading}
-            className="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+            className="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-900"
           >
             <option value="">Select Class</option>
             {classes.map((cls) => (

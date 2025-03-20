@@ -285,7 +285,7 @@ const VoucherBook = () => {
                             <button
                                 type="button"
                                 onClick={() => setVoucherType('paid')}
-                                className={`px-4 py-2 rounded-lg ${voucherType === 'paid'
+                                className={`px-4 py-2 text-yellow-800 font-bold rounded-lg ${voucherType === 'paid'
                                     ? 'bg-blue-600 text-white'
                                     : 'bg-gray-200 hover:bg-gray-300'
                                     }`}
@@ -295,7 +295,7 @@ const VoucherBook = () => {
                             <button
                                 type="button"
                                 onClick={() => setVoucherType('received')}
-                                className={`px-4 py-2 rounded-lg ${voucherType === 'received'
+                                className={`px-4 py-2 text-yellow-800 font-bold rounded-lg ${voucherType === 'received'
                                     ? 'bg-blue-600 text-white'
                                     : 'bg-gray-200 hover:bg-gray-300'
                                     }`}
@@ -335,7 +335,7 @@ const VoucherBook = () => {
                                         type="text"
                                         value={voucherData.voucherTxId}
                                         readOnly
-                                        className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md"
+                                        className="w-full px-3 py-2 bg-gray-900 border border-gray-300 rounded-md"
                                     />
                                 </div>
                                 <div>

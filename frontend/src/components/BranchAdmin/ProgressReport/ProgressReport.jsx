@@ -430,7 +430,7 @@ const ProgressReport = () => {
       <ToastContainer />
       
       {!showReport ? (
-        <div className="max-w-4xl p-6 mx-auto bg-white rounded-lg shadow-md">
+        <div className="max-w-4xl p-6 mx-auto bg-white rounded-lg shadow-md text-yellow-700">
           <h2 className="mb-6 text-2xl font-bold">Progress Report Generator</h2>
           
           <div className="space-y-6">

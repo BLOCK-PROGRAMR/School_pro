@@ -153,7 +153,7 @@ const ShowReport = () => {
           </label>
           <select
             id="busSelect"
-            className="w-full p-3 border-2 border-blue-200 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-blue-900"
+            className="w-full p-3 border-2 border-blue-200 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-bold-yellow-900"
             value={selectedBus}
             onChange={handleBusChange}
             disabled={loading}

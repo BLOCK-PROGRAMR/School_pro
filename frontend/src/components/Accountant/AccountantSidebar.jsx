@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { mycon } from "../../store/Mycontext";
-import { ThemeContext } from "../../store/ThemeContext";
 import {
   Home,
   GraduationCap,
@@ -36,16 +35,15 @@ import {
   Bell,
   Layers,
   PlusCircle,
-  List,
-  X
+  List
 } from "lucide-react";
 
 const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState("");
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
   const { branchdet, c_acad } = useContext(mycon);
-  const { theme } = useContext(ThemeContext);
 
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -96,23 +94,12 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <>
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          onClick={toggleSidebar}
-        />
-      )}
-
-      {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0`}
+        className={`fixed left-0 top-0 z-40 h-screen w-64 bg-gradient-to-b from-blue-950 to-blue-900 text-white shadow-xl transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-blue-800">
+        <div className="flex items-center justify-between p-4 border-b border-blue-800">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-full bg-blue-800 flex items-center justify-center">
                 <GraduationCap className="w-6 h-6" />
@@ -121,49 +108,46 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
                 Accountant Panel
               </span>
             </div>
-            <button
-              onClick={toggleSidebar}
-              className="p-2 transition-colors rounded-lg hover:bg-blue-800 md:hidden"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={toggleSidebar}
+              className="p-2 transition-colors rounded-lg hover:bg-blue-800"
+          >
+              <Menu className="w-5 h-5" />
+          </button>
+        </div>
 
-          <div className="p-4 border-b border-blue-800">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-blue-800 flex items-center justify-center">
-                <Users className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium">{userData.name || "Accountant"}</p>
-                <p className="text-xs text-blue-300">Accountant</p>
-              </div>
+        <div className="p-4 border-b border-blue-800">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-blue-800 flex items-center justify-center">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-medium">{userData.name || "Accountant"}</p>
+              <p className="text-xs text-blue-300">Accountant</p>
             </div>
           </div>
+        </div>
 
-          <div className="p-4 h-[calc(100vh-200px)] overflow-y-auto">
-            <nav className="space-y-2">
-              {/* Dashboard */}
-              <Link
-                to="/accountant"
-                className="flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-blue-800"
-                onClick={() => {
-                  if (window.innerWidth < 768) {
-                    toggleSidebar();
-                  }
-                }}
-              >
-                <Home className="w-5 h-5 mr-3" />
-                <span>Dashboard</span>
-              </Link>
+        <div className="p-4 h-[calc(100vh-140px)] overflow-y-auto">
+          <nav className="space-y-2">
+            {/* Dashboard */}
+            <Link
+              to="/accountant"
+              className={`flex items-center p-3 rounded-lg ${menuItemBase} ${menuItemHover} ${
+                location.pathname === "/accountant" ? menuItemActive : ""
+              }`}
+            >
+              <Home className="w-5 h-5 mr-3" />
+              <span>Dashboard</span>
+            </Link>
 
-              {/* Fee Controller */}
-              <div className="space-y-1">
+            
+
+             {/* Fee Controller */}
+             <div className="space-y-1">
                 <button
                   onClick={() => handleMenuClick("fees")}
-                  className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-blue-800 ${
-                    activeMenu === "fees" ? "bg-blue-800" : ""
-                  }`}
+                  className={getMenuButtonClasses("fees")}
                 >
                   <div className="flex items-center">
                     <DollarSign className="w-5 h-5 mr-3" />
@@ -175,117 +159,73 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
                     <ChevronRight className="w-4 h-4" />
                   )}
                 </button>
-                <div className={`overflow-hidden transition-all duration-300 ${
-                  activeMenu === "fees" ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-                }`}>
+                <div className={getSubmenuClasses("fees")}>
                   <div className="pl-6 space-y-1">
-                    <Link
+                    <MenuItem
                       to={`/accountant/fee-type/${currentAcademicYear}`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      icon={Plus}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Set Fee Types</span>
-                    </Link>
-                    <Link
-                      to={`/accountant/ledger-creation`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      Set Fee Types
+                    </MenuItem>
+                    <MenuItem to={`/accountant/ledger-creation`} icon={Plus}>
+                      Ledger Creation
+                    </MenuItem>
+                    <MenuItem to={`/accountant/voucher-creation`} icon={Plus}>
+                      Voucher Receipts
+                    </MenuItem>
+                    <MenuItem to={`/accountant/bank-creation`} icon={Plus}>
+                      Bank
+                    </MenuItem>
+                    {/* <MenuItem
+                      to={`/accountant/fee-report/${currentAcademicYear}`}
+                      icon={Plus}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Ledger Creation</span>
-                    </Link>
-                    <Link
-                      to={`/accountant/voucher-creation`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Voucher Receipts</span>
-                    </Link>
-                    <Link
-                      to={`/accountant/bank-creation`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Bank</span>
-                    </Link>
-                    <Link
+                      Fee Report
+                    </MenuItem> */}
+                    <MenuItem
                       to={`/accountant/fee-card/${currentAcademicYear}`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      icon={Plus}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Fee Ledger</span>
-                    </Link>
-                    <Link
+                      Fee Ledger
+                    </MenuItem>
+                    <MenuItem
                       to={`/accountant/fee-reciepts/${currentAcademicYear}`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      icon={FileText}
                     >
-                      <FileText className="w-4 h-4 mr-2" />
-                      <span>Fee Receipts</span>
-                    </Link>
-                    <Link
+                      Fee-Reciepts
+                    </MenuItem>
+                    {/* <MenuItem
+                      to={`/accountant/cash-book/${currentAcademicYear}`}
+                      icon={Plus}
+                    >
+                      CashBook
+                    </MenuItem> */}
+
+                    <MenuItem
                       to={`/accountant/cash/${currentAcademicYear}`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      icon={Plus}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Cash Book</span>
-                    </Link>
-                    <Link
+                      cash-Book
+                    </MenuItem>
+
+                    <MenuItem
                       to={`/accountant/bank/${currentAcademicYear}`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      icon={Plus}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Bank Book</span>
-                    </Link>
+                      BankBook
+                    </MenuItem>
                   </div>
                 </div>
               </div>
 
+            
+
+             
               {/* Students */}
               <div className="space-y-1">
                 <button
                   onClick={() => handleMenuClick("students")}
-                  className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-blue-800 ${
-                    activeMenu === "students" ? "bg-blue-800" : ""
-                  }`}
+                  className={getMenuButtonClasses("students")}
                 >
                   <div className="flex items-center">
                     <Users className="w-5 h-5 mr-3" />
@@ -297,34 +237,32 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
                     <ChevronRight className="w-4 h-4" />
                   )}
                 </button>
-                <div className={`overflow-hidden transition-all duration-300 ${
-                  activeMenu === "students" ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-                }`}>
+                <div className={getSubmenuClasses("students")}>
                   <div className="pl-6 space-y-1">
-                    <Link
+                    <MenuItem
                       to={`/accountant/add-student/${currentAcademicYear}`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      icon={UserPlus}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Add Student</span>
-                    </Link>
-                    <Link
+                      Add Student
+                    </MenuItem>
+                    <MenuItem
                       to={`/accountant/students-report/${currentAcademicYear}`}
-                      className="flex items-center p-2 text-sm transition-colors rounded-lg hover:bg-blue-800"
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          toggleSidebar();
-                        }
-                      }}
+                      icon={FileText}
                     >
-                      <FileText className="w-4 h-4 mr-2" />
-                      <span>Students Report</span>
-                    </Link>
+                      View All
+                    </MenuItem>
+
+                    <MenuItem to={`/accountant/data`} icon={FileText}>
+                      Data
+                    </MenuItem>
+
+                    <MenuItem to={`/accountant/FeeData`} icon={FileText}>
+                      FeeData
+                    </MenuItem>
+
+                    <MenuItem to={`/accountant/info`} icon={FileText}>
+                      Student Info
+                    </MenuItem>
                   </div>
                 </div>
               </div>
@@ -724,17 +662,16 @@ const AccountantSidebar = ({ isOpen, toggleSidebar }) => {
               <Users className="w-5 h-5 mr-3" />
               <span>Profile</span>
             </Link>
-          </nav>
-          </div>
 
-          <div className="p-4 mt-auto border-t border-blue-800">
+            {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center w-full p-3 transition-colors bg-red-600 rounded-lg hover:bg-red-700"
+                className="flex items-center w-full p-3 rounded-lg text-red-400 hover:bg-red-900 hover:text-white transition-colors"
             >
-              <LogOut className="w-5 h-5 mr-2" />
+              <LogOut className="w-5 h-5 mr-3" />
               <span>Logout</span>
             </button>
+          </nav>
           </div>
         </div>
       </aside>
