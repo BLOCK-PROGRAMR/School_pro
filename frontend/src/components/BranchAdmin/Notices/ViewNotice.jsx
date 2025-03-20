@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { FileText, Calendar, Download, Trash2, Eye, X } from "lucide-react";
 import Allapi from "../../../common/index";
-
+import { mycon } from "../../../store/Mycontext";
+import { jwtDecode } from "jwt-decode";
 const ViewNotice = () => {
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [selectedNotice, setSelectedNotice] = useState(null);
+    const { branchdet } = useContext(mycon);
+
 
     useEffect(() => {
         fetchNotices();
@@ -16,9 +19,13 @@ const ViewNotice = () => {
     const fetchNotices = async () => {
         try {
             setLoading(true);
+            const token = localStorage.getItem('token');
+            const decoded = jwtDecode(token);
+            const branchId = decoded.branch;
+            console.log("branchid", branchId);
             const response = await axios({
-                method: Allapi.getNotices.method,
-                url: Allapi.getNotices.url,
+                method: Allapi.getNoticeByBranchId.method,
+                url: Allapi.getNoticeByBranchId.url(branchId),
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },

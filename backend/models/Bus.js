@@ -23,7 +23,7 @@ const busSchema = new mongoose.Schema(
     },
     destination: {
       type: String,
-      required: true,
+      // required: true,
     },
     viaTowns: {
       type: [String],

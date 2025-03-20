@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { mycon } from "../../../store/Mycontext";
 
 const BASE_URL = 'http://localhost:3490';
 
@@ -33,6 +34,7 @@ const VoucherBook = () => {
     });
     const [loading, setLoading] = useState(false);
     const [availableLedgerTypes, setAvailableLedgerTypes] = useState([]);
+    const { branchdet } = useContext(mycon);
 
     const fetchLatestVoucherNumber = async () => {
         if (!voucherType) return;
@@ -131,8 +133,8 @@ const VoucherBook = () => {
 
             if (response.data.success) {
                 const filteredLedgers = response.data.data.filter(
-                    ledger => ledger.ledgerType === ledgerType && 
-                             LEDGER_TYPES[voucherType].includes(ledger.ledgerType)
+                    ledger => ledger.ledgerType === ledgerType &&
+                        LEDGER_TYPES[voucherType].includes(ledger.ledgerType)
                 );
                 setGroupLedgers(filteredLedgers);
                 setSelectedLedger('');
@@ -192,7 +194,7 @@ const VoucherBook = () => {
         try {
             const token = localStorage.getItem('token');
             const selectedBranch = bankSubLedgers.find(b => b._id === selectedBankSubLedger);
-            
+
             // Get the selected ledger and sub-ledger details
             const selectedGroupLedger = groupLedgers.find(l => l._id === selectedLedger);
             const selectedSubLedgerData = subLedgers.find(sl => sl._id === selectedSubLedger);
@@ -229,7 +231,8 @@ const VoucherBook = () => {
                     branchName: selectedBranch.name
                 } : undefined,
                 voucherNumber: parseInt(voucherData.voucherNumber),
-                voucherTxId: voucherData.voucherTxId
+                voucherTxId: voucherData.voucherTxId,
+                branchId: branchdet._id
             };
 
             console.log('Submitting payload:', payload); // Debug log

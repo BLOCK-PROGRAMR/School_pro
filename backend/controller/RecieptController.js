@@ -5,7 +5,7 @@ const { createCashBookEntry, createBankBookEntry } = require('./BookController')
 // Create a new receipt
 const createReceipt = async (req, res) => {
   try {
-    const { studentID, academicYearID, date, rcNo, feeLedger, terms, paymentType, bankDetails } = req.body;
+    const { studentID, academicYearID, date, rcNo, feeLedger, terms, paymentType, bankDetails, branchId } = req.body;
 
     // Ensure all required fields are provided
     if (!studentID || !academicYearID || !date || !rcNo || !feeLedger) {
@@ -27,6 +27,7 @@ const createReceipt = async (req, res) => {
       rcNo,
       feeLedger,
       totalAmount,
+      branchId
     });
 
 
@@ -51,6 +52,7 @@ const createReceipt = async (req, res) => {
         transactionType: "received",
 
         description: "student paying fee through cash",
+        branchId
 
 
       }
@@ -77,8 +79,7 @@ const createReceipt = async (req, res) => {
         transactionType: "received",
 
         description: "student paying fee through cash",
-
-
+        branchId
       }
       await createBankBookEntry(BankData);
     }

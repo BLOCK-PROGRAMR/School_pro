@@ -3,6 +3,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Search, Calendar, X, Loader, Image } from 'lucide-react';
 import Allapi from '../../common';
+import { mycon } from "../../store/Mycontext";
+
 
 const Gallery = () => {
   const [loading, setLoading] = useState(true);
@@ -12,6 +14,7 @@ const Gallery = () => {
   const [selectedGallery, setSelectedGallery] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const { branchdet } = useContext(mycon);
 
   useEffect(() => {
     fetchGalleries();
@@ -33,7 +36,7 @@ const Gallery = () => {
 
       const data = await response.json();
       console.log("Galleries response:", data);
-      
+
       if (data.success) {
         // Sort by date (newest first)
         const sortedGalleries = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -131,16 +134,16 @@ const Gallery = () => {
         {filteredGalleries.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGalleries.map((gallery) => (
-              <div 
-                key={gallery._id} 
+              <div
+                key={gallery._id}
                 className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300"
                 onClick={() => openGalleryModal(gallery)}
               >
                 <div className="relative h-48 overflow-hidden">
                   {gallery.images && gallery.images.length > 0 ? (
-                    <img 
-                      src={gallery.images[0].url} 
-                      alt={gallery.title} 
+                    <img
+                      src={gallery.images[0].url}
+                      alt={gallery.title}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -195,7 +198,7 @@ const Gallery = () => {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b">
               <h2 className="text-xl font-bold text-gray-800">{selectedGallery.title}</h2>
-              <button 
+              <button
                 onClick={closeGalleryModal}
                 className="p-1 rounded-full hover:bg-gray-200"
               >
@@ -212,14 +215,14 @@ const Gallery = () => {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {selectedGallery.images.map((image, index) => (
-                  <div 
-                    key={image._id || index} 
+                  <div
+                    key={image._id || index}
                     className="relative aspect-square overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => openImageModal(image)}
                   >
-                    <img 
-                      src={image.url} 
-                      alt={`Gallery image ${index + 1}`} 
+                    <img
+                      src={image.url}
+                      alt={`Gallery image ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -232,23 +235,23 @@ const Gallery = () => {
 
       {/* Full Image Modal */}
       {selectedImage && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-90"
           onClick={closeImageModal}
         >
-          <div 
+          <div
             className="relative max-w-full max-h-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
+            <button
               onClick={closeImageModal}
               className="absolute top-4 right-4 p-1 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70"
             >
               <X className="w-6 h-6 text-white" />
             </button>
-            <img 
-              src={selectedImage.url} 
-              alt="Full size image" 
+            <img
+              src={selectedImage.url}
+              alt="Full size image"
               className="max-w-full max-h-[90vh] object-contain"
             />
           </div>

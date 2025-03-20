@@ -9,5 +9,6 @@ router.get("/get-studentById/:idNo", StudentControllers.getStudentByIdNo);
 router.put("/edit-student/:sid", StudentControllers.updateStudent);
 router.delete("/delete-student/:sid", StudentControllers.deleteStudent);
 router.put("/pay-fee/:sid", StudentControllers.updateFeeDetails);
+router.get("/get-students/branch/:branchId", StudentControllers.getStudentIdByBranch);
 
 module.exports = router;

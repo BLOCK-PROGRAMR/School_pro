@@ -3,7 +3,7 @@ const Link = require('../models/Link');
 // Add a new link collection
 exports.addLinkCollection = async (req, res) => {
     try {
-        const { title, date, links } = req.body;
+        const { title, date, branchId, links } = req.body;
 
         // Validate required fields
         if (!title) {
@@ -14,6 +14,13 @@ exports.addLinkCollection = async (req, res) => {
         }
 
         if (!date) {
+            return res.status(400).json({
+                success: false,
+                message: "Date is required"
+            });
+        }
+
+        if (!branchId) {
             return res.status(400).json({
                 success: false,
                 message: "Date is required"
@@ -58,6 +65,7 @@ exports.addLinkCollection = async (req, res) => {
         const newLinkCollection = new Link({
             title,
             date,
+            branchId,
             links
         });
 
@@ -98,7 +106,28 @@ exports.getLinkCollections = async (req, res) => {
         });
     }
 };
+exports.getLinkCollectionsByBranch = async (req, res) => {
 
+    try {
+        const { branchId } = req.params;
+        const linkCollections = await Link.find({ branchId: branchId }).sort({ date: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: linkCollections.length,
+            data: linkCollections
+        });
+
+    }
+    catch (error) {
+        console.error("Error fetching link collections by branch id:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching link collections by branch id",
+            error: error.message
+        });
+    }
+};
 // Get link collection by ID
 exports.getLinkCollectionById = async (req, res) => {
     try {

@@ -4,6 +4,7 @@ import { Link as LinkIcon, Trash2, Calendar, ExternalLink, Loader, Search, Filte
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from 'date-fns';
+import { jwtDecode } from "jwt-decode";
 
 const backendUrl = "http://localhost:3490";
 
@@ -22,7 +23,11 @@ const ViewLinks = () => {
     const fetchLinkCollections = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${backendUrl}/api/links`, {
+            const token = localStorage.getItem('token');
+            const decoded = jwtDecode(token);
+            const branchId = decoded.branch;
+            console.log("branchid", branchId);
+            const response = await axios.get(`${backendUrl}/api/links/branch/${branchId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -120,8 +125,8 @@ const ViewLinks = () => {
                         <button
                             onClick={() => changeSortBy('date')}
                             className={`flex items-center px-3 py-1 rounded-md text-sm ${sortBy === 'date'
-                                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                                    : 'bg-gray-100 text-gray-700 border border-gray-200'
+                                ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                                : 'bg-gray-100 text-gray-700 border border-gray-200'
                                 }`}
                         >
                             <Calendar size={14} className="mr-1" />
@@ -133,8 +138,8 @@ const ViewLinks = () => {
                         <button
                             onClick={() => changeSortBy('title')}
                             className={`flex items-center px-3 py-1 rounded-md text-sm ${sortBy === 'title'
-                                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                                    : 'bg-gray-100 text-gray-700 border border-gray-200'
+                                ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                                : 'bg-gray-100 text-gray-700 border border-gray-200'
                                 }`}
                         >
                             <Filter size={14} className="mr-1" />

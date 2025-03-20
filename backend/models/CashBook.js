@@ -57,6 +57,10 @@ const cashBookSchema = new mongoose.Schema({
         ref: 'Voucher',
 
     },
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
     description: {
         type: String,
         required: true

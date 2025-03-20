@@ -10,6 +10,11 @@ const noticeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        Ref: "Branch",
+        required: true
+    },
     date: {
         type: Date,
         required: true

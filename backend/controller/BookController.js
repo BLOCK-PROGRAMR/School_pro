@@ -12,6 +12,7 @@ const createCashBookEntry = async (voucherData) => {
 
         const cashBookEntry = new CashBook({
             date: voucherData.date,
+            branchId: voucherData.branchId,
             rcNo: voucherData.voucherTxId ? voucherData.voucherTxId : voucherData.rcNo,
 
             ledgerType: voucherData.ledgerType,
@@ -29,7 +30,7 @@ const createCashBookEntry = async (voucherData) => {
             ...(voucherData._id && { voucherRef: voucherData._id }), // Only add if present
             description: voucherData.description
         });
-
+        console.log("cashBookEntry", cashBookEntry);
 
         await cashBookEntry.save();
         console.log('Cash book entry created:', cashBookEntry);
@@ -52,6 +53,7 @@ const createBankBookEntry = async (voucherData) => {
         }
         const bankBookEntry = new BankBook({
             date: voucherData.date,
+            branchId: voucherData.branchId,
             rcNo: voucherData.voucherTxId ? voucherData.voucherTxId : voucherData.rcNo,
 
             ledgerType: voucherData.ledgerType,
@@ -107,7 +109,45 @@ const getCashBookEntries = async (req, res) => {
         });
     }
 };
+//get cash book entries by branchid
+const getCashBookEntriesByBranchId = async (req, res) => {
+    try {
+        const entries = await CashBook.find({ branchId: req.params.branchId });
+        return res.status(200).json({
+            success: true,
+            data: entries
+        });
+    }
+    catch (err) {
+        console.error('Error getting cash book entries:', err);
+        return res.status(500).json({
+            success: false,
+            message: err.message || 'Internal server error'
+        });
+    }
+}
 
+//get bank book entries by branchid
+
+const getBankBookEntriesByBranchId = async (req, res) => {
+    try {
+        console.log("helllo world")
+        console.log("branchId", req.params.branchId)
+        const entries = await BankBook.find({ branchId: req.params.branchId });
+        console.log("entries", entries);
+        return res.status(200).json({
+            success: true,
+            data: entries
+        });
+    }
+    catch (err) {
+        console.error('Error getting bank book entries:', err);
+        return res.status(500).json({
+            success: false,
+            message: err.message || 'Internal server error'
+        });
+    }
+}
 // Get bank book entries
 const getBankBookEntries = async (req, res) => {
     try {
@@ -136,5 +176,7 @@ module.exports = {
     createCashBookEntry,
     createBankBookEntry,
     getCashBookEntries,
-    getBankBookEntries
+    getBankBookEntries,
+    getBankBookEntriesByBranchId,
+    getCashBookEntriesByBranchId
 };

@@ -19,7 +19,8 @@ const createVoucher = async (req, res) => {
             bankSubLedgerId,
             bankBranch,
             voucherNumber,
-            voucherTxId
+            voucherTxId,
+            branchId
         } = req.body;
 
         console.log('Received voucher data:', req.body); // Debug log
@@ -89,11 +90,17 @@ const createVoucher = async (req, res) => {
                     message: 'Bank ledger and sub-ledger are required for bank payment method'
                 });
             }
-            if (!bankBranch || !bankBranch.bankId || !bankBranch.bankName || 
+            if (!bankBranch || !bankBranch.bankId || !bankBranch.bankName ||
                 !bankBranch.branchId || !bankBranch.branchName) {
                 return res.status(400).json({
                     success: false,
                     message: 'Complete bank branch details are required for bank payment method'
+                });
+            }
+            if (!branchId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Branch ID is required'
                 });
             }
         }
@@ -137,10 +144,12 @@ const createVoucher = async (req, res) => {
             bankSubLedgerId: paymentMethod === 'bank' ? bankSubLedgerId : undefined,
             bankBranch: paymentMethod === 'bank' ? bankBranch : undefined,
             voucherNumber: parseInt(voucherNumber),
-            voucherTxId
+            voucherTxId,
+            branchId
         });
 
         await voucher.save();
+        console.log('Voucher created:', voucher);
 
         // Create corresponding book entry
         if (paymentMethod === 'cash') {
@@ -207,7 +216,7 @@ const getLatestVoucherNumber = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            data: { 
+            data: {
                 voucherNumber,
                 voucherTxId
             }

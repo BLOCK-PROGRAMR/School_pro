@@ -913,28 +913,28 @@ const Router = createBrowserRouter([
               {
                 path: "",
                 element: <ViewAcademicYears />,
-            errorElement: <ErrorBoundary />,
-          },
-          {
+                errorElement: <ErrorBoundary />,
+              },
+              {
                 path: "add",
                 element: <Add />,
-            errorElement: <ErrorBoundary />,
-          },
-          {
+                errorElement: <ErrorBoundary />,
+              },
+              {
                 path: "view",
                 element: <ViewAcademicYears />,
-            errorElement: <ErrorBoundary />,
-          },
-          {
+                errorElement: <ErrorBoundary />,
+              },
+              {
                 path: "add-class/",
                 element: <AddAcademicYear />,
-            errorElement: <ErrorBoundary />,
-          },
-          {
+                errorElement: <ErrorBoundary />,
+              },
+              {
                 path: "add-class/:acid",
                 element: <AddClass />,
-            errorElement: <ErrorBoundary />,
-          },
+                errorElement: <ErrorBoundary />,
+              },
               {
                 path: "add-section/:classId",
                 element: <Addsection />,
@@ -973,12 +973,12 @@ const Router = createBrowserRouter([
               {
                 path: "add-town",
                 element: <AddTown />,
-            errorElement: <ErrorBoundary />,
-          },
-          {
+                errorElement: <ErrorBoundary />,
+              },
+              {
                 path: "add-bus",
                 element: <AddBus />,
-            errorElement: <ErrorBoundary />,
+                errorElement: <ErrorBoundary />,
               },
             ],
           },

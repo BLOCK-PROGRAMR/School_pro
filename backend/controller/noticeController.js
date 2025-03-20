@@ -21,10 +21,11 @@ if (!fs.existsSync(uploadFolder)) {
 exports.addNotice = async (req, res) => {
     try {
         console.log("Hii hello coming add notie")
-        const { title, description, date } = req.body;
+        const { title, description, date, branchId } = req.body;
+        console.log("branchid", branchId);
 
         // Validate required fields
-        if (!title || !description || !date) {
+        if (!title || !description || !date || !branchId) {
             return res.status(400).json({
                 success: false,
                 message: "Title, description, and date are required fields"
@@ -66,6 +67,7 @@ exports.addNotice = async (req, res) => {
         const newNotice = new Notice({
             title,
             description,
+            branchId,
             date,
             files: uploadedFiles
         });
@@ -144,6 +146,27 @@ exports.getNoticeById = async (req, res) => {
         });
     }
 };
+exports.getNoticeByBranchId = async (req, res) => {
+
+    try {
+        const { branchId } = req.params;
+        console.log("heloo world nithin")
+        const notice = await Notice.find({ branchId: branchId });
+        res.status(200).json({
+            success: true,
+            data: notice
+        });
+
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error fetching notice",
+            error: error.message
+        });
+    }
+}
+
 
 // Update notice
 exports.updateNotice = async (req, res) => {

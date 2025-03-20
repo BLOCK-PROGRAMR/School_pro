@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Trash2, Edit, Image, Loader, Search, Calendar } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from 'date-fns';
-
+import { mycon } from "../../../store/Mycontext";
+import { jwtDecode } from "jwt-decode";
 const backendUrl = "http://localhost:3490";
 
 const ViewGallery = () => {
+    const { branchdet } = useContext(mycon);
     const [galleries, setGalleries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,13 +24,18 @@ const ViewGallery = () => {
     const fetchGalleries = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${backendUrl}/api/gallery`, {
+            const token = localStorage.getItem('token');
+            const decoded = jwtDecode(token);
+            const branchId = decoded.branch;
+            console.log("branchid", branchId);
+            const response = await axios.get(`${backendUrl}/api/gallery/branch/${branchId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
 
             if (response.data.success) {
+
                 setGalleries(response.data.data);
             } else {
                 toast.error('Failed to fetch galleries');
@@ -172,50 +179,7 @@ const ViewGallery = () => {
                 </div>
             </div>
 
-            {/* Gallery Modal
-            {isModalOpen && selectedGallery && (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-                        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-gray-800">{selectedGallery.title}</h2>
-                            <button
-                                onClick={closeGalleryModal}
-                                className="text-gray-500 hover:text-gray-700"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
 
-                        <div className="p-4 overflow-y-auto max-h-[calc(90vh-8rem)]">
-                            {selectedGallery.description && (
-                                <p className="text-gray-600 mb-4">{selectedGallery.description}</p>
-                            )}
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {selectedGallery.images && selectedGallery.images.map((image, index) => (
-                                    <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
-                                        <img
-                                            src={image.url}
-                                            alt={`Gallery image ${index + 1}`}
-                                            className="w-full h-auto"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="p-4 border-t border-gray-200 flex justify-end">
-                            <button
-                                onClick={closeGalleryModal}
-                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )} */}
-            {/* Gallery Modal */}
             {isModalOpen && selectedGallery && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">

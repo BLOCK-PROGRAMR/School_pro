@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useContext } from "react";
 
+
+import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Allapi from "../../../common"; // Adjust according to your API utility file
+import Allapi from "../../../common";
 import { mycon } from "../../../store/Mycontext";
+import { jwtDecode } from "jwt-decode";
 
 const FeeReport = () => {
   const [student, setStudent] = useState(null);
@@ -30,14 +32,13 @@ const FeeReport = () => {
 
   useEffect(() => {
     if (sid) fetchStudentById(sid);
-    // if(branchdet.academicYears) setAcid(branchdet.academicYears[0])
-    // console.log(student)
-    // console.log(mycon)
   }, [sid]);
 
   const fetchStudentById = async (sid) => {
     try {
       const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+      const branchId = decoded.branch;
       const response = await fetch(Allapi.getstudentbyId.url(sid), {
         method: Allapi.getstudentbyId.method,
         headers: {
@@ -48,31 +49,27 @@ const FeeReport = () => {
 
       const result = await response.json();
       if (result.success) {
-        console.log("db", result.data.feeDetails);
         const maxTerms = Math.max(
           ...result.data.feeDetails.map((fee) => parseInt(fee.terms, 10))
         );
 
-        // Set the numTerms state to the highest term value
         setNumTerms(maxTerms);
-        alert(maxTerms);
         const initialPaidFee = result.data.feeDetails.map((fee) => {
-          // Ensure paidFee is set to 0 if it's missing
           const paidAmount = fee.paidFee ? fee.paidFee : 0;
-          const finalAmount = fee.finalAmount; // Fix: define finalAmount here
+          const finalAmount = fee.finalAmount;
           return {
             name: fee.name,
             amount: fee.amount,
             terms: fee.terms,
             concession: fee.concession,
-            finalAmount, // Use finalAmount here
+            finalAmount,
             extractedAmount: finalAmount / fee.terms,
-            paidAmount, // Set to 0 if no paidFee is provided
-            due: finalAmount - paidAmount, // Adjust due based on paidAmount
-            enteredAmount: 0, // Initialize enteredAmount to 0
+            paidAmount,
+            due: finalAmount - paidAmount,
+            enteredAmount: 0,
           };
         });
-        console.log("init", initialPaidFee);
+
         setStudentDataForm((prev) => ({
           ...prev,
           padiFee: initialPaidFee,
@@ -93,37 +90,36 @@ const FeeReport = () => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(Allapi.getLedgers.url, {
+      const response = await axios.get('http://localhost:3490/api/ledger/all', {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
       if (response.data.success) {
         const bankLedgers = response.data.data.filter(
           (ledger) => ledger.ledgerType === "Bank"
         );
-        // Flatten the bank and branch structure into a single array
-        console.log("bankedgers", bankLedgers)
+
         const allBranches = bankLedgers.reduce((acc, bank) => {
-          const bankBranches = bank.subLedgers.map((branch) => ({
-            _id: branch._id,
-            name: `${bank.groupLedgerName} - ${branch.name}`,
-            bankId: bank._id,
-            bankName: bank.groupLedgerName,
-            branchId: branch._id,
-            branchName: branch.name,
-          }));
-          console.log("bankBranches", bankBranches)
-          return [...acc, ...bankBranches];
+          if (!bank.subLedgers) return acc;
+          return [
+            ...acc,
+            ...bank.subLedgers.map((branch) => ({
+              ...branch,
+              bankId: bank._id,
+              bankName: bank.groupLedgerName,
+            })),
+          ];
         }, []);
-        console.log("all branches", allBranches)
+
         setBankBranches(allBranches);
+      } else {
+        toast.error("Failed to fetch bank branches");
       }
     } catch (error) {
       console.error("Error fetching bank branches:", error);
-      toast.error("Failed to fetch bank branches");
+      toast.error("An error occurred while fetching bank branches.");
     } finally {
       setLoading(false);
     }
@@ -138,20 +134,14 @@ const FeeReport = () => {
     setStudentDataForm((prev) => {
       const updatedPadiFee = prev.padiFee.map((fee) => {
         let termValue = parseInt(term.split("-")[1], 10);
-        // Fix typo
-        console.log(termValue);
-        termValue > fee.terms
-          ? (termValue = fee.terms)
-          : (termValue = termValue);
-        console.log("termvalue ,", fee.terms);
+        termValue > fee.terms ? (termValue = fee.terms) : (termValue = termValue);
         const dueAmount =
           termValue * fee.extractedAmount - fee.paidAmount > 0
             ? termValue * fee.extractedAmount - fee.paidAmount
             : 0;
-        // Ensure due calculation considers the correct term
         return {
           ...fee,
-          due: dueAmount, // Adjusted the formula
+          due: dueAmount,
         };
       });
       return {
@@ -213,16 +203,14 @@ const FeeReport = () => {
         bankDetails: {
           bankId: selectedBranchData.bankId,
           bankName: selectedBranchData.bankName,
-          branchId: selectedBranchData.branchId,
-          branchName: selectedBranchData.branchName,
+          branchId: selectedBranchData._id,
+          branchName: selectedBranchData.name,
         },
       }));
     }
   };
 
   const handleSubmit = async (e) => {
-    alert(studentDataForm.paymentType);
-    console.log("abnk", studentDataForm.bankDetails);
     e.preventDefault();
     const paymentDetails = studentDataForm.padiFee;
 
@@ -232,30 +220,16 @@ const FeeReport = () => {
     }
 
     try {
-      // Update the fee details for the student
       const token = localStorage.getItem("token");
 
-      // Log the payment details to see if enteredAmount and padiFee exist
-      console.log(paymentDetails, "paymentDetails before update");
-
-      const updatedFeeDetails = paymentDetails.map((fee) => {
-        console.log(fee, "fee before update");
-
-        const updatedFee = {
-          name: fee.name,
-          amount: fee.amount,
-          terms: fee.terms,
-          concession: fee.concession || 0,
-          finalAmount: fee.finalAmount,
-          // Ensure enteredAmount and padiFee are added correctly
-          paidFee: fee.enteredAmount + fee.paidAmount, // Add padiFee if available, otherwise 0
-        };
-
-        console.log(updatedFee, "updatedFee");
-        return updatedFee;
-      });
-
-      console.log(updatedFeeDetails, "updatedFeeDetails");
+      const updatedFeeDetails = paymentDetails.map((fee) => ({
+        name: fee.name,
+        amount: fee.amount,
+        terms: fee.terms,
+        concession: fee.concession || 0,
+        finalAmount: fee.finalAmount,
+        paidFee: fee.enteredAmount + fee.paidAmount,
+      }));
 
       const feeResponse = await fetch(Allapi.payFeeById.url(sid), {
         method: Allapi.payFeeById.method,
@@ -275,7 +249,6 @@ const FeeReport = () => {
         return;
       }
 
-      // Create the receipt
       const receiptResponse = await fetch(Allapi.addReciepts.url, {
         method: Allapi.addReciepts.method,
         headers: {
@@ -287,24 +260,22 @@ const FeeReport = () => {
           studentID: student.idNo,
           terms: selectedTerm,
           date: new Date(),
-          rcNo: `RC-${Date.now()}`, // Generate a unique receipt number
+          rcNo: `RC-${Date.now()}`,
           feeLedger: paymentDetails.map((fee) => ({
             name: fee.name,
             amount: fee.enteredAmount,
           })),
           paymentType: studentDataForm.paymentType,
           bankDetails: studentDataForm.bankDetails,
+          branchId: branchdet._id
         }),
       });
-      console.log(student, "t");
 
       const receiptResult = await receiptResponse.json();
 
       if (receiptResult.success) {
         toast.success("Fee Paid Successfully and Receipt Created!");
-        console.log(receiptResult, "recieots");
-        // window.location.reload();
-        fetchStudentById(sid); // Refresh data
+        fetchStudentById(sid);
       } else {
         toast.error(receiptResult.message || "Failed to create receipt.");
       }
@@ -391,7 +362,6 @@ const FeeReport = () => {
                 </tr>
               </thead>
               <tbody>
-                {console.log("student fee is", studentDataForm.padiFee)}
                 {studentDataForm.padiFee.map((fee) => (
                   <tr key={fee.name}>
                     <td className="p-2 border">{fee.name}</td>
@@ -442,7 +412,7 @@ const FeeReport = () => {
                   <option value="">Select Bank and Branch</option>
                   {bankBranches.map((branch) => (
                     <option key={branch._id} value={branch._id}>
-                      {branch.name}
+                      {branch.bankName} - {branch.name}
                     </option>
                   ))}
                 </select>
@@ -463,3 +433,4 @@ const FeeReport = () => {
 };
 
 export default FeeReport;
+
