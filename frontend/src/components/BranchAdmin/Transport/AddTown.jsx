@@ -60,7 +60,7 @@ const AddTown = () => {
 
   // Add or update a town
   const addOrUpdateTown = async () => {
-    if (!townName || !amount || halts.length === 0) {
+    if (!amount || halts.length === 0) {
       toast.error("Please fill out all fields.");
       return;
     }

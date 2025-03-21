@@ -10,5 +10,6 @@ router.put("/edit-student/:sid", StudentControllers.updateStudent);
 router.delete("/delete-student/:sid", StudentControllers.deleteStudent);
 router.put("/pay-fee/:sid", StudentControllers.updateFeeDetails);
 router.get("/get-students/branch/:branchId", StudentControllers.getStudentIdByBranch);
+router.get("/get-students/:idNo/:branch", StudentControllers.getStudentIdByBranchId);
 
 module.exports = router;

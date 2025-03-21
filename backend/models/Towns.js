@@ -4,7 +4,6 @@ const townSchema = new mongoose.Schema(
   {
     townName: {
       type: String,
-      required: true,
       trim: true,
       unique: true,
     },
