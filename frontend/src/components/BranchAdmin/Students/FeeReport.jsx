@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
@@ -90,7 +88,7 @@ const FeeReport = () => {
 
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3490/api/ledger/all', {
+      const response = await axios.get(Allapi.backapi + '/ledger/all', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }

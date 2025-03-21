@@ -5,8 +5,7 @@ import { Image, Upload, X, Loader } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { mycon } from '../../../store/Mycontext';
-
-const backendUrl = "http://localhost:3490";
+import Allapi from '../../../common';
 
 const AddGallery = () => {
     const { branchdet } = useContext(mycon)
@@ -81,7 +80,7 @@ const AddGallery = () => {
             console.log("branchdet", branchdet._id);
             console.log("formdata", formData);
 
-            const response = await axios.post(`${backendUrl}/api/gallery`, formData, {
+            const response = await axios.post(`${Allapi.backapi}/api/gallery`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`

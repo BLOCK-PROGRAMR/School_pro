@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -425,21 +424,21 @@ const ProgressReport = () => {
   }
 
   return (
-    <div className="min-h-screen p-6 text-black bg-gray-100">
+    <div className="min-h-screen p-6 text-black bg-gray-50">
       <style>{printStyles}</style>
       <ToastContainer />
       
       {!showReport ? (
-        <div className="max-w-4xl p-6 mx-auto bg-white rounded-lg shadow-md text-yellow-700">
-          <h2 className="mb-6 text-2xl font-bold">Progress Report Generator</h2>
+        <div className="max-w-4xl p-6 mx-auto bg-white rounded-lg shadow-sm border border-gray-200">
+          <h2 className="mb-6 text-2xl font-bold text-gray-800">Progress Report Generator</h2>
           
           <div className="space-y-6">
             <div>
-              <label className="block mb-2 text-sm font-medium">Class</label>
+              <label className="admin-label">Class</label>
               <select
                 value={selectedClass}
                 onChange={(e) => handleClassChange(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                className="admin-dropdown"
               >
                 <option value="">Select Class</option>
                 {classes.map((cls) => (
@@ -450,11 +449,11 @@ const ProgressReport = () => {
 
             {selectedClass && (
               <div>
-                <label className="block mb-2 text-sm font-medium">Section</label>
+                <label className="admin-label">Section</label>
                 <select
                   value={selectedSection}
                   onChange={(e) => handleSectionChange(e.target.value)}
-                  className="w-full p-2 border rounded-md"
+                  className="admin-dropdown"
                 >
                   <option value="">Select Section</option>
                   {sections.map((section) => (
@@ -466,10 +465,10 @@ const ProgressReport = () => {
 
             {selectedSection && (
               <div>
-                <label className="block mb-2 text-sm font-medium">Exams</label>
+                <label className="admin-label">Exams</label>
                 <select
                   onChange={(e) => handleExamSelect(e.target.value)}
-                  className="w-full p-2 border rounded-md"
+                  className="admin-dropdown"
                   value=""
                 >
                   <option value="">Add Exam</option>
@@ -481,21 +480,39 @@ const ProgressReport = () => {
                       </option>
                     ))}
                 </select>
- 
+
+                {selectedExams.length > 0 && (
+                  <div className="mt-3 p-3 border border-gray-200 rounded-md bg-gray-50">
+                    <h4 className="mb-2 text-sm font-semibold text-gray-700">Selected Exams:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedExams.map(exam => (
+                        <div key={exam._id} className="flex items-center bg-white px-3 py-1 rounded-full border border-gray-200">
+                          <span className="text-sm text-gray-700">{exam.examName}</span>
+                          <button 
+                            onClick={() => removeExam(exam._id)}
+                            className="ml-2 text-red-500 hover:text-red-700"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
             {students.length > 0 && (
               <div className="mt-6">
-                <h3 className="mb-4 text-lg font-semibold">Select Student</h3>
-                <div className="overflow-x-auto">
+                <h3 className="mb-4 text-lg font-semibold text-gray-800">Select Student</h3>
+                <div className="overflow-x-auto border border-gray-200 rounded-lg">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
                           Name
                         </th>
-                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-700 uppercase">
                           Action
                         </th>
                       </tr>
@@ -515,7 +532,7 @@ const ProgressReport = () => {
                                 fetchStudentDetails(student._id);
                                 setShowReport(true);
                               }}
-                              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700"
+                              className="admin-button-primary"
                             >
                               View Report
                             </button>
@@ -530,7 +547,7 @@ const ProgressReport = () => {
           </div> 
         </div>
       ) : (
-        <div className="max-w-5xl p-8 mx-auto bg-white rounded-lg shadow-md">
+        <div className="max-w-5xl p-8 mx-auto bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-6 print:hidden">
             <button
               onClick={() => setShowReport(false)}
@@ -540,7 +557,7 @@ const ProgressReport = () => {
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+              className="admin-button-primary flex items-center gap-2"
             >
               <Printer size={20} />
               <span>Print Report</span>

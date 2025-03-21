@@ -2,8 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { mycon } from "../../../store/Mycontext";
-
-const BASE_URL = 'http://localhost:3490';
+import Allapi from '../../../common';
 
 const LEDGER_TYPES = {
     paid: ['Expenses', 'Loans'],
@@ -41,7 +40,7 @@ const VoucherBook = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}/api/vouchers/latest/${voucherType}`, {
+            const response = await axios.get(`${Allapi.backapi}/api/vouchers/latest/${voucherType}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -88,7 +87,7 @@ const VoucherBook = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}/api/ledger/all`, {
+            const response = await axios.get(`${Allapi.backapi}/api/ledger/all`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -125,7 +124,7 @@ const VoucherBook = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BASE_URL}/api/ledger/all`, {
+            const response = await axios.get(`${Allapi.backapi}/api/ledger/all`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -238,7 +237,7 @@ const VoucherBook = () => {
             console.log('Submitting payload:', payload); // Debug log
 
             const response = await axios.post(
-                `${BASE_URL}/api/vouchers/create`,
+                `${Allapi.backapi}/api/vouchers/create`,
                 payload,
                 {
                     headers: {

@@ -5,8 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from 'date-fns';
 import { jwtDecode } from "jwt-decode";
-
-const backendUrl = "http://localhost:3490";
+import Allapi from '../../../common';
 
 const ViewLinks = () => {
     const [linkCollections, setLinkCollections] = useState([]);
@@ -27,7 +26,7 @@ const ViewLinks = () => {
             const decoded = jwtDecode(token);
             const branchId = decoded.branch;
             console.log("branchid", branchId);
-            const response = await axios.get(`${backendUrl}/api/links/branch/${branchId}`, {
+            const response = await axios.get(`${Allapi.backapi}/api/links/branch/${branchId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -48,7 +47,7 @@ const ViewLinks = () => {
 
     const handleDelete = async (collectionId) => {
         try {
-            const response = await axios.delete(`${backendUrl}/api/links/${collectionId}`, {
+            const response = await axios.delete(`${Allapi.backapi}/api/links/${collectionId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }

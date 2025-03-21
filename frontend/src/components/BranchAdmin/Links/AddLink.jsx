@@ -4,8 +4,7 @@ import { Link, Plus, Trash2, Calendar, ExternalLink, Loader } from 'lucide-react
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { mycon } from '../../../store/Mycontext';
-
-const backendUrl = "http://localhost:3490";
+import Allapi from '../../../common';
 
 const AddLink = () => {
     const [title, setTitle] = useState('');
@@ -75,7 +74,7 @@ const AddLink = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`${backendUrl}/api/links`, {
+            const response = await axios.post(`${Allapi.backapi}/api/links`, {
                 title,
                 date,
                 branchId: branchdet._id,

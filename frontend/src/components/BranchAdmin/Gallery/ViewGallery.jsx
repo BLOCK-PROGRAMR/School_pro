@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { format } from 'date-fns';
 import { mycon } from "../../../store/Mycontext";
 import { jwtDecode } from "jwt-decode";
-const backendUrl = "http://localhost:3490";
+import Allapi from '../../../common';
 
 const ViewGallery = () => {
     const { branchdet } = useContext(mycon);
@@ -28,14 +28,13 @@ const ViewGallery = () => {
             const decoded = jwtDecode(token);
             const branchId = decoded.branch;
             console.log("branchid", branchId);
-            const response = await axios.get(`${backendUrl}/api/gallery/branch/${branchId}`, {
+            const response = await axios.get(`${Allapi.backapi}/api/gallery/branch/${branchId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
 
             if (response.data.success) {
-
                 setGalleries(response.data.data);
             } else {
                 toast.error('Failed to fetch galleries');
@@ -50,7 +49,7 @@ const ViewGallery = () => {
 
     const handleDelete = async (galleryId) => {
         try {
-            const response = await axios.delete(`${backendUrl}/api/gallery/${galleryId}`, {
+            const response = await axios.delete(`${Allapi.backapi}/api/gallery/${galleryId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }

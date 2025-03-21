@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode';
-
-const BASE_URL = 'http://localhost:3490';
+import Allapi from '../../../common';
 
 const CashBook = () => {
     const [entries, setEntries] = useState([]);
@@ -29,7 +27,7 @@ const CashBook = () => {
             const decoded = jwtDecode(token);
             const branchId = decoded.branch;
             console.log("branchid", branchId);
-            const response = await axios.get(`${BASE_URL}/api/books/cash/${branchId}`, {
+            const response = await axios.get(`${Allapi.backapi}/api/books/cash/${branchId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
