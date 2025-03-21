@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const ledgerSchema = new mongoose.Schema({
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        Ref: 'Branch',
+        required: [true, 'Please provide a branch for the link collection']
+    },
     groupLedgerName: {
         type: String,
         required: true,

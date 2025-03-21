@@ -5,10 +5,10 @@ const createLedger = async (req, res) => {
     try {
         console.log('Received request body:', req.body); // Debug log
 
-        const { groupLedgerName, ledgerType, subLedgers } = req.body;
+        const { groupLedgerName, ledgerType, subLedgers, branchId } = req.body;
 
         // Validate required fields
-        if (!groupLedgerName || !ledgerType) {
+        if (!groupLedgerName || !ledgerType || !branchId) {
             return res.status(400).json({
                 success: false,
                 message: 'Group ledger name and type are required'
@@ -31,8 +31,10 @@ const createLedger = async (req, res) => {
         const ledger = new Ledger({
             groupLedgerName: groupLedgerName.trim(),
             ledgerType,
-            subLedgers: formattedSubLedgers
+            subLedgers: formattedSubLedgers,
+            branchId
         });
+        console.log('Created ledger:', ledger); // Debug log
 
         await ledger.save();
 
@@ -56,7 +58,7 @@ const getLedgers = async (req, res) => {
     try {
         const ledgers = await Ledger.find().sort({ createdAt: -1 });
         console.log('Found ledgers:', ledgers); // Debug log
-        
+
         res.status(200).json({
             success: true,
             data: ledgers.map(ledger => ({
@@ -83,7 +85,7 @@ const getLedgers = async (req, res) => {
 const updateLedger = async (req, res) => {
     try {
         console.log('Update request body:', req.body); // Debug log
-        
+
         const { groupLedgerName, ledgerType, subLedgers } = req.body;
         const { id } = req.params;
 
@@ -165,10 +167,39 @@ const deleteLedger = async (req, res) => {
         });
     }
 };
+const getLedgerByBranchId = async (req, res) => {
+    try {
+        const { branchId } = req.params;
+        const ledgers = await Ledger.find({ branchId }).sort({ createdAt: -1 });
+        console.log('Found ledgers:', ledgers); // Debug 
+        res.status(200).json({
+            success: true,
+            data: ledgers.map(ledger => ({
+                _id: ledger._id,
+                groupLedgerName: ledger.groupLedgerName,
+                ledgerType: ledger.ledgerType,
+                subLedgers: ledger.subLedgers.map(sub => ({
+                    _id: sub._id,
+                    name: sub.name
+                }))
+            }))
+        });
+
+    }
+    catch (error) {
+        console.error('Error in getLedgers:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching ledgers',
+            error: error.message
+        });
+    }
+}
 
 module.exports = {
     createLedger,
     getLedgers,
     updateLedger,
-    deleteLedger
+    deleteLedger,
+    getLedgerByBranchId
 };

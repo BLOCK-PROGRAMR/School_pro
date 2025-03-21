@@ -1,10 +1,8 @@
- 
-
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Allapi from "../../../common";
+import { jwtDecode } from "jwt-decode";
 
 const FetchReceipts = () => {
   const { academicYearID } = useParams();
@@ -14,21 +12,40 @@ const FetchReceipts = () => {
   const [studentDetails, setStudentDetails] = useState(null);
   const [filterTerm, setFilterTerm] = useState("all");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [branchId, setBranchId] = useState("");
+  const [tokenbranch, setTokenBranch] = useState("");
+
+  // Get branch from token on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setTokenBranch(decoded.branch);
+      } catch (error) {
+        toast.error("Invalid token, please log in again.");
+      }
+    }
+  }, []);
 
   const fetchReceipts = async () => {
+    if (!tokenbranch) {
+      toast.error("Authentication error. Please log in again.");
+      return;
+    }
+
     setLoading(true);
     setReceipts([]);
     setStudentDetails(null);
 
     try {
       const token = localStorage.getItem("token");
-
       if (!token) {
         toast.error("User is not authenticated. Please log in again.");
         return;
       }
 
-      // First fetch student details if studentID is provided
+      // Fetch student details if studentID is provided
       if (studentID) {
         try {
           const studentResponse = await fetch(Allapi.getstudentbyIdNo.url(studentID), {
@@ -40,14 +57,25 @@ const FetchReceipts = () => {
           });
 
           const studentData = await studentResponse.json();
+
           if (studentData.success) {
+            // Check if student belongs to the same branch
+            if (studentData.data.branch !== tokenbranch) {
+              toast.error("Student ID is not found in this branch");
+              setLoading(false);
+              return;
+            }
+
+            setBranchId(studentData.data.branch);
             setStudentDetails(studentData.data);
           } else {
             toast.error("Student not found with the provided ID");
+            setLoading(false);
             return;
           }
         } catch (error) {
           toast.error("Error fetching student details");
+          setLoading(false);
           return;
         }
       }
@@ -74,13 +102,11 @@ const FetchReceipts = () => {
 
       // Process and organize receipts
       const processedReceipts = data.receipts.map(receipt => {
-        // Convert all fee amounts to numbers
         const processedFeeLedger = receipt.feeLedger.map(fee => ({
           ...fee,
           amount: parseFloat(fee.amount)
         }));
 
-        // Calculate total amount if not provided
         const totalAmount = receipt.totalAmount || processedFeeLedger.reduce((sum, fee) => sum + fee.amount, 0);
 
         return {
@@ -88,7 +114,7 @@ const FetchReceipts = () => {
           feeLedger: processedFeeLedger,
           date: new Date(receipt.date),
           totalAmount,
-          terms: receipt.terms || 'Term-1' // Use the terms from the receipt level
+          terms: receipt.terms || 'Term-1'
         };
       });
 
@@ -292,3 +318,5 @@ const FetchReceipts = () => {
 };
 
 export default FetchReceipts;
+
+

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { X, Pencil, Trash2 } from 'lucide-react';
 import API_URL from '../../../config/api';
+import { mycon } from "../../../store/Mycontext";
+import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = API_URL.replace('/api', '');
 
@@ -18,6 +20,7 @@ const LedgerCreation = () => {
     const [ledgers, setLedgers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [editingLedger, setEditingLedger] = useState(null);
+    const { branchdet } = useContext(mycon);
 
     useEffect(() => {
         fetchLedgers();
@@ -41,8 +44,12 @@ const LedgerCreation = () => {
         try {
             const config = getAxiosConfig();
             if (!config) return;
+            const token = localStorage.getItem('token');
+            const decoded = jwtDecode(token);
+            const branchId = decoded.branch;
+            console.log("branchid", branchId);
 
-            const response = await axios.get(`${BASE_URL}/api/ledger/all`, config);
+            const response = await axios.get(`${BASE_URL}/api/ledger/branch/${branchId}`, config);
             if (response.data.success) {
                 setLedgers(response.data.data);
             }
@@ -73,7 +80,7 @@ const LedgerCreation = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!formData.groupLedgerName || !formData.ledgerType || subLedgers.length === 0) {
             toast.error('Please fill all required fields and add at least one sub-ledger');
             return;
@@ -83,11 +90,12 @@ const LedgerCreation = () => {
         try {
             const config = getAxiosConfig();
             if (!config) return;
-
+            console.log("branchdet", branchdet._id);
             const payload = {
                 groupLedgerName: formData.groupLedgerName,
                 ledgerType: formData.ledgerType,
-                subLedgers: subLedgers
+                subLedgers: subLedgers,
+                branchId: branchdet._id
             };
 
             console.log('Sending payload:', payload); // Debug log
@@ -98,7 +106,7 @@ const LedgerCreation = () => {
                     payload,
                     config
                 );
-                
+
                 if (response.data.success) {
                     toast.success('Ledger updated successfully');
                     resetForm();
@@ -110,7 +118,7 @@ const LedgerCreation = () => {
                     payload,
                     config
                 );
-                
+
                 if (response.data.success) {
                     toast.success('Ledger created successfully');
                     resetForm();
@@ -119,9 +127,9 @@ const LedgerCreation = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.error || 
-                               'An error occurred while processing your request';
+            const errorMessage = error.response?.data?.message ||
+                error.response?.data?.error ||
+                'An error occurred while processing your request';
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -152,16 +160,16 @@ const LedgerCreation = () => {
                 `${BASE_URL}/api/ledger/delete/${id}`,
                 config
             );
-            
+
             if (response.data.success) {
                 toast.success('Ledger deleted successfully');
                 fetchLedgers();
             }
         } catch (error) {
             console.error('Error:', error);
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.error || 
-                               'An error occurred while deleting the ledger';
+            const errorMessage = error.response?.data?.message ||
+                error.response?.data?.error ||
+                'An error occurred while deleting the ledger';
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -205,7 +213,7 @@ const LedgerCreation = () => {
                         </button>
                     )}
                 </div>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -264,7 +272,7 @@ const LedgerCreation = () => {
                                 Add
                             </button>
                         </div>
-                        
+
                         {/* Display added sub-ledgers */}
                         <div className="mt-2 space-y-2">
                             {subLedgers.map((subLedger, index) => (
