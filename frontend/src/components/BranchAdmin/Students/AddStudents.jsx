@@ -751,11 +751,11 @@ const AddStudents = () => {
       return;
     }
 
-    // Validate photo upload
-    if (!formData.photo || formData.photo === "") {
-      toast.error("Please wait for the photo to upload before submitting.");
-      return;
-    }
+    // // Validate photo upload
+    // if (!formData.photo || formData.photo === "") {
+    //   toast.error("Please wait for the photo to upload before submitting.");
+    //   return;
+    // }
 
     // Remove transportDetails if transport is false
     if (!formData.transport) {

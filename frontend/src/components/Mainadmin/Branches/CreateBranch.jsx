@@ -110,7 +110,10 @@ const CreateBranch = () => {
             className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-200"
             type="text"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              const input = e.target.value.slice(0, 10); // Limit input to 10 characters
+              setPhone(input);
+            }}
             placeholder="Phone Number"
           />
           <Link
