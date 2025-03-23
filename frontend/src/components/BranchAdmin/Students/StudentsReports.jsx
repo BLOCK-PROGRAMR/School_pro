@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Allapi from "./../../../common/index"; // Adjust the path as needed
 import * as XLSX from "xlsx"; // Import xlsx library for Excel export
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import FeeReport from "./FeeReport.jsx"; // Update the import statement for FeeReport
 
@@ -107,6 +108,11 @@ const StudentsReports = () => {
           }
         );
         const data = await response.json();
+
+
+        if (data.data.length === 0) {
+          toast.error("No students found for this section");
+        }
         if (response.ok) {
           const sortedStudents = (data.data || []).sort(
             (a, b) => a.idNo - b.idNo
@@ -115,8 +121,10 @@ const StudentsReports = () => {
           setFilteredStudents(sortedStudents); // Initialize filtered students
         } else {
           console.error("Failed to fetch students:", data.message);
+          toast.error("No students found for this section");
         }
       } catch (error) {
+        toast.error("Error fetching students");
         console.error("Error fetching students:", error);
       } finally {
         setLoading(false);
@@ -275,21 +283,19 @@ const StudentsReports = () => {
       <div className="mb-4">
         <button
           onClick={() => handleTabChange("studentList")}
-          className={`px-4 py-2 mr-2 ${
-            activeTab === "studentList"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 mr-2 ${activeTab === "studentList"
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200"
+            }`}
         >
           Student List
         </button>
         <button
           onClick={() => handleTabChange("downloadData")}
-          className={`px-4 py-2 ${
-            activeTab === "downloadData"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 ${activeTab === "downloadData"
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200"
+            }`}
         >
           Download Data
         </button>
