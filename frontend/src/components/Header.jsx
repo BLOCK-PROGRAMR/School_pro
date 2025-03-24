@@ -1,4 +1,3 @@
- 
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -116,7 +115,7 @@ function Header() {
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="text-md md:text-xl font-semibold leading-6 text-gray-900"
+                className="text-md md:text-xl font-semibold leading-6 text-red-600"
               >
                 Logout <span aria-hidden="true">&rarr;</span>
               </button>
@@ -211,7 +210,7 @@ function Header() {
                   {isLoggedIn ? (
                     <button
                       onClick={handleLogout}
-                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-red-600 hover:bg-gray-50"
                     >
                       Log Out
                     </button>

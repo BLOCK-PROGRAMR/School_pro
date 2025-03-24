@@ -418,27 +418,27 @@ const ProgressReport = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl font-semibold">Loading...</div>
+        <div className="text-xl font-semibold text-gray-900">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-6 text-black bg-gray-50">
+    <div className="min-h-screen p-6 bg-gray-50 text-gray-900">
       <style>{printStyles}</style>
       <ToastContainer />
       
       {!showReport ? (
         <div className="max-w-4xl p-6 mx-auto bg-white rounded-lg shadow-sm border border-gray-200">
-          <h2 className="mb-6 text-2xl font-bold text-gray-800">Progress Report Generator</h2>
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Progress Report Generator</h2>
           
           <div className="space-y-6">
             <div>
-              <label className="admin-label">Class</label>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Class</label>
               <select
                 value={selectedClass}
                 onChange={(e) => handleClassChange(e.target.value)}
-                className="admin-dropdown"
+                className="w-full p-2 border-2 border-black rounded-md bg-white text-gray-900"
               >
                 <option value="">Select Class</option>
                 {classes.map((cls) => (
@@ -449,11 +449,11 @@ const ProgressReport = () => {
 
             {selectedClass && (
               <div>
-                <label className="admin-label">Section</label>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Section</label>
                 <select
                   value={selectedSection}
                   onChange={(e) => handleSectionChange(e.target.value)}
-                  className="admin-dropdown"
+                  className="w-full p-2 border-2 border-black rounded-md bg-white text-gray-900"
                 >
                   <option value="">Select Section</option>
                   {sections.map((section) => (
@@ -465,10 +465,10 @@ const ProgressReport = () => {
 
             {selectedSection && (
               <div>
-                <label className="admin-label">Exams</label>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Exams</label>
                 <select
                   onChange={(e) => handleExamSelect(e.target.value)}
-                  className="admin-dropdown"
+                  className="w-full p-2 border-2 border-black rounded-md bg-white text-gray-900"
                   value=""
                 >
                   <option value="">Add Exam</option>
@@ -483,14 +483,14 @@ const ProgressReport = () => {
 
                 {selectedExams.length > 0 && (
                   <div className="mt-3 p-3 border border-gray-200 rounded-md bg-gray-50">
-                    <h4 className="mb-2 text-sm font-semibold text-gray-700">Selected Exams:</h4>
+                    <h4 className="mb-2 text-sm font-semibold text-gray-900">Selected Exams:</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedExams.map(exam => (
                         <div key={exam._id} className="flex items-center bg-white px-3 py-1 rounded-full border border-gray-200">
-                          <span className="text-sm text-gray-700">{exam.examName}</span>
+                          <span className="text-sm text-gray-900">{exam.examName}</span>
                           <button 
                             onClick={() => removeExam(exam._id)}
-                            className="ml-2 text-red-500 hover:text-red-700"
+                            className="ml-2 text-red-600 hover:text-red-700"
                           >
                             ×
                           </button>
@@ -504,15 +504,15 @@ const ProgressReport = () => {
 
             {students.length > 0 && (
               <div className="mt-6">
-                <h3 className="mb-4 text-lg font-semibold text-gray-800">Select Student</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">Select Student</h3>
                 <div className="overflow-x-auto border border-gray-200 rounded-lg">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-700 uppercase">
+                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-900 uppercase">
                           Name
                         </th>
-                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-700 uppercase">
+                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-900 uppercase">
                           Action
                         </th>
                       </tr>
@@ -532,7 +532,7 @@ const ProgressReport = () => {
                                 fetchStudentDetails(student._id);
                                 setShowReport(true);
                               }}
-                              className="admin-button-primary"
+                              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                             >
                               View Report
                             </button>
@@ -557,7 +557,7 @@ const ProgressReport = () => {
             </button>
             <button
               onClick={handlePrint}
-              className="admin-button-primary flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center gap-2"
             >
               <Printer size={20} />
               <span>Print Report</span>
@@ -567,8 +567,8 @@ const ProgressReport = () => {
           {studentData && (
             <>
               <div className="mb-8 text-center">
-                <h1 className="mb-4 text-3xl font-bold">Progress Report</h1>
-                <div className="grid max-w-2xl grid-cols-2 gap-4 mx-auto text-left">
+                <h1 className="mb-4 text-3xl font-bold text-gray-900">Progress Report</h1>
+                <div className="grid max-w-2xl grid-cols-2 gap-4 mx-auto text-left text-gray-900">
                   <div>
                     <p><strong>Name:</strong> {studentData.name}</p>
                     <p><strong>Class:</strong> {studentData.class?.name}</p>
@@ -581,15 +581,15 @@ const ProgressReport = () => {
               </div>
 
               <div className="mb-8">
-                <h2 className="mb-4 text-xl font-bold">Academic Performance</h2>
+                <h2 className="mb-4 text-xl font-bold text-gray-900">Academic Performance</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full border border-gray-200">
                     <thead>
                       <tr className="bg-gray-50">
-                        <th className="px-4 py-2 border">Subject</th>
-                        <th className="px-4 py-2 border">Date & Time</th>
+                        <th className="px-4 py-2 border text-gray-900">Subject</th>
+                        <th className="px-4 py-2 border text-gray-900">Date & Time</th>
                         {examResults.map(exam => (
-                          <th key={exam.examType} className="px-4 py-2 border">
+                          <th key={exam.examType} className="px-4 py-2 border text-gray-900">
                             <div>{exam.examType}</div>
                           </th>
                         ))}
@@ -598,19 +598,19 @@ const ProgressReport = () => {
                     <tbody>
                       {examResults[0]?.subjects.map((subject, index) => (
                         <tr key={subject.name}>
-                          <td className="px-4 py-2 font-medium border">
+                          <td className="px-4 py-2 font-medium border text-gray-900">
                             {subject.name}
                           </td>
-                          <td className="px-4 py-2 border">
+                          <td className="px-4 py-2 border text-gray-900">
                             {subject.date} {subject.time}
                           </td>
                           {examResults.map(result => {
                             const subjectResult = result.subjects[index];
                             const percentage = (subjectResult.marks / subjectResult.maxMarks) * 100;
                             return (
-                              <td key={`${result.examType}-${subject.name}`} className="px-4 py-2 text-center border">
+                              <td key={`${result.examType}-${subject.name}`} className="px-4 py-2 text-center border text-gray-900">
                                 <div>{subjectResult.marks}/{subjectResult.maxMarks}</div>
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-gray-900">
                                   {percentage.toFixed(1)}% ({calculateGrade(percentage)})
                                 </div>
                               </td>
@@ -619,11 +619,11 @@ const ProgressReport = () => {
                         </tr>
                       ))}
                       <tr className="font-semibold bg-gray-50">
-                        <td colSpan={2} className="px-4 py-2 text-right border">Total</td>
+                        <td colSpan={2} className="px-4 py-2 text-right border text-gray-900">Total</td>
                         {examResults.map(result => (
-                          <td key={result.examType} className="px-4 py-2 text-center border">
+                          <td key={result.examType} className="px-4 py-2 text-center border text-gray-900">
                             <div>{result.total}/{result.maxTotal}</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-gray-900">
                               {result.percentage}% ({calculateGrade(parseFloat(result.percentage))})
                             </div>
                           </td>
@@ -636,69 +636,69 @@ const ProgressReport = () => {
 
               {attendanceData.length > 0 && (
   <div className="mb-8">
-    <h2 className="mb-4 text-xl font-bold">Attendance Record</h2>
+    <h2 className="mb-4 text-xl font-bold text-gray-900">Attendance Record</h2>
     <div className="overflow-x-auto">
       <table className="min-w-full border border-gray-200">
         <tbody>
           {/* Month Row */}
           <tr className="bg-gray-50">
-            <th className="px-4 py-2 font-semibold text-left border" style={{ minWidth: '120px' }}>Month</th>
+            <th className="px-4 py-2 font-semibold text-left border text-gray-900" style={{ minWidth: '120px' }}>Month</th>
             {attendanceData.map((month) => (
-              <td key={month.month} className="px-4 py-2 font-medium text-center border">
+              <td key={month.month} className="px-4 py-2 font-medium text-center border text-gray-900">
                 {month.month}
               </td>
             ))}
-            <td className="px-4 py-2 font-semibold text-center bg-gray-100 border">Total</td>
+            <td className="px-4 py-2 font-semibold text-center bg-gray-100 border text-gray-900">Total</td>
           </tr>
 
           {/* Working Days Row */}
           <tr>
-            <th className="px-4 py-2 font-semibold text-left border bg-gray-50">Working Days</th>
+            <th className="px-4 py-2 font-semibold text-left border bg-gray-50 text-gray-900">Working Days</th>
             {attendanceData.map((month) => (
-              <td key={`${month.month}-working`} className="px-4 py-2 text-center border">
+              <td key={`${month.month}-working`} className="px-4 py-2 text-center border text-gray-900">
                 {month.workingDays}
               </td>
             ))}
-            <td className="px-4 py-2 font-medium text-center bg-gray-100 border">
+            <td className="px-4 py-2 font-medium text-center bg-gray-100 border text-gray-900">
               {attendanceData.reduce((sum, month) => sum + month.workingDays, 0)}
             </td>
           </tr>
 
           {/* Days Present Row */}
           <tr>
-            <th className="px-4 py-2 font-semibold text-left border bg-gray-50">Days Present</th>
+            <th className="px-4 py-2 font-semibold text-left border bg-gray-50 text-gray-900">Days Present</th>
             {attendanceData.map((month) => (
-              <td key={`${month.month}-present`} className="px-4 py-2 text-center border">
+              <td key={`${month.month}-present`} className="px-4 py-2 text-center border text-gray-900">
                 {month.daysPresent}
               </td>
             ))}
-            <td className="px-4 py-2 font-medium text-center bg-gray-100 border">
+            <td className="px-4 py-2 font-medium text-center bg-gray-100 border text-gray-900">
               {attendanceData.reduce((sum, month) => sum + month.daysPresent, 0)}
             </td>
           </tr>
 
           {/* Days Absent Row */}
           <tr>
-            <th className="px-4 py-2 font-semibold text-left border bg-gray-50">Days Absent</th>
+            <th className="px-4 py-2 font-semibold text-left border bg-gray-50 text-gray-900">Days Absent</th>
             {attendanceData.map((month) => (
-              <td key={`${month.month}-absent`} className="px-4 py-2 text-center border">
+              <td key={`${month.month}-absent`} className="px-4 py-2 text-center border text-gray-900">
                 {month.absentCount}
               </td>
             ))}
-            <td className="px-4 py-2 font-medium text-center bg-gray-100 border">
+            <td className="px-4 py-2 font-medium text-center bg-gray-100 border text-gray-900">
               {attendanceData.reduce((sum, month) => sum + month.absentCount, 0)}
             </td>
           </tr>
 
           {/* Percentage Row */}
           <tr>
-            <th className="px-4 py-2 font-semibold text-left border bg-gray-50">Percentage</th>
+            <th className="px-4 py-2 font-semibold text-left border bg-gray-50 text-gray-900">Percentage</th>
             {attendanceData.map((month) => (
-              <td key={`${month.month}-percentage`} className="px-4 py-2 text-center border">
+              <td key={`${month.month}-percentage`} className="px-4 py-2 text-center border text-gray-900">
                 {month.percentage}%
               </td>
             ))}
-            <td className="px-4 py-2 font-medium text-center bg-gray-100 border">
+            <td className="px-4 py-2 font-medium text-center bg-gray-100 border text-gray-900">
               {((attendanceData.reduce((sum, month) => sum + month.daysPresent, 0) / 
                 attendanceData.reduce((sum, month) => sum + month.workingDays, 0)) * 100).toFixed(1)}%
             </td>
@@ -710,32 +710,32 @@ const ProgressReport = () => {
 )}
 
               <div className="mt-8 print:mt-4">
-                <h3 className="mb-2 text-lg font-semibold">Grading Scale</h3>
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">Grading Scale</h3>
                 <table className="w-full text-sm border border-collapse border-gray-200">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="px-2 py-1 border">Grade</th>
-                      <th className="px-2 py-1 border">A1</th>
-                      <th className="px-2 py-1 border">A2</th>
-                      <th className="px-2 py-1 border">B1</th>
-                      <th className="px-2 py-1 border">B2</th>
-                      <th className="px-2 py-1 border">C1</th>
-                      <th className="px-2 py-1 border">C2</th>
-                      <th className="px-2 py-1 border">D</th>
-                      <th className="px-2 py-1 border">E</th>
+                      <th className="px-2 py-1 border text-gray-900">Grade</th>
+                      <th className="px-2 py-1 border text-gray-900">A1</th>
+                      <th className="px-2 py-1 border text-gray-900">A2</th>
+                      <th className="px-2 py-1 border text-gray-900">B1</th>
+                      <th className="px-2 py-1 border text-gray-900">B2</th>
+                      <th className="px-2 py-1 border text-gray-900">C1</th>
+                      <th className="px-2 py-1 border text-gray-900">C2</th>
+                      <th className="px-2 py-1 border text-gray-900">D</th>
+                      <th className="px-2 py-1 border text-gray-900">E</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="px-2 py-1 font-medium border">Marks %</td>
-                      <td className="px-2 py-1 border">91-100</td>
-                      <td className="px-2 py-1 border">81-90</td>
-                      <td className="px-2 py-1 border">71-80</td>
-                      <td className="px-2 py-1 border">61-70</td>
-                      <td className="px-2 py-1 border">51-60</td>
-                      <td className="px-2 py-1 border">41-50</td>
-                      <td className="px-2 py-1 border">35-40</td>
-                      <td className="px-2 py-1 border">Below 35</td>
+                      <td className="px-2 py-1 font-medium border text-gray-900">Marks %</td>
+                      <td className="px-2 py-1 border text-gray-900">91-100</td>
+                      <td className="px-2 py-1 border text-gray-900">81-90</td>
+                      <td className="px-2 py-1 border text-gray-900">71-80</td>
+                      <td className="px-2 py-1 border text-gray-900">61-70</td>
+                      <td className="px-2 py-1 border text-gray-900">51-60</td>
+                      <td className="px-2 py-1 border text-gray-900">41-50</td>
+                      <td className="px-2 py-1 border text-gray-900">35-40</td>
+                      <td className="px-2 py-1 border text-gray-900">Below 35</td>
                     </tr>
                   </tbody>
                 </table>
@@ -745,19 +745,19 @@ const ProgressReport = () => {
                 <div className="text-center">
                   <div className="h-16"></div>
                   <div className="border-t border-gray-300">
-                    <p className="mt-1">Class Teacher</p>
+                    <p className="mt-1 text-gray-900">Class Teacher</p>
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="h-16"></div>
                   <div className="border-t border-gray-300">
-                    <p className="mt-1">Principal</p>
+                    <p className="mt-1 text-gray-900">Principal</p>
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="h-16"></div>
                   <div className="border-t border-gray-300">
-                    <p className="mt-1">Parent's Signature</p>
+                    <p className="mt-1 text-gray-900">Parent's Signature</p>
                   </div>
                 </div>
               </div>

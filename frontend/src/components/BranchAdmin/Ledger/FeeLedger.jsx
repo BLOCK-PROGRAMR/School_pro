@@ -160,7 +160,7 @@ const FeeLedger = () => {
               value={idNo}
               onChange={(e) => setIdNo(e.target.value)}
               placeholder="Enter Student ID"
-              className="p-2 border rounded"
+              className="p-2 border rounded text-gray-900"
             />
             <button
               type="submit"

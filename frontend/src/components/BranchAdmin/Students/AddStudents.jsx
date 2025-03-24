@@ -900,60 +900,60 @@ const AddStudents = () => {
   };
 
   return (
-    <div className="bg-gray-100 p-6  text-balck rounded-lg shadow-md max-w-4xl mx-auto">
+    <div className="bg-white p-6 text-black rounded-lg shadow-md max-w-4xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">ID No:</label>
+            <label className="block text-sm text-black">ID No:</label>
             <input
               type="text"
               name="idNo"
               value={formData.idNo}
               onChange={handleChange}
               disabled
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Admission No:</label>
+            <label className="block text-sm text-black">Admission No:</label>
             <input
               type="text"
               name="admissionNo"
               value={formData.admissionNo}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Surname:</label>
+            <label className="block text-sm text-black">Surname:</label>
             <input
               type="text"
               name="surname"
               value={formData.surname}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Name:</label>
+            <label className="block text-sm text-black">Name:</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Gender:</label>
+            <label className="block text-sm text-black">Gender:</label>
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               <option value="">Select Gender</option>
@@ -962,12 +962,12 @@ const AddStudents = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Class:</label>
+            <label className="block text-sm text-black">Class:</label>
             <select
               name="class"
               value={formData.class.name || ""}
               onChange={handleClassChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               <option value="">Select Class</option>
@@ -979,12 +979,12 @@ const AddStudents = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Section:</label>
+            <label className="block text-sm text-black">Section:</label>
             <select
               name="section"
               value={formData.section.name || ""}
               onChange={handleSectionChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               <option value="">Select Section</option>
@@ -996,18 +996,18 @@ const AddStudents = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Date of Birth:</label>
+            <label className="block text-sm text-black">Date of Birth:</label>
             <input
               type="date"
               name="dob"
               value={formData.dob}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Admission Date:</label>
+            <label className="block text-sm text-black">Admission Date:</label>
             <input
               type="date"
               name="admissionDate"
@@ -1015,7 +1015,7 @@ const AddStudents = () => {
                 formData.admissionDate || new Date().toISOString().split("T")[0]
               }
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
@@ -1023,34 +1023,34 @@ const AddStudents = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Aadhar No:</label>
+            <label className="block text-sm text-black">Aadhar No:</label>
             <input
               type="text"
               name="aadharNo"
               value={formData.aadharNo}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Student AAPR:</label>
+            <label className="block text-sm text-black">Student AAPR:</label>
             <input
               type="text"
               name="studentAAPR"
               value={formData.studentAAPR}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Caste:</label>
+            <label className="block text-sm text-black">Caste:</label>
             <select
               name="caste"
               value={formData.caste}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               {casteOptions.map((caste) => (
@@ -1061,13 +1061,13 @@ const AddStudents = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Sub-Caste:</label>
+            <label className="block text-sm text-black">Sub-Caste:</label>
             <input
               type="text"
               name="subCaste"
               value={formData.subCaste}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
@@ -1075,36 +1075,36 @@ const AddStudents = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Father Name:</label>
+            <label className="block text-sm text-black">Father Name:</label>
             <input
               type="text"
               name="fatherName"
               value={formData.fatherName}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Father Aadhar:</label>
+            <label className="block text-sm text-black">Father Aadhar:</label>
             <input
               type="text"
               name="fatherAadhar"
               value={formData.fatherAadhar}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm text-black">
               Father Occupation:
             </label>
             <select
               name="fatherOccupation"
               value={formData.fatherOccupation}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               {fatherOccupationOptions.map((occupation) => (
@@ -1115,36 +1115,36 @@ const AddStudents = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Mother Name:</label>
+            <label className="block text-sm text-black">Mother Name:</label>
             <input
               type="text"
               name="motherName"
               value={formData.motherName}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Mother Aadhar:</label>
+            <label className="block text-sm text-black">Mother Aadhar:</label>
             <input
               type="text"
               name="motherAadhar"
               value={formData.motherAadhar}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm text-black">
               Mother Occupation:
             </label>
             <select
               name="motherOccupation"
               value={formData.motherOccupation}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               {motherOccupationOptions.map((occupation) => (
@@ -1158,18 +1158,18 @@ const AddStudents = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Whatsapp No:</label>
+            <label className="block text-sm text-black">Whatsapp No:</label>
             <input
               type="text"
               name="whatsappNo"
               value={formData.whatsappNo}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm text-black">
               Emergency Contact:
             </label>
             <input
@@ -1177,14 +1177,14 @@ const AddStudents = () => {
               name="emergencyContact"
               value={formData.emergencyContact}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Address:</label>
+          <label className="block text-sm text-black">Address:</label>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
             <input
               type="text"
@@ -1192,7 +1192,7 @@ const AddStudents = () => {
               placeholder="Door No"
               value={formData.address.doorNo}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
             <input
@@ -1201,7 +1201,7 @@ const AddStudents = () => {
               placeholder="Street"
               value={formData.address.street}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
             <input
@@ -1210,7 +1210,7 @@ const AddStudents = () => {
               placeholder="City"
               value={formData.address.city}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
             <input
@@ -1219,18 +1219,18 @@ const AddStudents = () => {
               placeholder="Pincode"
               value={formData.address.pincode}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Upload Photo:</label>
+          <label className="block text-sm text-black">Upload Photo:</label>
           <input
             type="file"
             onChange={handlePhotoUpload}
-            className="input-field"
+            className="input-field border-2 border-black text-black bg-white"
             accept="image/*"
             required
           />
@@ -1255,14 +1255,14 @@ const AddStudents = () => {
           </>
         ) : (
           <>
-            <div className="text-show bg-red-200 font-bold text-xl">
+            <div className="text-show bg-red-200 text-xl text-black">
               Please Upload Your Photo
             </div>
           </>
         )}
 
         <div>
-          <label className="flex items-center">
+          <label className="flex items-center text-black font-normal">
             <input
               type="checkbox"
               name="transport"
@@ -1275,12 +1275,12 @@ const AddStudents = () => {
           {formData.transport && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <div>
-                <label className="block text-sm font-medium">Town:</label>
+                <label className="block text-sm text-black">Town:</label>
                 <select
                   name="transportDetails.town"
                   value={formData.transportDetails.town || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 >
                   <option value="">Select Town</option>
@@ -1294,12 +1294,12 @@ const AddStudents = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium">Bus:</label>
+                <label className="block text-sm text-black">Bus:</label>
                 <select
                   name="transportDetails.bus"
                   value={formData.transportDetails.bus || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 >
                   <option value="">Select Bus</option>
@@ -1312,12 +1312,12 @@ const AddStudents = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium">Halt:</label>
+                <label className="block text-sm text-black">Halt:</label>
                 <select
                   name="transportDetails.halt"
                   value={formData.transportDetails.halt || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 >
                   <option value="">Select Halts</option>
@@ -1334,7 +1334,7 @@ const AddStudents = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black">
                   Number of Terms
                 </label>
                 <input
@@ -1342,7 +1342,7 @@ const AddStudents = () => {
                   name="transportDetails.terms"
                   value={formData.transportDetails.terms || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 />
               </div>
@@ -1360,9 +1360,10 @@ const AddStudents = () => {
         </div>
 
         <div className="col-span-2">
-          <label className="flex items-center">
+          <label className="flex items-center text-black font-normal">
             <input
               type="checkbox"
+              name="hostel"
               checked={formData.hostel}
               onChange={handleHostelChange}
               className="mr-2"
@@ -1372,7 +1373,7 @@ const AddStudents = () => {
           {formData.hostel && (
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black">
                   Hostel Fee
                 </label>
                 <input
@@ -1380,12 +1381,12 @@ const AddStudents = () => {
                   name="hostelDetails.hostelFee"
                   value={formData.hostelDetails.hostelFee || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black">
                   Number of Terms
                 </label>
                 <input
@@ -1393,7 +1394,7 @@ const AddStudents = () => {
                   name="hostelDetails.terms"
                   value={formData.hostelDetails.terms || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 />
               </div>
@@ -1411,8 +1412,8 @@ const AddStudents = () => {
         </div>
 
         <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-          <table className="min-w-full table-auto relative" ref={tableRef}>
-            <thead className="bg-gray-100 ">
+          <table className="min-w-full table-auto relative bg-white" ref={tableRef}>
+            <thead className="bg-white">
               <tr className="font-bold text-lg">
                 <th className="px-6 py-3 text-left text-sm font-bold text-black">
                   Fee Name
@@ -1423,7 +1424,6 @@ const AddStudents = () => {
                 <th className="px-6 py-3 text-left text-sm font-bold text-black">
                   Terms
                 </th>
-
                 <th className="px-6 py-3 text-left text-sm font-bold text-black">
                   Concession (%)
                 </th>
@@ -1435,21 +1435,21 @@ const AddStudents = () => {
             <tbody>
               {formData.feeDetails.map((fee, index) => (
                 <tr key={index} className="border-t text-left hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     {fee.name}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     {fee.amount}
                   </td>
-                  <td className="py-2 px-4 border-b">
+                  <td className="py-2 px-4 border-b text-black">
                     {findObjectByKey(feeTypes, "type", fee.name)
                       ? findObjectByKey(feeTypes, "type", fee.name)
                       : fee.terms}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     <input
                       type="number"
-                      className="w-20 px-2 py-1 border rounded-md"
+                      className="w-20 px-2 py-1 border-2 border-black rounded-md bg-white text-black"
                       value={fee.concession || ""}
                       min="0"
                       max="100"
@@ -1481,21 +1481,21 @@ const AddStudents = () => {
                       }}
                     />
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     {fee.finalAmount ? fee.finalAmount : fee.amount}
                   </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t bg-gray-100">
+              <tr className="border-t bg-white">
                 <td
                   colSpan="3"
-                  className="px-6 py-4 text-sm font-medium text-gray-700 text-right"
+                  className="px-6 py-4 text-sm text-black text-right"
                 >
                   Total Fee:
                 </td>
-                <td className="px-6 py-4 text-md font-semibold text-black">
+                <td className="px-6 py-4 text-md text-black">
                   {calculateTotalFee().toFixed(2)}
                   {console.log("fee", formData)}
                 </td>

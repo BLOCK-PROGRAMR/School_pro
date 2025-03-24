@@ -147,7 +147,7 @@ function FeeSubmission() {
                   value={formData.feeAmount}
                   onChange={handleInputChange}
                   placeholder="Enter fee amount"
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded text-gray-900"
                   required
                 />
               </div>
@@ -162,7 +162,7 @@ function FeeSubmission() {
                   value={formData.studentName}
                   onChange={handleInputChange}
                   placeholder="Enter student name"
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded text-gray-900"
                 />
               </div>
               <div className="mb-4 text-center text-gray-600">OR</div>
@@ -176,7 +176,7 @@ function FeeSubmission() {
                   value={formData.admissionNumber}
                   onChange={handleInputChange}
                   placeholder="Enter student Admission Number"
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded text-gray-900"
                 />
               </div>
               <div className="text-center">
