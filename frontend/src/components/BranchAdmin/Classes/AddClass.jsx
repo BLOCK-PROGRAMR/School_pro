@@ -15,9 +15,10 @@ const AddClassForm = () => {
   const { branchdet } = useContext(mycon);
 
   const classOptions = [
+    "Nursery",
     "LKG",
     "UKG",
-    "1-st Class",
+    "First",
     "Second",
     "Third",
     "Fourth",
@@ -124,6 +125,11 @@ const AddClassForm = () => {
     setAdditionalSubjects(updatedAdditionalSubjects);
   };
 
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return (
     <div className="hidden md:block mt-16 form-container zoom-in-animation p-8 max-w-2xl mx-auto bg-white shadow-lg rounded-2xl">
       <div className="flex justify-between mb-6">
@@ -171,9 +177,11 @@ const AddClassForm = () => {
               <input
                 type="text"
                 value={subject}
-                onChange={(e) =>
-                  handleMainSubjectsChange(index, e.target.value)
-                }
+                onChange={(e) => {
+                  // Capitalize first letter when entering value
+                  const value = e.target.value;
+                  handleMainSubjectsChange(index, value.charAt(0).toUpperCase() + value.slice(1));
+                }}
                 className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 placeholder={`Enter Main Subject ${index + 1}`}
               />
@@ -209,9 +217,11 @@ const AddClassForm = () => {
               <input
                 type="text"
                 value={subject}
-                onChange={(e) =>
-                  handleAdditionalSubjectsChange(index, e.target.value)
-                }
+                onChange={(e) => {
+                  // Capitalize first letter when entering value
+                  const value = e.target.value;
+                  handleAdditionalSubjectsChange(index, value.charAt(0).toUpperCase() + value.slice(1));
+                }}
                 className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 placeholder={`Enter Additional Subject ${index + 1}`}
               />

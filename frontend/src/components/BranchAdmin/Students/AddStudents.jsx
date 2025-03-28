@@ -13,11 +13,11 @@ const AddStudents = () => {
   const tableRef = useRef();
   const { branchdet } = useContext(mycon);
   const [hosteladd, sethosteladd] = useState(false);
-  const [photoPreview, setphotoPreview] = useState("");
   const [feeTypes, setFeeTypes] = useState([]);
   const [formData, setFormData] = useState({
     idNo: "",
     admissionNo: "",
+    childId: "",
     surname: "",
     name: "",
     gender: "",
@@ -26,7 +26,6 @@ const AddStudents = () => {
     section: { name: "", id: "" },
     dob: "",
     admissionDate: new Date().toISOString().split("T")[0],
-    photo: "",
     academic_id: "",
     aadharNo: "",
     studentAAPR: "",
@@ -402,29 +401,6 @@ const AddStudents = () => {
     console.log(" curr fees are ", Fees);
   };
 
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-
-    try {
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const data = await res.json();
-      console.log("image data is ", data);
-      setphotoPreview(data.secure_url);
-      setFormData((prev) => ({ ...prev, photo: data.secure_url }));
-      toast.success("Photo uploaded successfully!");
-    } catch (error) {
-      toast.error("Photo upload failed");
-    }
-  };
   const handleHostelChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -441,58 +417,41 @@ const AddStudents = () => {
     }
   };
 
-  const handleChange = async (e) => {
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("name is", name, " value is", value);
-    console.log("towns are", towns);
-
-    if (name.startsWith("address.")) {
-      const fieldName = name.split(".")[1];
-      setFormData((prev) => ({
-        ...prev,
-        address: {
-          ...prev.address,
-          [fieldName]: value,
+    
+    // For name and surname fields, capitalize the first letter
+    if (name === 'name' || name === 'surname') {
+      setFormData({
+        ...formData,
+        [name]: capitalizeFirstLetter(value),
+      });
+    }
+    // For nested address fields
+    else if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData({
+        ...formData,
+        [parent]: {
+          ...formData[parent],
+          [child]: value,
         },
-      }));
-
-      console.log("form data is address ", formData);
-    } else if (name.startsWith("transportDetails.")) {
-      console.log("details fee are ", formData.feeDetails);
-      const fieldName = name.split(".")[1];
-      console.log(fieldName);
-      setFormData((prev) => ({
-        ...prev,
-        transportDetails: { ...prev.transportDetails, [fieldName]: value },
-      }));
-      if (fieldName == "town") {
-        setcurr_town(value);
-        formData.feeDetails.forEach((fee, index) => {
-          if (fee.name === "Transport-fee") {
-            formData.feeDetails.splice(index, 1);
-          }
-        });
-      }
-      // Fetch transport details only if the town field is updated
-      if (towns.length == 0) {
-        await fetchTransportDetails();
-      }
-    } else if (name.startsWith("hostelDetails.")) {
-      const fieldName = name.split(".")[1];
-      setFormData((prev) => ({
-        ...prev,
-        hostelDetails: {
-          ...prev.hostelDetails,
-          [fieldName]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
+      });
+    } 
+    // For all other fields
+    else {
+      setFormData({
+        ...formData,
         [name]: value,
-      }));
+      });
     }
   };
+
   function addTfee() {
     console.log("form dta ", formData);
     if (formData.transport == true && formData.transportDetails.amount != 0) {
@@ -552,13 +511,7 @@ const AddStudents = () => {
       toast.error("Hostel Fee added already");
     }
   }
-  function imgdel() {
-    const del = window.confirm("Do you want to delete this image");
-    if (del) {
-      setphotoPreview("");
-      formData.photo = "";
-    }
-  }
+
   const calculateTotalFee = () =>
     formData.feeDetails.reduce(
       (total, fee) => total + (fee.finalAmount || fee.amount),
@@ -691,8 +644,8 @@ const AddStudents = () => {
       return;
     }
 
-    if (!formData.admissionNo || formData.admissionNo.trim() === "") {
-      toast.error("Admission number is required.");
+    if (!formData.admissionNo || formData.admissionNo.trim() === "" || formData.admissionNo.length >= 10) {
+      toast.error("Admission number is required and must be less than 10 characters.");
       return;
     }
     if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
@@ -729,13 +682,6 @@ const AddStudents = () => {
       toast.error("City in address is required.");
       return;
     }
-    if (
-      !formData.address.pincode ||
-      !/^\d{6}$/.test(formData.address.pincode)
-    ) {
-      toast.error("Valid pincode is required (6 digits).");
-      return;
-    }
 
     // Validate Aadhar details
     if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
@@ -750,12 +696,6 @@ const AddStudents = () => {
       toast.error("Mother's Aadhar number must be 12 digits.");
       return;
     }
-
-    // // Validate photo upload
-    // if (!formData.photo || formData.photo === "") {
-    //   toast.error("Please wait for the photo to upload before submitting.");
-    //   return;
-    // }
 
     // Remove transportDetails if transport is false
     if (!formData.transport) {
@@ -825,18 +765,36 @@ const AddStudents = () => {
       return;
     }
 
+    // Add function to prepare data for submission
+    const prepareFormDataForSubmission = () => {
+      // Create a copy of formData to modify
+      const dataToSubmit = { ...formData };
+      
+      // Ensure address.pincode is always set (even to empty string)
+      // This maintains compatibility with the backend schema
+      if (!dataToSubmit.address.pincode) {
+        dataToSubmit.address.pincode = "";
+      }
+      
+      // Ensure photo field exists but can be empty
+      if (!dataToSubmit.photo) {
+        dataToSubmit.photo = "";
+      }
+      
+      return dataToSubmit;
+    };
+
     // Submit the form
     try {
       const token = localStorage.getItem("token");
-
-      // Make the API request to submit the form
+      // Make API request with prepared data
       const res = await fetch(Allapi.addStudent.url, {
         method: Allapi.addStudent.method,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(prepareFormDataForSubmission()),
       });
       const fres = await res.json();
 
@@ -844,10 +802,10 @@ const AddStudents = () => {
         toast.success("Student added successfully!");
 
         // Reset form data and photo preview
-        setphotoPreview("");
         setFormData({
           idNo: `${ysuffix}${String(stdcount + 1).padStart(4, "0")}`,
           admissionNo: "",
+          childId: "",
           surname: "",
           name: "",
           gender: "",
@@ -856,7 +814,6 @@ const AddStudents = () => {
           dob: "",
           admissionDate: new Date().toISOString().split("T")[0],
           academic_id: "",
-          photo: "",
           aadharNo: "",
           studentAAPR: "",
           caste: "OC",
@@ -921,8 +878,19 @@ const AddStudents = () => {
               name="admissionNo"
               value={formData.admissionNo}
               onChange={handleChange}
+              maxLength={9}
               className="input-field border-2 border-black text-black bg-white"
               required
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-black">Child ID:</label>
+            <input
+              type="text"
+              name="childId"
+              value={formData.childId}
+              onChange={handleChange}
+              className="input-field border-2 border-black text-black bg-white"
             />
           </div>
           <div>
@@ -1185,7 +1153,7 @@ const AddStudents = () => {
 
         <div>
           <label className="block text-sm text-black">Address:</label>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
             <input
               type="text"
               name="address.doorNo"
@@ -1213,53 +1181,8 @@ const AddStudents = () => {
               className="input-field border-2 border-black text-black bg-white"
               required
             />
-            <input
-              type="text"
-              name="address.pincode"
-              placeholder="Pincode"
-              value={formData.address.pincode}
-              onChange={handleChange}
-              className="input-field border-2 border-black text-black bg-white"
-              required
-            />
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm text-black">Upload Photo:</label>
-          <input
-            type="file"
-            onChange={handlePhotoUpload}
-            className="input-field border-2 border-black text-black bg-white"
-            accept="image/*"
-            required
-          />
-        </div>
-        {photoPreview ? (
-          <>
-            <div className="photo-preview mt-4 flex justify-center ">
-              <div className="bg-slate-400 p-1 relative">
-                <img
-                  src={photoPreview}
-                  alt="Selected Preview"
-                  className="w-32 h-32 object-cover rounded-md border border-gray-300"
-                />
-                <div
-                  onClick={imgdel}
-                  className="absolute top-1 right-1 text-xl text-red-600"
-                >
-                  <MdDelete />
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="text-show bg-red-200 text-xl text-black">
-              Please Upload Your Photo
-            </div>
-          </>
-        )}
 
         <div>
           <label className="flex items-center text-black font-normal">

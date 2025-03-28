@@ -23,6 +23,7 @@ const StudentEdit = () => {
   const [formData, setFormData] = useState({
     idNo: "",
     admissionNo: "",
+    childId: "",
     surname: "",
     name: "",
     gender: "",
@@ -48,6 +49,8 @@ const StudentEdit = () => {
       doorNo: "",
       street: "",
       city: "",
+      state: "",
+      country: "",
       pincode: "",
     },
     transport: false,
@@ -84,6 +87,11 @@ const StudentEdit = () => {
         setFormData((prev) => ({
           ...prev,
           ...datares.data, // Merge fetched data
+          childId: datares.data.childId || "",
+          address: {
+            ...datares.data.address,
+            pincode: datares.data.address?.pincode || "",
+          },
         }));
 
         console.log(datares);
@@ -442,7 +450,12 @@ const StudentEdit = () => {
     console.log("name is", name, " value is", value);
     console.log("towns are", towns);
 
-    if (name.startsWith("address.")) {
+    if (name === 'name' || name === 'surname') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: capitalizeFirstLetter(value),
+      }));
+    } else if (name.startsWith("address.")) {
       const fieldName = name.split(".")[1];
       setFormData((prev) => ({
         ...prev,
@@ -804,13 +817,6 @@ const StudentEdit = () => {
       toast.error("City in address is required.");
       return;
     }
-    if (
-      !formData.address.pincode ||
-      !/^\d{6}$/.test(formData.address.pincode)
-    ) {
-      toast.error("Valid pincode is required (6 digits).");
-      return;
-    }
 
     // Validate Aadhar details
     if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
@@ -823,12 +829,6 @@ const StudentEdit = () => {
     }
     if (formData.motherAadhar && !/^\d{12}$/.test(formData.motherAadhar)) {
       toast.error("Mother's Aadhar number must be 12 digits.");
-      return;
-    }
-
-    // Validate photo upload
-    if (!formData.photo || formData.photo === "") {
-      toast.error("Please wait for the photo to upload before submitting.");
       return;
     }
 
@@ -913,13 +913,31 @@ const StudentEdit = () => {
       const token = localStorage.getItem("token");
 
       // Make the API request to submit the form
+      const prepareFormDataForSubmission = () => {
+        // Create a copy of formData to modify
+        const dataToSubmit = { ...formData };
+        
+        // Ensure address.pincode is always set (even to empty string)
+        // This maintains compatibility with the backend schema
+        if (!dataToSubmit.address.pincode) {
+          dataToSubmit.address.pincode = "";
+        }
+        
+        // Ensure photo field exists but can be empty
+        if (!dataToSubmit.photo) {
+          dataToSubmit.photo = "";
+        }
+        
+        return dataToSubmit;
+      };
+
       const res = await fetch(Allapi.editstudentbyId.url(sid), {
         method: Allapi.editstudentbyId.method,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(prepareFormDataForSubmission()),
       });
       const fres = await res.json();
 
@@ -931,6 +949,7 @@ const StudentEdit = () => {
         setFormData({
           idNo: `${ysuffix}${String(stdcount + 1).padStart(4, "0")}`,
           admissionNo: "",
+          childId: "",
           surname: "",
           name: "",
           gender: "",
@@ -956,7 +975,6 @@ const StudentEdit = () => {
             doorNo: "",
             street: "",
             city: "",
-            pincode: "",
           },
           transport: false,
           transportDetails: {
@@ -983,6 +1001,11 @@ const StudentEdit = () => {
     }
   };
 
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return "";
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return (
     <div className="bg-gray-100 p-6  text-balck rounded-lg shadow-md max-w-4xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -1005,8 +1028,19 @@ const StudentEdit = () => {
               name="admissionNo"
               value={formData.admissionNo}
               onChange={handleChange}
+              maxLength={9}
               className="input-field"
               required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Child ID:</label>
+            <input
+              type="text"
+              name="childId"
+              value={formData.childId}
+              onChange={handleChange}
+              className="input-field"
             />
           </div>
           <div>
@@ -1270,7 +1304,7 @@ const StudentEdit = () => {
 
         <div>
           <label className="block text-sm font-medium">Address:</label>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
             <input
               type="text"
               name="address.doorNo"
@@ -1298,52 +1332,8 @@ const StudentEdit = () => {
               className="input-field"
               required
             />
-            <input
-              type="text"
-              name="address.pincode"
-              placeholder="Pincode"
-              value={formData.address.pincode}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium">Upload Photo:</label>
-          <input
-            type="file"
-            onChange={handlePhotoUpload}
-            className="input-field"
-            accept="image/*"
-          />
-        </div>
-        {photoPreview ? (
-          <>
-            <div className="photo-preview mt-4 flex justify-center ">
-              <div className="bg-slate-400 p-1 relative">
-                <img
-                  src={photoPreview}
-                  alt="Selected Preview"
-                  className="w-32 h-32 object-cover rounded-md border border-gray-300"
-                />
-                <div
-                  onClick={imgdel}
-                  className="absolute top-1 right-1 text-xl text-red-600"
-                >
-                  <MdDelete />
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="text-show bg-red-200 font-bold text-xl">
-              Please Upload Your Photo
-            </div>
-          </>
-        )}
 
         <div>
           <label className="flex items-center">

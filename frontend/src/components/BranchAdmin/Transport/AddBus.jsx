@@ -78,7 +78,13 @@ const AddBus = () => {
     }
   };
 
-  // Add or update bus
+  // Add this validation function
+  const validateDriverPhone = (phone) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  // Update the addOrUpdateBus function to include phone validation
   const addOrUpdateBus = async () => {
     if (
       !busNo ||
@@ -89,6 +95,12 @@ const AddBus = () => {
       viaTowns.length === 0
     ) {
       toast.error("Please fill out all fields.");
+      return;
+    }
+
+    // Add phone number validation
+    if (!validateDriverPhone(driverPhone)) {
+      toast.error("Driver phone number must be exactly 10 digits.");
       return;
     }
 
@@ -179,10 +191,13 @@ const AddBus = () => {
     setEditingBusId(null);
   };
 
-  // Add via town to the bus route
+  // Update the addViaTown function to prevent duplicate entries
   const addViaTown = () => {
     if (selectedViaTown && !viaTowns.includes(selectedViaTown)) {
       setViaTowns([...viaTowns, selectedViaTown]);
+      setSelectedViaTown("");
+    } else if (selectedViaTown && viaTowns.includes(selectedViaTown)) {
+      toast.warning("This town is already added as a via town");
       setSelectedViaTown("");
     }
   };
@@ -226,7 +241,16 @@ const AddBus = () => {
             type="text"
             placeholder="Driver Phone"
             value={driverPhone}
-            onChange={(e) => setDriverPhone(e.target.value)}
+            onChange={(e) => {
+              // Only allow numeric input
+              const value = e.target.value.replace(/\D/g, '');
+              // Limit to 10 characters
+              if (value.length <= 10) {
+                setDriverPhone(value);
+              }
+            }}
+            maxLength={10}
+            pattern="[0-9]{10}"
             className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -254,11 +278,6 @@ const AddBus = () => {
           >
             <option value="">Select Via Town</option>
             {towns
-              .filter(
-                (town) =>
-                  town.townName !== destination &&
-                  !viaTowns.includes(town.townName)
-              )
               .map((town) => (
                 <option key={town._id} value={town.townName}>
                   {town.townName}
