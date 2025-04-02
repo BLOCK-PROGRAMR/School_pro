@@ -9,7 +9,7 @@ const bus = require("../models/Bus");
 exports.addStudent = async (req, res) => {
   try {
     const { idNo, aadharNo, name } = req.body;
-
+    console.log("aadhar no", aadharNo)
     // Check if a student with the same idNo already exists
     const existingStudent = await Student.findOne({ aadharNo });
     if (existingStudent) {

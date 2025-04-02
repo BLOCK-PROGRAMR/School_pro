@@ -679,27 +679,28 @@ const AddStudents = () => {
       toast.error("Section is required.");
       return;
     }
-    if (!formData.dob) {
-      toast.error("Date of birth is required.");
-      return;
-    }
+    // if (!formData.dob) {
+    //   toast.error("Date of birth is required.");
+    //   return;
+    // }
 
     // Check valid date of birth
     const dobDate = new Date(formData.dob);
-    if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
+
+    if (formData.dob && isNaN(dobDate.getTime()) || dobDate > new Date()) {
       toast.error("Please enter a valid date of birth.");
       return;
     }
 
-    if (!formData.admissionNo || formData.admissionNo.trim() === "") {
-      toast.error("Admission number is required.");
-      return;
-    }
-    if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
+    // if (!formData.admissionNo || formData.admissionNo.trim() === "") {
+    //   toast.error("Admission number is required.");
+    //   return;
+    // }
+    if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
       toast.error("aadhar number must be 12 digits");
       return;
     }
-    if (!formData.studentAAPR || !/^\d{12}$/.test(formData.studentAAPR)) {
+    if (formData.studentAAPR && !/^\d{12}$/.test(formData.studentAAPR)) {
       toast.error("student aapar number must be 12 digits");
       return;
     }
@@ -710,27 +711,27 @@ const AddStudents = () => {
     }
 
     if (
-      !formData.emergencyContact ||
+      formData.emergencyContact &&
       !/^\d{10}$/.test(formData.emergencyContact)
     ) {
       toast.error("Valid emergency contact is required (10 digits).");
       return;
     }
 
-    if (!formData.address.doorNo || formData.address.doorNo.trim() === "") {
-      toast.error("Door number in address is required.");
-      return;
-    }
-    if (!formData.address.street || formData.address.street.trim() === "") {
-      toast.error("Street in address is required.");
-      return;
-    }
-    if (!formData.address.city || formData.address.city.trim() === "") {
-      toast.error("City in address is required.");
-      return;
-    }
+    // if (!formData.address.doorNo || formData.address.doorNo.trim() === "") {
+    //   toast.error("Door number in address is required.");
+    //   return;
+    // }
+    // if (formData.address.street  formData.address.street.trim() === "") {
+    //   toast.error("Street in address is required.");
+    //   return;
+    // }
+    // if (!formData.address.city || formData.address.city.trim() === "") {
+    //   toast.error("City in address is required.");
+    //   return;
+    // }
     if (
-      !formData.address.pincode ||
+      formData.address.pincode &&
       !/^\d{6}$/.test(formData.address.pincode)
     ) {
       toast.error("Valid pincode is required (6 digits).");
@@ -922,8 +923,9 @@ const AddStudents = () => {
               value={formData.admissionNo}
               onChange={handleChange}
               className="input-field"
-              required
+
             />
+
           </div>
           <div>
             <label className="block text-sm font-medium">Surname:</label>
@@ -1003,7 +1005,7 @@ const AddStudents = () => {
               value={formData.dob}
               onChange={handleChange}
               className="input-field"
-              required
+
             />
           </div>
           <div>
@@ -1030,7 +1032,9 @@ const AddStudents = () => {
               value={formData.aadharNo}
               onChange={handleChange}
               className="input-field"
-              required
+              maxLength="12"
+              pattern="\d{12}"
+
             />
           </div>
           <div>
@@ -1041,7 +1045,8 @@ const AddStudents = () => {
               value={formData.studentAAPR}
               onChange={handleChange}
               className="input-field"
-              required
+              pattern="\d{12}"
+
             />
           </div>
           <div>
@@ -1093,7 +1098,8 @@ const AddStudents = () => {
               value={formData.fatherAadhar}
               onChange={handleChange}
               className="input-field"
-              required
+              maxLength="12"
+              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1133,7 +1139,8 @@ const AddStudents = () => {
               value={formData.motherAadhar}
               onChange={handleChange}
               className="input-field"
-              required
+              maxLength="12"
+              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1178,7 +1185,8 @@ const AddStudents = () => {
               value={formData.emergencyContact}
               onChange={handleChange}
               className="input-field"
-              required
+              maxLength="10"
+              pattern="\d{10}"
             />
           </div>
         </div>
@@ -1193,7 +1201,7 @@ const AddStudents = () => {
               value={formData.address.doorNo}
               onChange={handleChange}
               className="input-field"
-              required
+
             />
             <input
               type="text"
@@ -1202,7 +1210,7 @@ const AddStudents = () => {
               value={formData.address.street}
               onChange={handleChange}
               className="input-field"
-              required
+
             />
             <input
               type="text"
@@ -1211,7 +1219,7 @@ const AddStudents = () => {
               value={formData.address.city}
               onChange={handleChange}
               className="input-field"
-              required
+
             />
             <input
               type="text"
@@ -1220,7 +1228,7 @@ const AddStudents = () => {
               value={formData.address.pincode}
               onChange={handleChange}
               className="input-field"
-              required
+
             />
           </div>
         </div>
