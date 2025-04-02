@@ -632,102 +632,93 @@ const AddStudents = () => {
       toast.error("Section is required.");
       return;
     }
-    if (!formData.dob) {
-      toast.error("Date of birth is required.");
-      return;
-    }
 
     // Check valid date of birth
     const dobDate = new Date(formData.dob);
-    if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
+    if (formData.dob && (isNaN(dobDate.getTime()) || dobDate > new Date())) {
       toast.error("Please enter a valid date of birth.");
       return;
     }
 
+    // Admission number validation
     if (!formData.admissionNo || formData.admissionNo.trim() === "" || formData.admissionNo.length >= 10) {
       toast.error("Admission number is required and must be less than 10 characters.");
       return;
     }
-    if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
-      toast.error("aadhar number must be 12 digits");
+
+    // Aadhar validation
+    if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
+      toast.error("Aadhar number must be 12 digits");
       return;
     }
-    if (!formData.studentAAPR || !/^\d{12}$/.test(formData.studentAAPR)) {
-      toast.error("student aapar number must be 12 digits");
+    
+    // Student AAPR validation
+    if (formData.studentAAPR && !/^\d{12}$/.test(formData.studentAAPR)) {
+      toast.error("Student AAPR number must be 12 digits");
       return;
     }
 
+    // Contact number validations
     if (!formData.whatsappNo || !/^\d{10}$/.test(formData.whatsappNo)) {
       toast.error("Valid WhatsApp number is required (10 digits).");
       return;
     }
 
-    if (
-      !formData.emergencyContact ||
-      !/^\d{10}$/.test(formData.emergencyContact)
-    ) {
+    if (formData.emergencyContact && !/^\d{10}$/.test(formData.emergencyContact)) {
       toast.error("Valid emergency contact is required (10 digits).");
       return;
     }
 
+    // Address validations
     if (!formData.address.doorNo || formData.address.doorNo.trim() === "") {
       toast.error("Door number in address is required.");
       return;
     }
+    
     if (!formData.address.street || formData.address.street.trim() === "") {
       toast.error("Street in address is required.");
       return;
     }
+    
     if (!formData.address.city || formData.address.city.trim() === "") {
       toast.error("City in address is required.");
       return;
     }
 
-    // Validate Aadhar details
-    if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
-      toast.error("Aadhar number must be 12 digits.");
+    if (formData.address.pincode && !/^\d{6}$/.test(formData.address.pincode)) {
+      toast.error("Valid pincode is required (6 digits).");
       return;
     }
+
+    // Family Aadhar validations
     if (formData.fatherAadhar && !/^\d{12}$/.test(formData.fatherAadhar)) {
       toast.error("Father's Aadhar number must be 12 digits.");
       return;
     }
+    
     if (formData.motherAadhar && !/^\d{12}$/.test(formData.motherAadhar)) {
       toast.error("Mother's Aadhar number must be 12 digits.");
       return;
     }
 
-    // Remove transportDetails if transport is false
+    // Transport validations
     if (!formData.transport) {
       delete formData.transportDetails;
     } else {
       // Validate transport details
-      if (
-        !formData.transportDetails.town ||
-        formData.transportDetails.town.trim() === ""
-      ) {
+      if (!formData.transportDetails.town || formData.transportDetails.town.trim() === "") {
         toast.error("Town is required for transport details.");
         return;
       }
-      if (
-        !formData.transportDetails.bus ||
-        formData.transportDetails.bus.trim() === ""
-      ) {
+      if (!formData.transportDetails.bus || formData.transportDetails.bus.trim() === "") {
         toast.error("Bus is required for transport details.");
         return;
       }
-      if (
-        !formData.transportDetails.halt ||
-        formData.transportDetails.halt.trim() === ""
-      ) {
+      if (!formData.transportDetails.halt || formData.transportDetails.halt.trim() === "") {
         toast.error("Halt is required for transport details.");
         return;
       }
-      if (
-        !formData.transportDetails.amount ||
-        isNaN(formData.transportDetails.amount) ||
-        formData.transportDetails.amount <= 0
-      ) {
+      if (!formData.transportDetails.amount || isNaN(formData.transportDetails.amount) || formData.transportDetails.amount <= 0) {
         toast.error("Valid transport amount is required.");
         return;
       }
@@ -999,6 +990,8 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
               required
+              maxLength="12"
+              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1010,6 +1003,7 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
               required
+              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1062,6 +1056,8 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
               required
+              maxLength="12"
+              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1102,6 +1098,8 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
               required
+              maxLength="12"
+              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1147,6 +1145,8 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
               required
+              maxLength="10"
+              pattern="\d{10}"
             />
           </div>
         </div>
@@ -1181,6 +1181,14 @@ const AddStudents = () => {
               className="input-field border-2 border-black text-black bg-white"
               required
             />
+            <input
+              type="text"
+              name="address.pincode"
+              placeholder="Pincode"
+              value={formData.address.pincode}
+              onChange={handleChange}
+              className="input-field"
+            />
           </div>
         </div>
 
@@ -1213,7 +1221,6 @@ const AddStudents = () => {
                         {town.townName}
                       </option>
                     ))}
-
                 </select>
               </div>
               <div>
@@ -1253,7 +1260,6 @@ const AddStudents = () => {
                   ) : (
                     <option disabled>No halts available</option>
                   )}
-
                 </select>
               </div>
               <div>
