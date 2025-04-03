@@ -260,27 +260,44 @@ const AddStudents = () => {
 
   // Set halts when both towns and curr_town are available
   useEffect(() => {
-    if (curr_town && towns.length > 0) {
-      const selectedtown = towns.find((town) => town.townName === curr_town);
-      console.log("Selected town:", selectedtown);
-
-      if (selectedtown) {
-        setHalts(selectedtown.halts);
-        console.log("Halts updated to:", selectedtown.halts);
-        setFormData((prev) => ({
+    if (!curr_town || !towns.length) {
+      return;
+    }
+    
+    console.log("Finding town in towns array:", curr_town);
+    const selectedTown = towns.find(town => town.townName === curr_town);
+    
+    if (!selectedTown) {
+      console.warn(`Town '${curr_town}' not found in towns array:`, towns);
+      return;
+    }
+    
+    console.log("Selected town details:", selectedTown);
+    
+    // Update halts array
+    if (Array.isArray(selectedTown.halts)) {
+      setHalts(selectedTown.halts);
+      console.log("Halts updated to:", selectedTown.halts);
+    } else {
+      console.warn("Halts array is not valid:", selectedTown.halts);
+      setHalts([]);
+    }
+    
+    // Update transport amount in form data
+    if (selectedTown.amount) {
+      setFormData(prev => ({
           ...prev,
           transportDetails: {
             ...prev.transportDetails,
-            amount: selectedtown.amount,
-          },
+          amount: selectedTown.amount
+        }
         }));
-        console.log("changeform data is", formData);
-      }
+      console.log("Transport amount updated to:", selectedTown.amount);
     }
   }, [curr_town, towns]);
 
   const fetchTransportDetails = async () => {
-    console.log("fecthing towns");
+    console.log("Fetching towns for academic year:", acid);
     const token = localStorage.getItem("token");
 
     try {
@@ -291,33 +308,63 @@ const AddStudents = () => {
           "Content-Type": "application/json",
         },
       });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch towns: ${response.status} ${response.statusText}`);
+      }
+      
       const townsData = await response.json();
-      setTowns(townsData.data);
-      console.log("town data is", townsData);
+      
+      if (!townsData.success) {
+        toast.error(townsData.message || "Failed to fetch towns");
+        return;
+      }
+      
+      setTowns(townsData.data || []);
+      console.log("Fetched towns:", townsData.data);
     } catch (error) {
-      toast.error("Error fetching transport details");
+      console.error("Error fetching towns:", error);
+      toast.error(`Error fetching transport details: ${error.message}`);
     }
   };
+  
   const fetchbusdetails = async (townname) => {
+    if (!townname) {
+      console.warn("Town name is empty, cannot fetch buses");
+      return;
+    }
+    
     const token = localStorage.getItem("token");
+    console.log("Fetching buses for town:", townname, "academic year:", acid);
+    
     try {
-      console.log("current town to fetch busses is", townname);
       const bus_response = await fetch(Allapi.getByPlaceBus.url(acid), {
         method: Allapi.getByPlaceBus.method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-
         body: JSON.stringify({ place: townname }),
       });
 
+      if (!bus_response.ok) {
+        throw new Error(`Failed to fetch buses: ${bus_response.status} ${bus_response.statusText}`);
+      }
+
       const busesData = await bus_response.json();
-      setBuses(busesData.data);
-      console.log(busesData);
+      
+      if (!busesData.success) {
+        toast.error(busesData.message || "Failed to fetch buses");
+        setBuses([]);
+        return;
+      }
+      
+      setBuses(busesData.data || []);
+      console.log("Fetched buses:", busesData.data);
     } catch (error) {
-      console.log("bus error is", error.message);
-      toast.error(error);
+      console.error("Error fetching buses:", error);
+      toast.error(`Error fetching buses: ${error.message}`);
+      setBuses([]);
     }
   };
 
@@ -435,6 +482,12 @@ const AddStudents = () => {
     // For nested address fields
     else if (name.includes('.')) {
       const [parent, child] = name.split('.');
+      
+      // Handle town selection specifically
+      if (parent === 'transportDetails' && child === 'town') {
+        setcurr_town(value); // Update current town state to trigger useEffect
+      }
+      
       setFormData({
         ...formData,
         [parent]: {
@@ -609,7 +662,7 @@ const AddStudents = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("formdata is", formData);
+    console.log("Submitting form data:", formData);
 
     // Validate required fields
     if (!formData.name || formData.name.trim() === "") {
@@ -633,26 +686,28 @@ const AddStudents = () => {
       return;
     }
 
-    // Check valid date of birth
+    // Check valid date of birth if provided
+    if (formData.dob) {
     const dobDate = new Date(formData.dob);
-    if (formData.dob && (isNaN(dobDate.getTime()) || dobDate > new Date())) {
+      if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
       toast.error("Please enter a valid date of birth.");
       return;
+      }
     }
 
-    // Admission number validation
-    if (!formData.admissionNo || formData.admissionNo.trim() === "" || formData.admissionNo.length >= 10) {
-      toast.error("Admission number is required and must be less than 10 characters.");
+    // Admission number validation - only if provided
+    if (formData.admissionNo && formData.admissionNo.length >= 10) {
+      toast.error("Admission number must be less than 10 characters.");
       return;
     }
 
-    // Aadhar validation
+    // Aadhar validation - only if provided
     if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
       toast.error("Aadhar number must be 12 digits");
       return;
     }
     
-    // Student AAPR validation
+    // Student AAPR validation - only if provided
     if (formData.studentAAPR && !/^\d{12}$/.test(formData.studentAAPR)) {
       toast.error("Student AAPR number must be 12 digits");
       return;
@@ -664,17 +719,13 @@ const AddStudents = () => {
       return;
     }
 
+    // Emergency contact validation - only if provided
     if (formData.emergencyContact && !/^\d{10}$/.test(formData.emergencyContact)) {
-      toast.error("Valid emergency contact is required (10 digits).");
+      toast.error("Emergency contact must be 10 digits if provided.");
       return;
     }
 
-    // Address validations
-    if (!formData.address.doorNo || formData.address.doorNo.trim() === "") {
-      toast.error("Door number in address is required.");
-      return;
-    }
-    
+    // Address validations - street and city required, door number optional
     if (!formData.address.street || formData.address.street.trim() === "") {
       toast.error("Street in address is required.");
       return;
@@ -690,44 +741,58 @@ const AddStudents = () => {
       return;
     }
 
-    // Family Aadhar validations
+    // Family Aadhar validations - only if provided
     if (formData.fatherAadhar && !/^\d{12}$/.test(formData.fatherAadhar)) {
-      toast.error("Father's Aadhar number must be 12 digits.");
+      toast.error("Father's Aadhar number must be 12 digits if provided.");
       return;
     }
     
     if (formData.motherAadhar && !/^\d{12}$/.test(formData.motherAadhar)) {
-      toast.error("Mother's Aadhar number must be 12 digits.");
+      toast.error("Mother's Aadhar number must be 12 digits if provided.");
       return;
     }
 
     // Transport validations
-    if (!formData.transport) {
-      delete formData.transportDetails;
-    } else {
-      // Validate transport details
+    if (formData.transport) {
+      // Check if town is selected
       if (!formData.transportDetails.town || formData.transportDetails.town.trim() === "") {
         toast.error("Town is required for transport details.");
         return;
       }
+      
+      // Check if bus is selected
       if (!formData.transportDetails.bus || formData.transportDetails.bus.trim() === "") {
         toast.error("Bus is required for transport details.");
         return;
       }
+      
+      // Check if halt is selected
       if (!formData.transportDetails.halt || formData.transportDetails.halt.trim() === "") {
         toast.error("Halt is required for transport details.");
         return;
       }
+      
+      // Validate amount is present and valid
       if (!formData.transportDetails.amount || isNaN(formData.transportDetails.amount) || formData.transportDetails.amount <= 0) {
         toast.error("Valid transport amount is required.");
         return;
       }
+      
+      // Validate transport fee is added to fee details
+      const transportFeeAdded = formData.feeDetails.some(fee => fee.name === "Transport-fee");
+      if (!transportFeeAdded) {
+        toast.error("Please add transport fee by clicking the 'Add Transport Fee' button.");
+        return;
+      }
+    } else {
+      // If transport not required, ensure transportDetails is not present in submission
+      const dataToSubmit = { ...formData };
+      delete dataToSubmit.transportDetails;
+      setFormData(dataToSubmit);
     }
 
-    // Remove hostelDetails if hostel is false
-    if (!formData.hostel) {
-      delete formData.hostelDetails;
-    } else {
+    // Check hostel details
+    if (formData.hostel) {
       // Validate hostel details
       if (
         !formData.hostelDetails.hostelFee ||
@@ -744,6 +809,18 @@ const AddStudents = () => {
         toast.error("Terms for hostel details are required.");
         return;
       }
+      
+      // Validate hostel fee is added to fee details
+      const hostelFeeAdded = formData.feeDetails.some(fee => fee.name === "hostel-fee");
+      if (!hostelFeeAdded) {
+        toast.error("Please add hostel fee by clicking the 'Add Hostel Fee' button.");
+        return;
+      }
+    } else {
+      // If hostel not required, ensure hostelDetails is not present in submission
+      const dataToSubmit = { ...formData };
+      delete dataToSubmit.hostelDetails;
+      setFormData(dataToSubmit);
     }
 
     // Check if feeDetails array is valid
@@ -778,6 +855,8 @@ const AddStudents = () => {
     // Submit the form
     try {
       const token = localStorage.getItem("token");
+      console.log("Submitting data to API:", prepareFormDataForSubmission());
+      
       // Make API request with prepared data
       const res = await fetch(Allapi.addStudent.url, {
         method: Allapi.addStudent.method,
@@ -787,6 +866,12 @@ const AddStudents = () => {
         },
         body: JSON.stringify(prepareFormDataForSubmission()),
       });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`API error: ${res.status} ${res.statusText} - ${errorText}`);
+      }
+      
       const fres = await res.json();
 
       if (fres.success) {
@@ -839,12 +924,58 @@ const AddStudents = () => {
           concession: {},
         });
       } else {
-        toast.error(fres.message);
+        toast.error(fres.message || "Failed to add student");
       }
     } catch (error) {
-      console.error(error);
-      toast.error("An error occurred while adding the student.");
+      console.error("Error adding student:", error);
+      toast.error(`An error occurred while adding the student: ${error.message}`);
     }
+  };
+
+  const handleTownChange = (e) => {
+    const selectedTown = e.target.value;
+    
+    // Update form data
+    setFormData(prevData => ({
+      ...prevData,
+      transportDetails: {
+        ...prevData.transportDetails,
+        town: selectedTown,
+        bus: "", // Reset bus when town changes
+        halt: "" // Reset halt when town changes
+      }
+    }));
+    
+    // Set current town to trigger useEffect for fetching buses
+    setcurr_town(selectedTown);
+    
+    // Clear buses and halts if no town is selected
+    if (!selectedTown) {
+      setBuses([]);
+      setHalts([]);
+    }
+  };
+
+  const handleBusChange = (e) => {
+    const selectedBus = e.target.value;
+    setFormData(prevData => ({
+      ...prevData,
+      transportDetails: {
+        ...prevData.transportDetails,
+        bus: selectedBus
+      }
+    }));
+  };
+
+  const handleHaltChange = (e) => {
+    const selectedHalt = e.target.value;
+    setFormData(prevData => ({
+      ...prevData,
+      transportDetails: {
+        ...prevData.transportDetails,
+        halt: selectedHalt
+      }
+    }));
   };
 
   return (
@@ -871,7 +1002,6 @@ const AddStudents = () => {
               onChange={handleChange}
               maxLength={9}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
           <div>
@@ -892,7 +1022,6 @@ const AddStudents = () => {
               value={formData.surname}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
           <div>
@@ -903,7 +1032,6 @@ const AddStudents = () => {
               value={formData.name}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
           <div>
@@ -913,7 +1041,6 @@ const AddStudents = () => {
               value={formData.gender}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             >
               <option value="">Select Gender</option>
               <option value="Male">Male</option>
@@ -927,7 +1054,6 @@ const AddStudents = () => {
               value={formData.class.name || ""}
               onChange={handleClassChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             >
               <option value="">Select Class</option>
               {classes.map((cls) => (
@@ -944,7 +1070,6 @@ const AddStudents = () => {
               value={formData.section.name || ""}
               onChange={handleSectionChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             >
               <option value="">Select Section</option>
               {sections.map((sec) => (
@@ -962,7 +1087,6 @@ const AddStudents = () => {
               value={formData.dob}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
           <div>
@@ -975,7 +1099,6 @@ const AddStudents = () => {
               }
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
         </div>
@@ -989,9 +1112,6 @@ const AddStudents = () => {
               value={formData.aadharNo}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
-              maxLength="12"
-              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1002,8 +1122,6 @@ const AddStudents = () => {
               value={formData.studentAAPR}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
-              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1013,7 +1131,6 @@ const AddStudents = () => {
               value={formData.caste}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             >
               {casteOptions.map((caste) => (
                 <option key={caste} value={caste}>
@@ -1030,7 +1147,6 @@ const AddStudents = () => {
               value={formData.subCaste}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
         </div>
@@ -1044,7 +1160,6 @@ const AddStudents = () => {
               value={formData.fatherName}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
           <div>
@@ -1055,9 +1170,6 @@ const AddStudents = () => {
               value={formData.fatherAadhar}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
-              maxLength="12"
-              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1069,7 +1181,6 @@ const AddStudents = () => {
               value={formData.fatherOccupation}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             >
               {fatherOccupationOptions.map((occupation) => (
                 <option key={occupation} value={occupation}>
@@ -1086,7 +1197,6 @@ const AddStudents = () => {
               value={formData.motherName}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
           </div>
           <div>
@@ -1097,9 +1207,6 @@ const AddStudents = () => {
               value={formData.motherAadhar}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
-              maxLength="12"
-              pattern="\d{12}"
             />
           </div>
           <div>
@@ -1111,7 +1218,6 @@ const AddStudents = () => {
               value={formData.motherOccupation}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             >
               {motherOccupationOptions.map((occupation) => (
                 <option key={occupation} value={occupation}>
@@ -1132,6 +1238,8 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
               required
+              maxLength="10"
+              pattern="\d{10}"
             />
           </div>
           <div>
@@ -1144,9 +1252,6 @@ const AddStudents = () => {
               value={formData.emergencyContact}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
-              maxLength="10"
-              pattern="\d{10}"
             />
           </div>
         </div>
@@ -1161,7 +1266,6 @@ const AddStudents = () => {
               value={formData.address.doorNo}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
             <input
               type="text"
@@ -1170,7 +1274,6 @@ const AddStudents = () => {
               value={formData.address.street}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
             <input
               type="text"
@@ -1179,7 +1282,6 @@ const AddStudents = () => {
               value={formData.address.city}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-              required
             />
             <input
               type="text"
@@ -1210,9 +1312,8 @@ const AddStudents = () => {
                 <select
                   name="transportDetails.town"
                   value={formData.transportDetails.town || ""}
-                  onChange={handleChange}
+                  onChange={handleTownChange}
                   className="input-field border-2 border-black text-black bg-white"
-                  required
                 >
                   <option value="">Select Town</option>
                   {towns?.length > 0 &&
@@ -1228,17 +1329,19 @@ const AddStudents = () => {
                 <select
                   name="transportDetails.bus"
                   value={formData.transportDetails.bus || ""}
-                  onChange={handleChange}
+                  onChange={handleBusChange}
                   className="input-field border-2 border-black text-black bg-white"
-                  required
+                  disabled={!formData.transportDetails.town}
                 >
                   <option value="">Select Bus</option>
-                  {buses &&
+                  {buses && buses.length > 0 ?
                     buses.map((bus) => (
                       <option key={bus._id} value={bus._id}>
                         {bus.busNo}
                       </option>
-                    ))}
+                    )) : (
+                    <option disabled>No buses available</option>
+                  )}
                 </select>
               </div>
               <div>
@@ -1246,9 +1349,9 @@ const AddStudents = () => {
                 <select
                   name="transportDetails.halt"
                   value={formData.transportDetails.halt || ""}
-                  onChange={handleChange}
+                  onChange={handleHaltChange}
                   className="input-field border-2 border-black text-black bg-white"
-                  required
+                  disabled={!formData.transportDetails.town}
                 >
                   <option value="">Select Halts</option>
                   {halts?.length > 0 ? (
@@ -1272,7 +1375,6 @@ const AddStudents = () => {
                   value={formData.transportDetails.terms || ""}
                   onChange={handleChange}
                   className="input-field border-2 border-black text-black bg-white"
-                  required
                 />
               </div>
               <div className="col-span-3">
@@ -1311,7 +1413,6 @@ const AddStudents = () => {
                   value={formData.hostelDetails.hostelFee || ""}
                   onChange={handleChange}
                   className="input-field border-2 border-black text-black bg-white"
-                  required
                 />
               </div>
               <div>
@@ -1324,7 +1425,6 @@ const AddStudents = () => {
                   value={formData.hostelDetails.terms || ""}
                   onChange={handleChange}
                   className="input-field border-2 border-black text-black bg-white"
-                  required
                 />
               </div>
               <div className="col-span-2">
