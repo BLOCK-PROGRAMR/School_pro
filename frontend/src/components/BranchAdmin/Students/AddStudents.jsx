@@ -1289,7 +1289,7 @@ const AddStudents = () => {
               placeholder="Pincode"
               value={formData.address.pincode}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
             />
           </div>
         </div>
