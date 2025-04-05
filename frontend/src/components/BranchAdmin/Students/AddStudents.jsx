@@ -473,7 +473,15 @@ const AddStudents = () => {
     const { name, value } = e.target;
     
     // For name and surname fields, capitalize the first letter
-    if (name === 'name' || name === 'surname') {
+    if (name === 'childId') {
+      console.log("Updating childId to:", value);
+      setFormData({
+        ...formData,
+        childId: value
+      });
+      console.log("Updated formData childId:", formData.childId);
+    }
+    else if (name === 'name' || name === 'surname') {
       setFormData({
         ...formData,
         [name]: capitalizeFirstLetter(value),
@@ -688,10 +696,10 @@ const AddStudents = () => {
 
     // Check valid date of birth if provided
     if (formData.dob) {
-    const dobDate = new Date(formData.dob);
+      const dobDate = new Date(formData.dob);
       if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
-      toast.error("Please enter a valid date of birth.");
-      return;
+        toast.error("Please enter a valid date of birth.");
+        return;
       }
     }
 
@@ -701,9 +709,9 @@ const AddStudents = () => {
       return;
     }
 
-    // Aadhar validation - only if provided
-    if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
-      toast.error("Aadhar number must be 12 digits");
+    // Aadhar validation - required field
+    if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
+      toast.error("Student Aadhar number is required and must be 12 digits");
       return;
     }
     
@@ -849,13 +857,18 @@ const AddStudents = () => {
         dataToSubmit.photo = "";
       }
       
+      // Explicitly ensure childId is included
+      console.log("Child ID before submission:", dataToSubmit.childId);
+      
       return dataToSubmit;
     };
 
     // Submit the form
     try {
       const token = localStorage.getItem("token");
-      console.log("Submitting data to API:", prepareFormDataForSubmission());
+      const dataToSubmit = prepareFormDataForSubmission();
+      console.log("Submitting data to API:", dataToSubmit);
+      console.log("Child ID being submitted:", dataToSubmit.childId);
       
       // Make API request with prepared data
       const res = await fetch(Allapi.addStudent.url, {
@@ -864,7 +877,7 @@ const AddStudents = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(prepareFormDataForSubmission()),
+        body: JSON.stringify(dataToSubmit),
       });
       
       if (!res.ok) {
@@ -875,7 +888,7 @@ const AddStudents = () => {
       const fres = await res.json();
 
       if (fres.success) {
-        toast.success("Student added successfully!");
+        toast.success(`Student added successfully with Child ID: ${dataToSubmit.childId || "None"}`);
 
         // Reset form data and photo preview
         setFormData({
@@ -1112,6 +1125,9 @@ const AddStudents = () => {
               value={formData.aadharNo}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
+              required
+              maxLength="12"
+              pattern="\d{12}"
             />
           </div>
           <div>

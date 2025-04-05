@@ -170,6 +170,7 @@ const StudentsReports = () => {
       "Student Name": `${student.name} ${student.surname}`,
       "Student ID": student.idNo,
       "Admission No": student.admissionNo,
+      "Child ID": student.childId || "Not Provided",
       Class: student.class.name,
       Section: student.section.name,
       Gender: student.gender,
@@ -199,6 +200,7 @@ const StudentsReports = () => {
       { wch: 25 }, // Student Name
       { wch: 15 }, // Student ID
       { wch: 15 }, // Admission No
+      { wch: 20 }, // Child ID
       { wch: 20 }, // Class
       { wch: 20 }, // Section
       { wch: 10 }, // Gender
@@ -336,15 +338,16 @@ const StudentsReports = () => {
                   Class: {student.class.name}
                 </p>
 
-                <div className="fee pay-button">
+                <div className="fee pay-button mt-2 text-center">
                   <Link
-                    to={`/branch-admin/students-payfee/${student._id}/`}
+                    to={`/branch-admin/students-payfee/${student._id}`}
                     onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the parent onClick
                       setfeetab(student._id);
                     }}
-                    className="bg-red-500 text-white p-2 hover:text-black hover:bg-red-700"
+                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 inline-block"
                   >
-                    pay Fee
+                    Pay Fee
                   </Link>
                 </div>
               </div>

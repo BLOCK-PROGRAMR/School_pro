@@ -247,6 +247,7 @@ const Info = () => {
         return {
           'S.No': index + 1,
           'Student ID': student.idNo,
+          'Child ID': student.childId || 'Not Provided',
           'Name': student.surname ? `${student.surname} ${student.name}` : student.name,
           'Fee Types': student.feeTypes || '-',
           'Course Fee': `₹${student.courseFee?.toLocaleString() || '-'}`,
@@ -266,6 +267,7 @@ const Info = () => {
       const colWidths = [
         { wch: 6 },  // S.No
         { wch: 15 }, // Student ID
+        { wch: 20 }, // Child ID
         { wch: 30 }, // Name
         { wch: 30 }, // Fee Types
         { wch: 15 }, // Course Fee
@@ -418,6 +420,9 @@ const Info = () => {
                       Student ID
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Child ID
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Name
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -448,6 +453,9 @@ const Info = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {student.idNo}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {student.childId || 'Not Provided'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                         {student.surname ? `${student.surname} ${student.name}` : student.name}
