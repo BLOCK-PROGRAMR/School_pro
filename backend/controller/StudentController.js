@@ -8,8 +8,10 @@ const bus = require("../models/Bus");
 // Add a new student
 exports.addStudent = async (req, res) => {
   try {
-    const { idNo, aadharNo, name } = req.body;
-    console.log("aadhar no", aadharNo)
+    const { idNo, aadharNo, name, childId } = req.body;
+    console.log("aadhar no", aadharNo);
+    console.log("childId received:", childId);
+    
     // Check if a student with the same idNo already exists
     const existingStudent = await Student.findOne({ aadharNo });
     if (existingStudent) {
@@ -21,7 +23,7 @@ exports.addStudent = async (req, res) => {
 
     // Create new student
     const newStudent = new Student(req.body);
-    await newStudent.save();
+    const savedStudent = await newStudent.save();
 
     // Hash the Aadhar number for password
     const hashedpsd = await bcrypt.hash(aadharNo, 10);
@@ -40,6 +42,11 @@ exports.addStudent = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Student and User added successfully",
+      data: {
+        idNo: savedStudent.idNo,
+        name: savedStudent.name,
+        childId: savedStudent.childId
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -85,6 +92,8 @@ exports.updateStudent = async (req, res) => {
   try {
     const { sid } = req.params; // Get the student ID from URL parameters
     const updatedData = req.body; // Get the data to update from the request body
+    
+    console.log("Updating student with childId:", updatedData.childId);
 
     // Find student by ID and update the data
     const student = await Student.findByIdAndUpdate(sid, updatedData, {
@@ -98,6 +107,8 @@ exports.updateStudent = async (req, res) => {
         message: "Student not found",
       });
     }
+
+    console.log("Updated student childId:", student.childId);
 
     res.status(200).json({
       success: true,
@@ -195,7 +206,7 @@ exports.updateFeeDetails = async (req, res) => {
 };
 exports.getStudentById = async (req, res) => {
   try {
-    console.log("hellow worldl")
+    console.log("Getting student details")
     const { sid } = req.params; // Extract student ID from request parameters
 
     // Convert string id into ObjectId
@@ -209,6 +220,8 @@ exports.getStudentById = async (req, res) => {
         message: "Student not found",
       });
     }
+
+    console.log("Retrieved student childId:", student.childId);
 
     res.status(200).json({
       success: true,

@@ -11,15 +11,66 @@ import { useNavigate } from "react-router-dom";
 const cloudName = import.meta.env.VITE_CLOUD_NAME;
 const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
 import { useReactToPrint } from "react-to-print";
+
+// Add CSS styles directly to ensure they're applied
+const styles = `
+  .input-field {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+    font-size: 14px;
+    line-height: 1.5;
+    color: black !important;
+    background-color: white !important;
+    border: 2px solid black !important;
+  }
+  
+  .input-field:focus {
+    outline: none;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+  
+  label {
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: block;
+    color: black !important;
+  }
+  
+  select.input-field {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+  }
+  
+  tbody td, thead th {
+    color: black !important;
+  }
+  
+  .table-auto {
+    border: 1px solid #e5e7eb;
+  }
+`;
+
 const StudentEdit = () => {
   const navigate = useNavigate();
   const { sid } = useParams();
   // Get student ID from the URL
   const tableRef = useRef();
+  const childIdInputRef = useRef(null); // Reference for the childId input
   const { branchdet } = useContext(mycon);
   const [hosteladd, sethosteladd] = useState(false);
   const [feeTypes, setFeeTypes] = useState([]);
   const [photoPreview, setphotoPreview] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Initialize form data with default values
   const [formData, setFormData] = useState({
     idNo: "",
     admissionNo: "",
@@ -66,11 +117,16 @@ const StudentEdit = () => {
     },
     feeDetails: [],
   });
+  
   useEffect(() => {
     const fetchStudent = async () => {
+      setLoading(true);
+      setError(null);
       const token = localStorage.getItem("token");
       if (!token) {
         toast.error("Authorization token not found!");
+        setLoading(false);
+        setError("Authorization token not found");
         return;
       }
       try {
@@ -79,37 +135,127 @@ const StudentEdit = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!response.ok) throw new Error("Failed to fetch student details");
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Server response: ${errorText}`);
+          throw new Error(`Failed to fetch student details: ${response.status}`);
+        }
 
         const datares = await response.json();
-        console.log("data res is", datares);
-        setFormData((prev) => ({
-          ...prev,
-          ...datares.data, // Merge fetched data
-          childId: datares.data.childId || "",
-          address: {
-            ...datares.data.address,
-            pincode: datares.data.address?.pincode || "",
-          },
-        }));
-
-        console.log(datares);
-
-        setphotoPreview(datares.data.photo || "");
+        console.log("Student data response:", datares);
+        
+        if (datares.success && datares.data) {
+          // Check if the data has a childId directly from the database
+          const serverChildId = datares.data.childId || "";
+          console.log("Child ID from server:", serverChildId);
+          
+          // Only use localStorage as fallback if no childId in the database
+          const lastChildId = localStorage.getItem('lastChildId');
+          
+          // Prioritize the database value, fallback to localStorage only if needed
+          const effectiveChildId = serverChildId || lastChildId || "";
+          console.log("Effective childId to use:", effectiveChildId);
+          
+          // Make sure to provide default values for any fields that might be undefined
+          const studentData = {
+            ...datares.data,
+            childId: effectiveChildId,
+            dob: datares.data.dob || new Date().toISOString(),
+            admissionDate: datares.data.admissionDate || new Date().toISOString(),
+            address: {
+              doorNo: datares.data.address?.doorNo || "",
+              street: datares.data.address?.street || "",
+              city: datares.data.address?.city || "",
+              state: datares.data.address?.state || "",
+              country: datares.data.address?.country || "",
+              pincode: datares.data.address?.pincode || "",
+            },
+            class: datares.data.class || { name: "", id: "" },
+            section: datares.data.section || { name: "", id: "" },
+            feeDetails: Array.isArray(datares.data.feeDetails) ? datares.data.feeDetails : [],
+            transportDetails: {
+              town: datares.data.transportDetails?.town || "",
+              bus: datares.data.transportDetails?.bus || "",
+              halt: datares.data.transportDetails?.halt || "",
+              amount: datares.data.transportDetails?.amount || 0,
+              terms: datares.data.transportDetails?.terms || 0,
+            },
+            hostelDetails: {
+              hostelFee: datares.data.hostelDetails?.hostelFee || "",
+              terms: datares.data.hostelDetails?.terms || "",
+            }
+          };
+          
+          console.log("Processed student data childId:", studentData.childId);
+          
+          // Use a functional update to ensure we're using the latest state
+          setFormData(prevData => ({
+            ...prevData,
+            ...studentData
+          }));
+          
+          // Set the current town if it exists to trigger loading of buses and halts
+          if (studentData.transportDetails.town) {
+            setcurr_town(studentData.transportDetails.town);
+          }
+          
+          // Set classname if it exists to trigger loading of sections
+          if (studentData.class.name) {
+            setClassname(studentData.class.name);
+          }
+          
+          setphotoPreview(studentData.photo || "");
+          
+          // Immediately update the childId input if the ref is available
+          if (childIdInputRef.current) {
+            childIdInputRef.current.value = effectiveChildId;
+          }
+          
+          setTimeout(() => {
+            console.log("Child ID after setFormData:", formData.childId);
+          }, 0);
+          
+          toast.success("Student data loaded successfully");
+          
+          // If we successfully loaded data with a childId from server, clear localStorage
+          if (serverChildId) {
+            localStorage.removeItem('lastChildId');
+            localStorage.removeItem('currentChildId');
+          }
+        } else {
+          setError(datares.message || "Failed to load student data");
+          toast.error(datares.message || "Failed to load student data");
+        }
       } catch (error) {
-        toast.error(error.message);
+        console.error("Error fetching student data:", error);
+        setError(error.message);
+        toast.error(`Error: ${error.message}`);
       } finally {
-        console.log("form data is", formData);
+        setLoading(false);
+        console.log("Form data after loading:", formData);
+        console.log("Child ID after loading:", formData.childId);
       }
     };
 
     fetchStudent();
+    
+    // Cleanup function when component unmounts
+    return () => {
+      // We don't need to clean up localStorage here anymore
+      // The server is our source of truth for childId
+    };
   }, [sid]);
-  // useEffect(() => {
-  //   if (acid) {
-  //     fetchFeeTypes(acid);
-  //   }
-  // }, [acid]);
+
+  // Add a dedicated effect to monitor childId changes
+  useEffect(() => {
+    console.log("childId changed in state:", formData.childId);
+    
+    // Directly update the input field value if the ref is available
+    if (childIdInputRef.current && formData.childId) {
+      childIdInputRef.current.value = formData.childId;
+    }
+  }, [formData.childId]);
+
   const [towns, setTowns] = useState([]);
   const [buses, setBuses] = useState([]);
   const [halts, setHalts] = useState([]);
@@ -447,7 +593,29 @@ const StudentEdit = () => {
   const handleChange = async (e) => {
     const { name, value } = e.target;
     console.log("name is", name, " value is", value);
-    console.log("towns are", towns);
+    
+    // Special handling for childId to ensure it updates correctly
+    if (name === 'childId') {
+      console.log("Updating childId to:", value);
+      
+      // Use a functional update to ensure we're using the latest state
+      setFormData(prev => {
+        const updated = {
+          ...prev,
+          childId: value
+        };
+        console.log("Updated form data childId:", updated.childId);
+        return updated;
+      });
+      
+      // No longer need to store in localStorage as the primary source
+      // but we'll keep it as a backup in case of page refreshes
+      if (value) {
+        localStorage.setItem('currentChildId', value);
+      }
+      
+      return; // Exit early after handling childId specially
+    }
 
     if (name === 'name' || name === 'surname') {
       setFormData((prev) => ({
@@ -741,43 +909,67 @@ const StudentEdit = () => {
       feeDetails: updatedFees, // Update feeDetails with the new values
     }));
   }, [formData.section.id]);
+
+  // Add a validation function for childId
+  const validateChildId = (childId) => {
+    // This function can include any validation logic you need for childId
+    // For now, it just ensures it's a string and logs the result
+    const validated = childId || "";
+    console.log("Validated childId:", validated);
+    return validated;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("formdata is edit ", formData);
 
+    // Validate childId and ensure it's properly set in the state
+    const validatedChildId = validateChildId(formData.childId);
+    
+    // Update the form data with validated childId
+    const updatedFormData = {
+      ...formData,
+      childId: validatedChildId
+    };
+    
+    // Set the updated form data
+    setFormData(updatedFormData);
+    console.log("Submitting form with childId:", validatedChildId);
+
     // Validate required fields
-    if (!formData.name || formData.name.trim() === "") {
+    if (!updatedFormData.name || updatedFormData.name.trim() === "") {
       toast.error("Student name is required.");
       return;
     }
-    if (!formData.surname || formData.surname.trim() === "") {
+    if (!updatedFormData.surname || updatedFormData.surname.trim() === "") {
       toast.error("Surname is required.");
       return;
     }
-    if (!formData.gender) {
+    if (!updatedFormData.gender) {
       toast.error("Gender is required.");
       return;
     }
-    if (!formData.class) {
+    if (!updatedFormData.class) {
       toast.error("Class is required.");
       return;
     }
-    if (!formData.section) {
+    if (!updatedFormData.section) {
       toast.error("Section is required.");
       return;
     }
-    if (!formData.dob) {
+    if (!updatedFormData.dob) {
       toast.error("Date of birth is required.");
       return;
     }
 
     // Check valid date of birth
-    const dobDate = new Date(formData.dob);
+    const dobDate = new Date(updatedFormData.dob);
     if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
       toast.error("Please enter a valid date of birth.");
       return;
     }
 
+<<<<<<< HEAD
 
     if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
       toast.error("aadhar number must be 12 digits");
@@ -787,81 +979,100 @@ const StudentEdit = () => {
     //   toast.error("student aapar number must be 12 digits");
     //   return;
     // }
+=======
+    if (!updatedFormData.admissionNo || updatedFormData.admissionNo.trim() === "") {
+      toast.error("Admission number is required.");
+      return;
+    }
+    if (!updatedFormData.aadharNo || !/^\d{12}$/.test(updatedFormData.aadharNo)) {
+      toast.error("aadhar number must be 12 digits");
+      return;
+    }
+    if (!updatedFormData.studentAAPR || !/^\d{12}$/.test(updatedFormData.studentAAPR)) {
+      toast.error("student aapar number must be 12 digits");
+      return;
+    }
+>>>>>>> f52320e87c2570393d530183f181f1619cf11671
 
-    if (!formData.whatsappNo || !/^\d{10}$/.test(formData.whatsappNo)) {
+    if (!updatedFormData.whatsappNo || !/^\d{10}$/.test(updatedFormData.whatsappNo)) {
       toast.error("Valid WhatsApp number is required (10 digits).");
       return;
     }
 
     if (
+<<<<<<< HEAD
       formData.emergencyContact &&
       !/^\d{10}$/.test(formData.emergencyContact)
+=======
+      !updatedFormData.emergencyContact ||
+      !/^\d{10}$/.test(updatedFormData.emergencyContact)
+>>>>>>> f52320e87c2570393d530183f181f1619cf11671
     ) {
       toast.error("Valid emergency contact is required (10 digits).");
       return;
     }
 
-    if (!formData.address.doorNo || formData.address.doorNo.trim() === "") {
+    if (!updatedFormData.address.doorNo || updatedFormData.address.doorNo.trim() === "") {
       toast.error("Door number in address is required.");
       return;
     }
-    if (!formData.address.street || formData.address.street.trim() === "") {
+    if (!updatedFormData.address.street || updatedFormData.address.street.trim() === "") {
       toast.error("Street in address is required.");
       return;
     }
-    if (!formData.address.city || formData.address.city.trim() === "") {
+    if (!updatedFormData.address.city || updatedFormData.address.city.trim() === "") {
       toast.error("City in address is required.");
       return;
     }
 
     // Validate Aadhar details
-    if (formData.aadharNo && !/^\d{12}$/.test(formData.aadharNo)) {
+    if (updatedFormData.aadharNo && !/^\d{12}$/.test(updatedFormData.aadharNo)) {
       toast.error("Aadhar number must be 12 digits.");
       return;
     }
-    if (formData.fatherAadhar && !/^\d{12}$/.test(formData.fatherAadhar)) {
+    if (updatedFormData.fatherAadhar && !/^\d{12}$/.test(updatedFormData.fatherAadhar)) {
       toast.error("Father's Aadhar number must be 12 digits.");
       return;
     }
-    if (formData.motherAadhar && !/^\d{12}$/.test(formData.motherAadhar)) {
+    if (updatedFormData.motherAadhar && !/^\d{12}$/.test(updatedFormData.motherAadhar)) {
       toast.error("Mother's Aadhar number must be 12 digits.");
       return;
     }
 
     // Remove transportDetails if transport is false
-    if (!formData.transport) {
-      // formData.transportDetails = undefined;
-      // formData.transportDetails.amount=null;
-      formData.transportDetails.bus = null;
-      formData.transportDetails.halt = null;
-      formData.transportDetails.town = null;
+    if (!updatedFormData.transport) {
+      // updatedFormData.transportDetails = undefined;
+      // updatedFormData.transportDetails.amount=null;
+      updatedFormData.transportDetails.bus = null;
+      updatedFormData.transportDetails.halt = null;
+      updatedFormData.transportDetails.town = null;
     } else {
       // Validate transport details
       if (
-        !formData.transportDetails.town ||
-        formData.transportDetails.town.trim() === ""
+        !updatedFormData.transportDetails.town ||
+        updatedFormData.transportDetails.town.trim() === ""
       ) {
         toast.error("Town is required for transport details.");
         return;
       }
       if (
-        !formData.transportDetails.bus ||
-        formData.transportDetails.bus.trim() === ""
+        !updatedFormData.transportDetails.bus ||
+        updatedFormData.transportDetails.bus.trim() === ""
       ) {
         toast.error("Bus is required for transport details.");
         return;
       }
       if (
-        !formData.transportDetails.halt ||
-        formData.transportDetails.halt.trim() === ""
+        !updatedFormData.transportDetails.halt ||
+        updatedFormData.transportDetails.halt.trim() === ""
       ) {
         toast.error("Halt is required for transport details.");
         return;
       }
       if (
-        !formData.transportDetails.amount ||
-        isNaN(formData.transportDetails.amount) ||
-        formData.transportDetails.amount <= 0
+        !updatedFormData.transportDetails.amount ||
+        isNaN(updatedFormData.transportDetails.amount) ||
+        updatedFormData.transportDetails.amount <= 0
       ) {
         toast.error("Valid transport amount is required.");
         return;
@@ -869,25 +1080,25 @@ const StudentEdit = () => {
     }
 
     // Remove hostelDetails if hostel is false
-    if (!formData.hostel) {
-      if (!formData.hostel) {
-        formData.hostelDetails.hostelFee = "";
-        formData.hostelDetails.terms = "";
+    if (!updatedFormData.hostel) {
+      if (!updatedFormData.hostel) {
+        updatedFormData.hostelDetails.hostelFee = "";
+        updatedFormData.hostelDetails.terms = "";
         alert("hi");
       }
     } else {
       // Validate hostel details
       if (
-        !formData.hostelDetails.hostelFee ||
-        isNaN(formData.hostelDetails.hostelFee) ||
-        formData.hostelDetails.hostelFee <= 0
+        !updatedFormData.hostelDetails.hostelFee ||
+        isNaN(updatedFormData.hostelDetails.hostelFee) ||
+        updatedFormData.hostelDetails.hostelFee <= 0
       ) {
         toast.error("Valid hostel fee is required.");
         return;
       }
       if (
-        !formData.hostelDetails.terms ||
-        formData.hostelDetails.terms.trim() === ""
+        !updatedFormData.hostelDetails.terms ||
+        updatedFormData.hostelDetails.terms.trim() === ""
       ) {
         toast.error("Terms for hostel details are required.");
         return;
@@ -896,9 +1107,9 @@ const StudentEdit = () => {
 
     // Check if feeDetails array is valid
     if (
-      !formData.feeDetails ||
-      !Array.isArray(formData.feeDetails) ||
-      formData.feeDetails.length === 0
+      !updatedFormData.feeDetails ||
+      !Array.isArray(updatedFormData.feeDetails) ||
+      updatedFormData.feeDetails.length === 0
     ) {
       toast.error("At least one fee detail must be provided.");
       return;
@@ -910,9 +1121,15 @@ const StudentEdit = () => {
 
       // Make the API request to submit the form
       const prepareFormDataForSubmission = () => {
+<<<<<<< HEAD
         // Create a copy of formData to modify
         const dataToSubmit = { ...formData };
 
+=======
+        // Create a copy of the updated form data to modify
+        const dataToSubmit = { ...updatedFormData };
+        
+>>>>>>> f52320e87c2570393d530183f181f1619cf11671
         // Ensure address.pincode is always set (even to empty string)
         // This maintains compatibility with the backend schema
         if (!dataToSubmit.address.pincode) {
@@ -923,9 +1140,23 @@ const StudentEdit = () => {
         if (!dataToSubmit.photo) {
           dataToSubmit.photo = "";
         }
+<<<<<<< HEAD
 
+=======
+        
+        // Explicitly ensure childId is included in the submission
+        console.log("Child ID before submission:", dataToSubmit.childId);
+        
+        // Make sure childId is properly set and not null
+        dataToSubmit.childId = dataToSubmit.childId || validatedChildId || "";
+        console.log("Final childId being submitted:", dataToSubmit.childId);
+        
+>>>>>>> f52320e87c2570393d530183f181f1619cf11671
         return dataToSubmit;
       };
+
+      const dataToSend = prepareFormDataForSubmission();
+      console.log("Final data being submitted:", dataToSend);
 
       const res = await fetch(Allapi.editstudentbyId.url(sid), {
         method: Allapi.editstudentbyId.method,
@@ -933,67 +1164,37 @@ const StudentEdit = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(prepareFormDataForSubmission()),
+        body: JSON.stringify(dataToSend),
       });
       const fres = await res.json();
+      console.log("API response after update:", fres);
 
       if (fres.success) {
-        toast.success("Student added successfully!");
-
-        // Reset form data and photo preview
-        setphotoPreview("");
-        setFormData({
-          idNo: `${ysuffix}${String(stdcount + 1).padStart(4, "0")}`,
-          admissionNo: "",
-          childId: "",
-          surname: "",
-          name: "",
-          gender: "",
-          class: "",
-          section: "",
-          dob: "",
-          admissionDate: new Date().toISOString().split("T")[0],
-          academic_id: "",
-          photo: "",
-          aadharNo: "",
-          studentAAPR: "",
-          caste: "OC",
-          subCaste: "",
-          fatherName: "",
-          fatherAadhar: "",
-          fatherOccupation: "Employee",
-          motherName: "",
-          motherAadhar: "",
-          motherOccupation: "House-wife",
-          whatsappNo: "",
-          emergencyContact: "",
-          address: {
-            doorNo: "",
-            street: "",
-            city: "",
-          },
-          transport: false,
-          transportDetails: {
-            town: "",
-            bus: "",
-            halt: "",
-            amount: 0,
-          },
-          hostel: false,
-          hostelDetails: {
-            hostelFee: "",
-            terms: "",
-          },
-          feeDetails: [],
-          concession: {},
-        });
+        // Log the response data to check if childId was returned
+        if (fres.data) {
+          console.log("Updated student data from server:", fres.data);
+          console.log("Child ID in server response:", fres.data.childId);
+        }
+        
+        toast.success("Student updated successfully!");
+        
+        // No need to use localStorage anymore since childId is properly stored in DB
+        // If we want to ensure it's available on next load, we can still set it
+        // but the primary source will be the database
+        if (validatedChildId) {
+          localStorage.setItem('lastChildId', validatedChildId);
+        }
+        
+        // Slight delay before reload to ensure the state is updated
+        setTimeout(() => {
         window.location.reload();
+        }, 300);
       } else {
         toast.error(fres.message);
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred while adding the student.");
+      toast.error("An error occurred while updating the student.");
     }
   };
 
@@ -1002,72 +1203,170 @@ const StudentEdit = () => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
+  // Safe getter for nested properties
+  const getNestedValue = (obj, path, defaultValue = "") => {
+    const travel = (regexp) =>
+      String.prototype.split
+        .call(path, regexp)
+        .filter(Boolean)
+        .reduce((res, key) => (res !== null && res !== undefined ? res[key] : res), obj);
+    const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/);
+    return result === undefined || result === null ? defaultValue : result;
+  };
+
+  // Make both useEffect hooks below run only once on mount to avoid potential conflicts
+  useEffect(() => {
+    // If we have a stored current childId value, use it
+    const currentChildId = localStorage.getItem('currentChildId');
+    const lastChildId = localStorage.getItem('lastChildId');
+    
+    // Use currentChildId first, then lastChildId, in that order of preference
+    const preferredChildId = currentChildId || lastChildId || "";
+    
+    if (preferredChildId && childIdInputRef.current) {
+      console.log("Using stored childId from localStorage:", preferredChildId);
+      childIdInputRef.current.value = preferredChildId;
+      
+      // Also update the form data state
+      setFormData(prev => ({
+        ...prev,
+        childId: preferredChildId
+      }));
+    }
+  }, []); // empty dependency array means it runs once on mount
+
+  // Check if student data is loaded properly
+  if (!formData || Object.keys(formData).length === 0) {
+    return (
+      <div className="bg-white p-6 text-black rounded-lg shadow-md max-w-4xl mx-auto">
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">No student data available. </strong>
+          <span className="block sm:inline">Please try reloading the page or select another student.</span>
+          <p className="mt-4">
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+            >
+              Reload Page
+            </button>
+            <button 
+              onClick={() => navigate('/branch-admin')} 
+              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Return to Dashboard
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-white p-6 text-black rounded-lg shadow-md max-w-4xl mx-auto">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-lg font-medium">Loading student data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white p-6 text-black rounded-lg shadow-md max-w-4xl mx-auto">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+          <p className="mt-4">
+            <button 
+              onClick={() => navigate('/branch-admin')} 
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Return to Dashboard
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gray-100 p-6  text-balck rounded-lg shadow-md max-w-4xl mx-auto">
+    <div className="bg-white p-6 text-black rounded-lg shadow-md max-w-4xl mx-auto">
+      {/* Add inline styles */}
+      <style>{styles}</style>
+      
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">ID No:</label>
+            <label className="block text-sm text-black font-medium">ID No:</label>
             <input
               type="text"
               name="idNo"
-              value={formData.idNo}
+              value={formData.idNo || ""}
               onChange={handleChange}
               disabled
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Admission No:</label>
+            <label className="block text-sm text-black font-medium">Admission No:</label>
             <input
               type="text"
               name="admissionNo"
               value={formData.admissionNo}
               onChange={handleChange}
               maxLength={9}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Child ID:</label>
+            <label className="block text-sm text-black font-medium">Child ID:</label>
             <input
               type="text"
               name="childId"
-              value={formData.childId}
+              value={formData.childId || ""}
               onChange={handleChange}
-              className="input-field"
+              ref={childIdInputRef}
+              className="input-field border-2 border-black text-black bg-white"
             />
+            {/* Debug output to show current childId value */}
+            <div className="text-xs text-gray-500 mt-1">
+              Current value: {formData.childId || ""}
+            </div>
           </div>
           <div>
-            <label className="block text-sm font-medium">Surname:</label>
+            <label className="block text-sm text-black font-medium">Surname:</label>
             <input
               type="text"
               name="surname"
               value={formData.surname}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Name:</label>
+            <label className="block text-sm text-black font-medium">Name:</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Gender:</label>
+            <label className="block text-sm text-black font-medium">Gender:</label>
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               <option value="">Select Gender</option>
@@ -1076,12 +1375,12 @@ const StudentEdit = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Class:</label>
+            <label className="block text-sm text-black font-medium">Class:</label>
             <select
               name="class"
               value={formData.class.name || ""}
               onChange={handleClassChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               <option value="">Select Class</option>
@@ -1093,12 +1392,12 @@ const StudentEdit = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Section:</label>
+            <label className="block text-sm text-black font-medium">Section:</label>
             <select
               name="section"
               value={formData.section.name || ""}
               onChange={handleSectionChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               <option value="">Select Section</option>
@@ -1110,27 +1409,28 @@ const StudentEdit = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Date of Birth:</label>
+            <label className="block text-sm text-black font-medium">Date of Birth:</label>
             <input
               type="date"
               name="dob"
-              value={formData.dob.split("T")[0]}
+              value={formData.dob ? formData.dob.split("T")[0] : ""}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Admission Date:</label>
+            <label className="block text-sm text-black font-medium">Admission Date:</label>
             <input
               type="date"
               name="admissionDate"
               value={
-                formData.admissionDate.split("T")[0] ||
-                new Date().toISOString().split("T")[0]
+                formData.admissionDate 
+                  ? formData.admissionDate.split("T")[0] 
+                  : new Date().toISOString().split("T")[0]
               }
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
@@ -1138,34 +1438,34 @@ const StudentEdit = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Aadhar No:</label>
+            <label className="block text-sm text-black font-medium">Aadhar No:</label>
             <input
               type="text"
               name="aadharNo"
               value={formData.aadharNo}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Student AAPR:</label>
+            <label className="block text-sm text-black font-medium">Student AAPR:</label>
             <input
               type="text"
               name="studentAAPR"
               value={formData.studentAAPR}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Caste:</label>
+            <label className="block text-sm text-black font-medium">Caste:</label>
             <select
               name="caste"
               value={formData.caste}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               {casteOptions.map((caste) => (
@@ -1176,13 +1476,13 @@ const StudentEdit = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Sub-Caste:</label>
+            <label className="block text-sm text-black font-medium">Sub-Caste:</label>
             <input
               type="text"
               name="subCaste"
               value={formData.subCaste}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
@@ -1190,36 +1490,36 @@ const StudentEdit = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Father Name:</label>
+            <label className="block text-sm text-black font-medium">Father Name:</label>
             <input
               type="text"
               name="fatherName"
               value={formData.fatherName}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Father Aadhar:</label>
+            <label className="block text-sm text-black font-medium">Father Aadhar:</label>
             <input
               type="text"
               name="fatherAadhar"
               value={formData.fatherAadhar}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm text-black font-medium">
               Father Occupation:
             </label>
             <select
               name="fatherOccupation"
               value={formData.fatherOccupation}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               {fatherOccupationOptions.map((occupation) => (
@@ -1230,36 +1530,36 @@ const StudentEdit = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium">Mother Name:</label>
+            <label className="block text-sm text-black font-medium">Mother Name:</label>
             <input
               type="text"
               name="motherName"
               value={formData.motherName}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Mother Aadhar:</label>
+            <label className="block text-sm text-black font-medium">Mother Aadhar:</label>
             <input
               type="text"
               name="motherAadhar"
               value={formData.motherAadhar}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm text-black font-medium">
               Mother Occupation:
             </label>
             <select
               name="motherOccupation"
               value={formData.motherOccupation}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             >
               {motherOccupationOptions.map((occupation) => (
@@ -1273,18 +1573,18 @@ const StudentEdit = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Whatsapp No:</label>
+            <label className="block text-sm text-black font-medium">Whatsapp No:</label>
             <input
               type="text"
               name="whatsappNo"
               value={formData.whatsappNo}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm text-black font-medium">
               Emergency Contact:
             </label>
             <input
@@ -1292,14 +1592,14 @@ const StudentEdit = () => {
               name="emergencyContact"
               value={formData.emergencyContact}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Address:</label>
+          <label className="block text-sm text-black font-medium">Address:</label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
             <input
               type="text"
@@ -1307,7 +1607,7 @@ const StudentEdit = () => {
               placeholder="Door No"
               value={formData.address.doorNo}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
             <input
@@ -1316,7 +1616,7 @@ const StudentEdit = () => {
               placeholder="Street"
               value={formData.address.street}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
             />
             <input
@@ -1325,14 +1625,22 @@ const StudentEdit = () => {
               placeholder="City"
               value={formData.address.city}
               onChange={handleChange}
-              className="input-field"
+              className="input-field border-2 border-black text-black bg-white"
               required
+            />
+            <input
+              type="text"
+              name="address.pincode"
+              placeholder="Pincode"
+              value={formData.address.pincode}
+              onChange={handleChange}
+              className="input-field border-2 border-black text-black bg-white"
             />
           </div>
         </div>
 
         <div>
-          <label className="flex items-center">
+          <label className="flex items-center text-black">
             <input
               type="checkbox"
               name="transport"
@@ -1345,13 +1653,13 @@ const StudentEdit = () => {
           {formData.transport && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <div>
-                <label className="block text-sm font-medium">Town:</label>
+                <label className="block text-sm text-black font-medium">Town:</label>
                 <select
                   name="transportDetails.town"
                   value={formData.transportDetails.town || ""}
                   onChange={handleChange}
                   onLoadStart={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 >
                   <option value="">Select Town</option>
@@ -1368,12 +1676,12 @@ const StudentEdit = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium">Bus:</label>
+                <label className="block text-sm text-black font-medium">Bus:</label>
                 <select
                   name="transportDetails.bus"
                   value={formData.transportDetails.bus || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 >
                   <option value="">Select Bus</option>
@@ -1386,12 +1694,12 @@ const StudentEdit = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium">Halt:</label>
+                <label className="block text-sm text-black font-medium">Halt:</label>
                 <select
                   name="transportDetails.halt"
                   value={formData.transportDetails.halt || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 >
                   <option value="">Select Halts</option>
@@ -1407,8 +1715,7 @@ const StudentEdit = () => {
 
                 </select>
                 <div>
-                  {console.log("formdata fee det is", formData.feeDetails)}
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm text-black font-medium">
                     Number of Terms
                   </label>
                   <input
@@ -1416,7 +1723,7 @@ const StudentEdit = () => {
                     name="transportDetails.terms"
                     value={formData.transportDetails.terms || ""}
                     onChange={handleChange}
-                    className="input-field"
+                    className="input-field border-2 border-black text-black bg-white"
                     required
                   />
                 </div>
@@ -1435,7 +1742,7 @@ const StudentEdit = () => {
         </div>
 
         <div className="col-span-2">
-          <label className="flex items-center">
+          <label className="flex items-center text-black">
             <input
               type="checkbox"
               checked={formData.hostel}
@@ -1447,7 +1754,7 @@ const StudentEdit = () => {
           {formData.hostel && (
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium">
                   Hostel Fee
                 </label>
                 <input
@@ -1455,12 +1762,12 @@ const StudentEdit = () => {
                   name="hostelDetails.hostelFee"
                   value={formData.hostelDetails.hostelFee || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm text-black font-medium">
                   Number of Terms
                 </label>
                 <input
@@ -1468,7 +1775,7 @@ const StudentEdit = () => {
                   name="hostelDetails.terms"
                   value={formData.hostelDetails.terms || ""}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field border-2 border-black text-black bg-white"
                   required
                 />
               </div>
@@ -1487,7 +1794,7 @@ const StudentEdit = () => {
 
         <div className="overflow-x-auto bg-white shadow-md rounded-lg">
           <table className="min-w-full table-auto relative" ref={tableRef}>
-            <thead className="bg-gray-100 ">
+            <thead className="bg-gray-100">
               <tr className="font-bold text-lg">
                 <th className="px-6 py-3 text-left text-sm font-bold text-black">
                   Fee Name
@@ -1507,24 +1814,23 @@ const StudentEdit = () => {
               </tr>
             </thead>
             <tbody>
-              {console.log("formdata is fee ", formData.feeDetails)}
               {formData.feeDetails.map((fee, index) => (
                 <tr key={index} className="border-t text-left hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     {fee.name}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     {fee.amount}
                   </td>
-                  <td className="py-2 px-4 border-b">
+                  <td className="py-2 px-4 border-b text-black">
                     {findObjectByKey(feeTypes, "type", fee.name)
                       ? findObjectByKey(feeTypes, "type", fee.name)
                       : fee.terms}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     <input
                       type="number"
-                      className="w-20 px-2 py-1 border rounded-md"
+                      className="w-20 px-2 py-1 border-2 border-black rounded-md bg-white text-black"
                       value={fee.concession || ""}
                       min="0"
                       max="100"
@@ -1546,7 +1852,7 @@ const StudentEdit = () => {
                       }}
                     />
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
+                  <td className="px-6 py-4 text-sm text-black">
                     {fee.finalAmount ? fee.finalAmount : fee.amount}
                   </td>
                 </tr>
@@ -1556,20 +1862,19 @@ const StudentEdit = () => {
               <tr className="border-t bg-gray-100">
                 <td
                   colSpan="3"
-                  className="px-6 py-4 text-sm font-medium text-gray-700 text-right"
+                  className="px-6 py-4 text-sm font-medium text-black text-right"
                 >
                   Total Fee:
                 </td>
                 <td className="px-6 py-4 text-md font-semibold text-black">
                   {calculateTotalFee().toFixed(2)}
-                  {console.log("fee", formData)}
                 </td>
               </tr>
             </tfoot>
             <button
               type="button"
               onClick={handlePrint}
-              className=" absolute bottom-2 left-2  bg-blue-500 text-white rounded-md hover:bg-blue-600 print:hidden"
+              className="absolute bottom-2 left-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 print:hidden"
             >
               Print
             </button>
@@ -1585,11 +1890,17 @@ const StudentEdit = () => {
           </button>
         </div>
       </form>
-      {/* Delete Button */}
-      <div className="mt-4">
+      {/* Delete Button and Pay Fee Button */}
+      <div className="mt-4 flex space-x-4 justify-center">
+        <button
+          onClick={() => navigate(`/branch-admin/students-payfee/${sid}`)}
+          className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
+        >
+          Pay Fee
+        </button>
         <button
           onClick={() => handleDelete(sid, acid)} // Pass both sid and acid
-          className="bg-red-500 text-white px-6 py-2 rounded-md"
+          className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600"
         >
           Delete Student
         </button>
