@@ -69,7 +69,7 @@ const StudentEdit = () => {
   const [photoPreview, setphotoPreview] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Initialize form data with default values
   const [formData, setFormData] = useState({
     idNo: "",
@@ -102,6 +102,7 @@ const StudentEdit = () => {
       city: "",
       state: "",
       country: "",
+      pincode: "",
     },
     transport: false,
     transportDetails: {
@@ -117,7 +118,7 @@ const StudentEdit = () => {
     },
     feeDetails: [],
   });
-  
+
   useEffect(() => {
     const fetchStudent = async () => {
       setLoading(true);
@@ -143,19 +144,19 @@ const StudentEdit = () => {
 
         const datares = await response.json();
         console.log("Student data response:", datares);
-        
+
         if (datares.success && datares.data) {
           // Check if the data has a childId directly from the database
           const serverChildId = datares.data.childId || "";
           console.log("Child ID from server:", serverChildId);
-          
+
           // Only use localStorage as fallback if no childId in the database
           const lastChildId = localStorage.getItem('lastChildId');
-          
+
           // Prioritize the database value, fallback to localStorage only if needed
           const effectiveChildId = serverChildId || lastChildId || "";
           console.log("Effective childId to use:", effectiveChildId);
-          
+
           // Make sure to provide default values for any fields that might be undefined
           const studentData = {
             ...datares.data,
@@ -185,38 +186,38 @@ const StudentEdit = () => {
               terms: datares.data.hostelDetails?.terms || "",
             }
           };
-          
+
           console.log("Processed student data childId:", studentData.childId);
-          
+
           // Use a functional update to ensure we're using the latest state
           setFormData(prevData => ({
             ...prevData,
             ...studentData
           }));
-          
+
           // Set the current town if it exists to trigger loading of buses and halts
           if (studentData.transportDetails.town) {
             setcurr_town(studentData.transportDetails.town);
           }
-          
+
           // Set classname if it exists to trigger loading of sections
           if (studentData.class.name) {
             setClassname(studentData.class.name);
           }
-          
+
           setphotoPreview(studentData.photo || "");
-          
+
           // Immediately update the childId input if the ref is available
           if (childIdInputRef.current) {
             childIdInputRef.current.value = effectiveChildId;
           }
-          
+
           setTimeout(() => {
             console.log("Child ID after setFormData:", formData.childId);
           }, 0);
-          
+
           toast.success("Student data loaded successfully");
-          
+
           // If we successfully loaded data with a childId from server, clear localStorage
           if (serverChildId) {
             localStorage.removeItem('lastChildId');
@@ -238,7 +239,7 @@ const StudentEdit = () => {
     };
 
     fetchStudent();
-    
+
     // Cleanup function when component unmounts
     return () => {
       // We don't need to clean up localStorage here anymore
@@ -249,7 +250,7 @@ const StudentEdit = () => {
   // Add a dedicated effect to monitor childId changes
   useEffect(() => {
     console.log("childId changed in state:", formData.childId);
-    
+
     // Directly update the input field value if the ref is available
     if (childIdInputRef.current && formData.childId) {
       childIdInputRef.current.value = formData.childId;
@@ -593,11 +594,11 @@ const StudentEdit = () => {
   const handleChange = async (e) => {
     const { name, value } = e.target;
     console.log("name is", name, " value is", value);
-    
+
     // Special handling for childId to ensure it updates correctly
     if (name === 'childId') {
       console.log("Updating childId to:", value);
-      
+
       // Use a functional update to ensure we're using the latest state
       setFormData(prev => {
         const updated = {
@@ -607,13 +608,13 @@ const StudentEdit = () => {
         console.log("Updated form data childId:", updated.childId);
         return updated;
       });
-      
+
       // No longer need to store in localStorage as the primary source
       // but we'll keep it as a backup in case of page refreshes
       if (value) {
         localStorage.setItem('currentChildId', value);
       }
-      
+
       return; // Exit early after handling childId specially
     }
 
@@ -925,13 +926,13 @@ const StudentEdit = () => {
 
     // Validate childId and ensure it's properly set in the state
     const validatedChildId = validateChildId(formData.childId);
-    
+
     // Update the form data with validated childId
     const updatedFormData = {
       ...formData,
       childId: validatedChildId
     };
-    
+
     // Set the updated form data
     setFormData(updatedFormData);
     console.log("Submitting form with childId:", validatedChildId);
@@ -969,17 +970,6 @@ const StudentEdit = () => {
       return;
     }
 
-<<<<<<< HEAD
-
-    if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
-      toast.error("aadhar number must be 12 digits");
-      return;
-    }
-    // if (formData.studentAAPR || !/^\d{12}$/.test(formData.studentAAPR)) {
-    //   toast.error("student aapar number must be 12 digits");
-    //   return;
-    // }
-=======
     if (!updatedFormData.admissionNo || updatedFormData.admissionNo.trim() === "") {
       toast.error("Admission number is required.");
       return;
@@ -992,7 +982,6 @@ const StudentEdit = () => {
       toast.error("student aapar number must be 12 digits");
       return;
     }
->>>>>>> f52320e87c2570393d530183f181f1619cf11671
 
     if (!updatedFormData.whatsappNo || !/^\d{10}$/.test(updatedFormData.whatsappNo)) {
       toast.error("Valid WhatsApp number is required (10 digits).");
@@ -1000,13 +989,8 @@ const StudentEdit = () => {
     }
 
     if (
-<<<<<<< HEAD
-      formData.emergencyContact &&
-      !/^\d{10}$/.test(formData.emergencyContact)
-=======
       !updatedFormData.emergencyContact ||
       !/^\d{10}$/.test(updatedFormData.emergencyContact)
->>>>>>> f52320e87c2570393d530183f181f1619cf11671
     ) {
       toast.error("Valid emergency contact is required (10 digits).");
       return;
@@ -1121,15 +1105,9 @@ const StudentEdit = () => {
 
       // Make the API request to submit the form
       const prepareFormDataForSubmission = () => {
-<<<<<<< HEAD
-        // Create a copy of formData to modify
-        const dataToSubmit = { ...formData };
-
-=======
         // Create a copy of the updated form data to modify
         const dataToSubmit = { ...updatedFormData };
-        
->>>>>>> f52320e87c2570393d530183f181f1619cf11671
+
         // Ensure address.pincode is always set (even to empty string)
         // This maintains compatibility with the backend schema
         if (!dataToSubmit.address.pincode) {
@@ -1140,18 +1118,14 @@ const StudentEdit = () => {
         if (!dataToSubmit.photo) {
           dataToSubmit.photo = "";
         }
-<<<<<<< HEAD
 
-=======
-        
         // Explicitly ensure childId is included in the submission
         console.log("Child ID before submission:", dataToSubmit.childId);
-        
+
         // Make sure childId is properly set and not null
         dataToSubmit.childId = dataToSubmit.childId || validatedChildId || "";
         console.log("Final childId being submitted:", dataToSubmit.childId);
-        
->>>>>>> f52320e87c2570393d530183f181f1619cf11671
+
         return dataToSubmit;
       };
 
@@ -1175,19 +1149,19 @@ const StudentEdit = () => {
           console.log("Updated student data from server:", fres.data);
           console.log("Child ID in server response:", fres.data.childId);
         }
-        
+
         toast.success("Student updated successfully!");
-        
+
         // No need to use localStorage anymore since childId is properly stored in DB
         // If we want to ensure it's available on next load, we can still set it
         // but the primary source will be the database
         if (validatedChildId) {
           localStorage.setItem('lastChildId', validatedChildId);
         }
-        
+
         // Slight delay before reload to ensure the state is updated
         setTimeout(() => {
-        window.location.reload();
+          window.location.reload();
         }, 300);
       } else {
         toast.error(fres.message);
@@ -1219,14 +1193,14 @@ const StudentEdit = () => {
     // If we have a stored current childId value, use it
     const currentChildId = localStorage.getItem('currentChildId');
     const lastChildId = localStorage.getItem('lastChildId');
-    
+
     // Use currentChildId first, then lastChildId, in that order of preference
     const preferredChildId = currentChildId || lastChildId || "";
-    
+
     if (preferredChildId && childIdInputRef.current) {
       console.log("Using stored childId from localStorage:", preferredChildId);
       childIdInputRef.current.value = preferredChildId;
-      
+
       // Also update the form data state
       setFormData(prev => ({
         ...prev,
@@ -1243,14 +1217,14 @@ const StudentEdit = () => {
           <strong className="font-bold">No student data available. </strong>
           <span className="block sm:inline">Please try reloading the page or select another student.</span>
           <p className="mt-4">
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
             >
               Reload Page
             </button>
-            <button 
-              onClick={() => navigate('/branch-admin')} 
+            <button
+              onClick={() => navigate('/branch-admin')}
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             >
               Return to Dashboard
@@ -1281,8 +1255,8 @@ const StudentEdit = () => {
           <strong className="font-bold">Error: </strong>
           <span className="block sm:inline">{error}</span>
           <p className="mt-4">
-            <button 
-              onClick={() => navigate('/branch-admin')} 
+            <button
+              onClick={() => navigate('/branch-admin')}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
               Return to Dashboard
@@ -1297,7 +1271,7 @@ const StudentEdit = () => {
     <div className="bg-white p-6 text-black rounded-lg shadow-md max-w-4xl mx-auto">
       {/* Add inline styles */}
       <style>{styles}</style>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -1425,8 +1399,8 @@ const StudentEdit = () => {
               type="date"
               name="admissionDate"
               value={
-                formData.admissionDate 
-                  ? formData.admissionDate.split("T")[0] 
+                formData.admissionDate
+                  ? formData.admissionDate.split("T")[0]
                   : new Date().toISOString().split("T")[0]
               }
               onChange={handleChange}

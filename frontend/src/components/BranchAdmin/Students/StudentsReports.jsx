@@ -4,6 +4,7 @@ import Allapi from "./../../../common/index"; // Adjust the path as needed
 import * as XLSX from "xlsx"; // Import xlsx library for Excel export
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 import FeeReport from "./FeeReport.jsx"; // Update the import statement for FeeReport
 
@@ -20,6 +21,7 @@ const StudentsReports = () => {
   const [activeTab, setActiveTab] = useState("studentList"); // Tab state to toggle between Student List and Download Data
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const [feetab, setfeetab] = useState(null);
+
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -94,6 +96,7 @@ const StudentsReports = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
+
         console.log("selected class is", selectedClass);
 
         console.log("selected section is", selectedSection);
@@ -108,13 +111,20 @@ const StudentsReports = () => {
           }
         );
         const data = await response.json();
-
-
+        // const token = localStorage.getItem('token');
         if (data.data.length === 0) {
           toast.error("No students found for this section");
         }
+        const decoded = jwtDecode(token);
+        const branchId = decoded.branch;
+        console.log("branchid", branchId);
+        const Data = data.data.filter((student) => student.branch === branchId);
+        console.log("Data", Data);
+        // if (data.data.length === 0) {
+        //   toast.error("No students found for this section");
+        // }
         if (response.ok) {
-          const sortedStudents = (data.data || []).sort(
+          const sortedStudents = (Data || []).sort(
             (a, b) => a.idNo - b.idNo
           );
           setStudents(sortedStudents);
@@ -325,11 +335,11 @@ const StudentsReports = () => {
                   navigate(`/branch-admin/students/${student._id}`)
                 }
               >
-                <img
+                {/* <img
                   src={student.photo || "/placeholder.jpg"}
                   alt={student.name}
                   className="w-16 h-16 rounded-full mx-auto mb-2"
-                />
+                /> */}
                 <h3 className="text-gray-800 text-lg font-semibold text-center">
                   {student.name}
                 </h3>
