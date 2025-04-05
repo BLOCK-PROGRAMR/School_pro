@@ -51,7 +51,6 @@ const StudentEdit = () => {
       city: "",
       state: "",
       country: "",
-      pincode: "",
     },
     transport: false,
     transportDetails: {
@@ -519,10 +518,10 @@ const StudentEdit = () => {
               concession: parseFloat(formData.transportDetails.concession) || 0,
               finalAmount: parseInt(
                 formData.transportDetails.amount -
-                  formData.transportDetails.amount *
-                    (formData.transportDetails.concession
-                      ? formData.transportDetails.concession
-                      : 0)
+                formData.transportDetails.amount *
+                (formData.transportDetails.concession
+                  ? formData.transportDetails.concession
+                  : 0)
               ),
             },
           ],
@@ -551,10 +550,10 @@ const StudentEdit = () => {
             concession: parseFloat(formData.hostelDetails.concession) || 0,
             finalAmount: parseInt(
               formData.hostelDetails.hostelFee -
-                formData.hostelDetails.hostelFee *
-                  (formData.hostelDetails.concession
-                    ? formData.hostelDetails.concession
-                    : 0)
+              formData.hostelDetails.hostelFee *
+              (formData.hostelDetails.concession
+                ? formData.hostelDetails.concession
+                : 0)
             ),
           },
         ],
@@ -779,18 +778,15 @@ const StudentEdit = () => {
       return;
     }
 
-    if (!formData.admissionNo || formData.admissionNo.trim() === "") {
-      toast.error("Admission number is required.");
-      return;
-    }
+
     if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
       toast.error("aadhar number must be 12 digits");
       return;
     }
-    if (!formData.studentAAPR || !/^\d{12}$/.test(formData.studentAAPR)) {
-      toast.error("student aapar number must be 12 digits");
-      return;
-    }
+    // if (formData.studentAAPR || !/^\d{12}$/.test(formData.studentAAPR)) {
+    //   toast.error("student aapar number must be 12 digits");
+    //   return;
+    // }
 
     if (!formData.whatsappNo || !/^\d{10}$/.test(formData.whatsappNo)) {
       toast.error("Valid WhatsApp number is required (10 digits).");
@@ -798,7 +794,7 @@ const StudentEdit = () => {
     }
 
     if (
-      !formData.emergencyContact ||
+      formData.emergencyContact &&
       !/^\d{10}$/.test(formData.emergencyContact)
     ) {
       toast.error("Valid emergency contact is required (10 digits).");
@@ -916,18 +912,18 @@ const StudentEdit = () => {
       const prepareFormDataForSubmission = () => {
         // Create a copy of formData to modify
         const dataToSubmit = { ...formData };
-        
+
         // Ensure address.pincode is always set (even to empty string)
         // This maintains compatibility with the backend schema
         if (!dataToSubmit.address.pincode) {
           dataToSubmit.address.pincode = "";
         }
-        
+
         // Ensure photo field exists but can be empty
         if (!dataToSubmit.photo) {
           dataToSubmit.photo = "";
         }
-        
+
         return dataToSubmit;
       };
 
@@ -1360,14 +1356,14 @@ const StudentEdit = () => {
                 >
                   <option value="">Select Town</option>
                   {towns?.length > 0 ? (
-  towns.map((town) => (
-    <option key={town._id} value={town.townName}>
-      {town.townName}
-    </option>
-  ))
-) : (
-  <option disabled>No towns available</option>
-)}
+                    towns.map((town) => (
+                      <option key={town._id} value={town.townName}>
+                        {town.townName}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No towns available</option>
+                  )}
 
                 </select>
               </div>
@@ -1400,14 +1396,14 @@ const StudentEdit = () => {
                 >
                   <option value="">Select Halts</option>
                   {halts?.length > 0 ? (
-  halts.map((halt, index) => (
-    <option key={index} value={halt}>
-      {halt}
-    </option>
-  ))
-) : (
-  <option disabled>No halts available</option>
-)}
+                    halts.map((halt, index) => (
+                      <option key={index} value={halt}>
+                        {halt}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No halts available</option>
+                  )}
 
                 </select>
                 <div>

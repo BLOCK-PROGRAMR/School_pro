@@ -43,7 +43,7 @@ const AddStudents = () => {
       doorNo: "",
       street: "",
       city: "",
-      pincode: "",
+      // pincode: "",
     },
     transport: false,
     transportDetails: {
@@ -263,17 +263,17 @@ const AddStudents = () => {
     if (!curr_town || !towns.length) {
       return;
     }
-    
+
     console.log("Finding town in towns array:", curr_town);
     const selectedTown = towns.find(town => town.townName === curr_town);
-    
+
     if (!selectedTown) {
       console.warn(`Town '${curr_town}' not found in towns array:`, towns);
       return;
     }
-    
+
     console.log("Selected town details:", selectedTown);
-    
+
     // Update halts array
     if (Array.isArray(selectedTown.halts)) {
       setHalts(selectedTown.halts);
@@ -282,16 +282,16 @@ const AddStudents = () => {
       console.warn("Halts array is not valid:", selectedTown.halts);
       setHalts([]);
     }
-    
+
     // Update transport amount in form data
     if (selectedTown.amount) {
       setFormData(prev => ({
-          ...prev,
-          transportDetails: {
-            ...prev.transportDetails,
+        ...prev,
+        transportDetails: {
+          ...prev.transportDetails,
           amount: selectedTown.amount
         }
-        }));
+      }));
       console.log("Transport amount updated to:", selectedTown.amount);
     }
   }, [curr_town, towns]);
@@ -308,18 +308,18 @@ const AddStudents = () => {
           "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch towns: ${response.status} ${response.statusText}`);
       }
-      
+
       const townsData = await response.json();
-      
+
       if (!townsData.success) {
         toast.error(townsData.message || "Failed to fetch towns");
         return;
       }
-      
+
       setTowns(townsData.data || []);
       console.log("Fetched towns:", townsData.data);
     } catch (error) {
@@ -327,16 +327,16 @@ const AddStudents = () => {
       toast.error(`Error fetching transport details: ${error.message}`);
     }
   };
-  
+
   const fetchbusdetails = async (townname) => {
     if (!townname) {
       console.warn("Town name is empty, cannot fetch buses");
       return;
     }
-    
+
     const token = localStorage.getItem("token");
     console.log("Fetching buses for town:", townname, "academic year:", acid);
-    
+
     try {
       const bus_response = await fetch(Allapi.getByPlaceBus.url(acid), {
         method: Allapi.getByPlaceBus.method,
@@ -352,13 +352,13 @@ const AddStudents = () => {
       }
 
       const busesData = await bus_response.json();
-      
+
       if (!busesData.success) {
         toast.error(busesData.message || "Failed to fetch buses");
         setBuses([]);
         return;
       }
-      
+
       setBuses(busesData.data || []);
       console.log("Fetched buses:", busesData.data);
     } catch (error) {
@@ -471,7 +471,7 @@ const AddStudents = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // For name and surname fields, capitalize the first letter
     if (name === 'name' || name === 'surname') {
       setFormData({
@@ -482,12 +482,12 @@ const AddStudents = () => {
     // For nested address fields
     else if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      
+
       // Handle town selection specifically
       if (parent === 'transportDetails' && child === 'town') {
         setcurr_town(value); // Update current town state to trigger useEffect
       }
-      
+
       setFormData({
         ...formData,
         [parent]: {
@@ -495,7 +495,7 @@ const AddStudents = () => {
           [child]: value,
         },
       });
-    } 
+    }
     // For all other fields
     else {
       setFormData({
@@ -685,13 +685,16 @@ const AddStudents = () => {
       toast.error("Section is required.");
       return;
     }
+    if (!formData.aadharNo) {
+      toast.error("Aadhar number is required.");
+    }
 
     // Check valid date of birth if provided
     if (formData.dob) {
-    const dobDate = new Date(formData.dob);
+      const dobDate = new Date(formData.dob);
       if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
-      toast.error("Please enter a valid date of birth.");
-      return;
+        toast.error("Please enter a valid date of birth.");
+        return;
       }
     }
 
@@ -706,7 +709,7 @@ const AddStudents = () => {
       toast.error("Aadhar number must be 12 digits");
       return;
     }
-    
+
     // Student AAPR validation - only if provided
     if (formData.studentAAPR && !/^\d{12}$/.test(formData.studentAAPR)) {
       toast.error("Student AAPR number must be 12 digits");
@@ -730,23 +733,23 @@ const AddStudents = () => {
       toast.error("Street in address is required.");
       return;
     }
-    
+
     if (!formData.address.city || formData.address.city.trim() === "") {
       toast.error("City in address is required.");
       return;
     }
 
-    if (formData.address.pincode && !/^\d{6}$/.test(formData.address.pincode)) {
-      toast.error("Valid pincode is required (6 digits).");
-      return;
-    }
+    // if (formData.address.pincode && !/^\d{6}$/.test(formData.address.pincode)) {
+    //   toast.error("Valid pincode is required (6 digits).");
+    //   return;
+    // }
 
     // Family Aadhar validations - only if provided
     if (formData.fatherAadhar && !/^\d{12}$/.test(formData.fatherAadhar)) {
       toast.error("Father's Aadhar number must be 12 digits if provided.");
       return;
     }
-    
+
     if (formData.motherAadhar && !/^\d{12}$/.test(formData.motherAadhar)) {
       toast.error("Mother's Aadhar number must be 12 digits if provided.");
       return;
@@ -759,25 +762,25 @@ const AddStudents = () => {
         toast.error("Town is required for transport details.");
         return;
       }
-      
+
       // Check if bus is selected
       if (!formData.transportDetails.bus || formData.transportDetails.bus.trim() === "") {
         toast.error("Bus is required for transport details.");
         return;
       }
-      
+
       // Check if halt is selected
       if (!formData.transportDetails.halt || formData.transportDetails.halt.trim() === "") {
         toast.error("Halt is required for transport details.");
         return;
       }
-      
+
       // Validate amount is present and valid
       if (!formData.transportDetails.amount || isNaN(formData.transportDetails.amount) || formData.transportDetails.amount <= 0) {
         toast.error("Valid transport amount is required.");
         return;
       }
-      
+
       // Validate transport fee is added to fee details
       const transportFeeAdded = formData.feeDetails.some(fee => fee.name === "Transport-fee");
       if (!transportFeeAdded) {
@@ -809,7 +812,7 @@ const AddStudents = () => {
         toast.error("Terms for hostel details are required.");
         return;
       }
-      
+
       // Validate hostel fee is added to fee details
       const hostelFeeAdded = formData.feeDetails.some(fee => fee.name === "hostel-fee");
       if (!hostelFeeAdded) {
@@ -837,18 +840,18 @@ const AddStudents = () => {
     const prepareFormDataForSubmission = () => {
       // Create a copy of formData to modify
       const dataToSubmit = { ...formData };
-      
+
       // Ensure address.pincode is always set (even to empty string)
       // This maintains compatibility with the backend schema
-      if (!dataToSubmit.address.pincode) {
-        dataToSubmit.address.pincode = "";
-      }
-      
+      // if (!dataToSubmit.address.pincode) {
+      //   dataToSubmit.address.pincode = "";
+      // }
+
       // Ensure photo field exists but can be empty
-      if (!dataToSubmit.photo) {
-        dataToSubmit.photo = "";
-      }
-      
+      // if (!dataToSubmit.photo) {
+      //   dataToSubmit.photo = "";
+      // }
+
       return dataToSubmit;
     };
 
@@ -856,7 +859,7 @@ const AddStudents = () => {
     try {
       const token = localStorage.getItem("token");
       console.log("Submitting data to API:", prepareFormDataForSubmission());
-      
+
       // Make API request with prepared data
       const res = await fetch(Allapi.addStudent.url, {
         method: Allapi.addStudent.method,
@@ -866,12 +869,12 @@ const AddStudents = () => {
         },
         body: JSON.stringify(prepareFormDataForSubmission()),
       });
-      
+
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`API error: ${res.status} ${res.statusText} - ${errorText}`);
       }
-      
+
       const fres = await res.json();
 
       if (fres.success) {
@@ -906,7 +909,7 @@ const AddStudents = () => {
             doorNo: "",
             street: "",
             city: "",
-            pincode: "",
+            // pincode: "",
           },
           transport: false,
           transportDetails: {
@@ -934,7 +937,7 @@ const AddStudents = () => {
 
   const handleTownChange = (e) => {
     const selectedTown = e.target.value;
-    
+
     // Update form data
     setFormData(prevData => ({
       ...prevData,
@@ -945,10 +948,10 @@ const AddStudents = () => {
         halt: "" // Reset halt when town changes
       }
     }));
-    
+
     // Set current town to trigger useEffect for fetching buses
     setcurr_town(selectedTown);
-    
+
     // Clear buses and halts if no town is selected
     if (!selectedTown) {
       setBuses([]);
@@ -1110,6 +1113,8 @@ const AddStudents = () => {
               type="text"
               name="aadharNo"
               value={formData.aadharNo}
+              maxLength={12}
+              pattern="\d{12}"
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
             />
@@ -1169,6 +1174,8 @@ const AddStudents = () => {
               name="fatherAadhar"
               value={formData.fatherAadhar}
               onChange={handleChange}
+              maxLength={12}
+              pattern="\d{12}"
               className="input-field border-2 border-black text-black bg-white"
             />
           </div>
@@ -1206,6 +1213,8 @@ const AddStudents = () => {
               name="motherAadhar"
               value={formData.motherAadhar}
               onChange={handleChange}
+              maxLength={12}
+              pattern="\d{12}"
               className="input-field border-2 border-black text-black bg-white"
             />
           </div>
@@ -1283,14 +1292,14 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
             />
-            <input
+            {/* <input
               type="text"
               name="address.pincode"
               placeholder="Pincode"
               value={formData.address.pincode}
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
-            />
+            /> */}
           </div>
         </div>
 
@@ -1340,8 +1349,8 @@ const AddStudents = () => {
                         {bus.busNo}
                       </option>
                     )) : (
-                    <option disabled>No buses available</option>
-                  )}
+                      <option disabled>No buses available</option>
+                    )}
                 </select>
               </div>
               <div>

@@ -46,7 +46,7 @@ const studentSchema = new mongoose.Schema({
     doorNo: String,
     street: String,
     city: String,
-    pincode: String,
+    // pincode: String,
   },
   transport: Boolean,
   transportDetails: {
