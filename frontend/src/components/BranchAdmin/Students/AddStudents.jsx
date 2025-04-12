@@ -70,6 +70,7 @@ const AddStudents = () => {
   const [curr_town, setcurr_town] = useState(null);
   const [stdcount, setstdcount] = useState(0);
   const [ysuffix, setysuffix] = useState(0);
+  const justAddedStudentRef = useRef(false);
 
   const Fees = [];
   const { acid } = useParams();
@@ -134,32 +135,93 @@ const AddStudents = () => {
 
       const studentCountData = await studentCountResponse.json();
       if (studentCountData.success) {
-
-        const currentCount = studentCountData.count;
-
-        const paddedCount = currentCount.toString().padStart(6, '0');
-        alert(paddedCount)
-        // Get the first two digits
-        const lastFourDigits = parseInt(paddedCount.slice(-4));
-
-        // Increment for the new student
+        // Get the current count from the API
+        let currentCount = studentCountData.count;
+        
+        console.log("API returned student count:", currentCount);
+        
+        // Create a localStorage key specific to this academic year
+        const localStorageKey = `student_count_${acid}`;
+        
+        // Check for existing stored count
+        const storedCount = localStorage.getItem(localStorageKey);
+        
+        // Only use the stored count if this isn't a fresh visit
+        // (in case someone else added students in another session)
+        if (storedCount) {
+          const parsedStoredCount = parseInt(storedCount, 10);
+          console.log("Found stored count in localStorage:", parsedStoredCount);
+          
+          // If our stored count is higher, use it (we've added students locally)
+          // Otherwise, use the API count (someone else may have added students)
+          if (!isNaN(parsedStoredCount) && parsedStoredCount > currentCount) {
+            console.log("Using stored count instead of API count");
+            currentCount = parsedStoredCount;
+          } else {
+            // If API count is higher or equal, update our localStorage
+            localStorage.setItem(localStorageKey, String(currentCount));
+            console.log("Updated localStorage with newer API count");
+          }
+        } else {
+          // First visit - initialize localStorage with API count
+          localStorage.setItem(localStorageKey, String(currentCount));
+          console.log("Initialized localStorage with API count");
+        }
+        
+        // Store the values in state
         setstdcount(currentCount);
         setysuffix(yearSuffix);
-        const prefix = parseInt(yearSuffix.padEnd(6, "0"))
-        console.log("last four digits are", lastFourDigits);
-        const id = `${String(prefix + lastFourDigits)}`;
-
-        // alert(id)
-        // Update the form data
-        setFormData((prev) => ({
+        
+        console.log("Year Suffix from academic year:", yearSuffix);
+        console.log("Final current student count:", currentCount);
+        
+        // Generate the next student ID
+        const studentId = generateNextStudentId(currentCount, yearSuffix);
+        console.log("Initial student ID:", studentId);
+        
+        // Make sure academic_id is set
+        setFormData(prev => ({
           ...prev,
-          idNo: id,
-          academic_id: acid,
+          academic_id: acid
         }));
       } else {
         throw new Error("Failed to retrieve student count data");
       }
     }
+  };
+
+  // Function to generate the next student ID
+  const generateNextStudentId = (currentCount, yearPrefix = "28") => {
+    // Next ID should be current count + 1
+    const nextId = currentCount + 1;
+        
+    // Pad the count to 4 digits (e.g., 0001, 0012, 0123)
+    const paddedCount = String(nextId).padStart(4, '0');
+    
+    // Always use "28" as the year prefix
+    const yearPrefixToUse = "28";
+    
+    // Create the ID
+    const studentId = `${yearPrefixToUse}${paddedCount}`;
+    
+    // Check if the ID has a duplicate prefix (like "2828")
+    let finalId = studentId;
+    if (finalId.startsWith("2828")) {
+      // Remove the duplicate prefix
+      finalId = "28" + finalId.substring(4);
+      console.log("Fixed duplicate prefix in ID. Original:", studentId, "Fixed:", finalId);
+    }
+    
+    console.log("Generated Student ID:", finalId);
+    
+    // Update the form data with the corrected ID
+    setFormData(prev => ({
+      ...prev,
+      idNo: finalId,
+      academic_id: acid // Make sure academic_id is set
+    }));
+    
+    return finalId;
   };
 
   const fetchFeeTypes = async (curr_Acad) => {
@@ -890,9 +952,30 @@ const AddStudents = () => {
       if (fres.success) {
         toast.success(`Student added successfully with Child ID: ${dataToSubmit.childId || "None"}`);
 
+        // Retrieve the current count
+        const localStorageKey = `student_count_${acid}`;
+        const storedCount = localStorage.getItem(localStorageKey) || "0";
+        const currentCount = parseInt(storedCount, 10);
+        
+        // Calculate the new count (ensure it's correct even if state wasn't synced)
+        const newCount = currentCount + 1;
+        
+        // Update localStorage with the new count
+        localStorage.setItem(localStorageKey, String(newCount));
+        
+        // Update state to match localStorage
+        setstdcount(newCount);
+        
+        console.log("Previous count:", currentCount);
+        console.log("Updated count after successful submission:", newCount);
+        
+        // Generate the next student ID for the form using the new count
+        const nextId = generateNextStudentId(newCount, ysuffix);
+        console.log("Next student ID:", nextId);
+
         // Reset form data and photo preview
         setFormData({
-          idNo: `${ysuffix}${String(stdcount + 1).padStart(4, "0")}`,
+          idNo: nextId, // Use the generated ID
           admissionNo: "",
           childId: "",
           surname: "",
@@ -902,7 +985,7 @@ const AddStudents = () => {
           section: "",
           dob: "",
           admissionDate: new Date().toISOString().split("T")[0],
-          academic_id: "",
+          academic_id: acid, // Make sure to set the academic_id
           aadharNo: "",
           studentAAPR: "",
           caste: "OC",
