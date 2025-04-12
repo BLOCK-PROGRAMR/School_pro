@@ -4,9 +4,6 @@ import Allapi from "../../../common";
 import { useParams } from "react-router-dom";
 import { useContext } from "react";
 import { mycon } from "../../../store/Mycontext";
-import { MdDelete } from "react-icons/md";
-const cloudName = import.meta.env.VITE_CLOUD_NAME;
-const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
 import { useReactToPrint } from "react-to-print";
 
 const AddStudents = () => {
@@ -14,6 +11,7 @@ const AddStudents = () => {
   const { branchdet } = useContext(mycon);
   const [hosteladd, sethosteladd] = useState(false);
   const [feeTypes, setFeeTypes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     idNo: "",
     admissionNo: "",
@@ -21,7 +19,7 @@ const AddStudents = () => {
     surname: "",
     name: "",
     gender: "",
-    branch: String(branchdet._id),
+    branch: String(branchdet?._id || ""),
     class: { name: "", id: "" },
     section: { name: "", id: "" },
     dob: "",
@@ -43,7 +41,6 @@ const AddStudents = () => {
       doorNo: "",
       street: "",
       city: "",
-      pincode: "",
     },
     transport: false,
     transportDetails: {
@@ -77,116 +74,108 @@ const AddStudents = () => {
   const casteOptions = ["OC", "BC", "SC", "ST"];
   const fatherOccupationOptions = ["Employee", "Business"];
   const motherOccupationOptions = ["Housewife", "Employee"];
-  useEffect(() => {
-    // Update feeDetails with default concession and calculated finalAmount
-    console.log("formdata feedetails", formData.feeDetails);
-    const updatedFees = formData.feeDetails.map((fee) => {
-      const concession = fee.concession || 0; // Default to 0 if concession is not set
-      const finalAmount =
-        concession === 0
-          ? fee.amount
-          : fee.amount - (fee.amount * concession) / 100;
 
-      return {
-        ...fee,
-        concession, // Ensure concession is set
-        finalAmount, // Calculate or set default finalAmount
-        terms: findObjectByKey(feeTypes, "type", fee.name), // Update terms
-      };
-    });
-
-    setFormData((prev) => ({
-      ...prev,
-      feeDetails: updatedFees, // Update feeDetails with the new values
-    }));
-  }, [formData.section.id]);
   const curracad = async (bid) => {
-    const response = await fetch(Allapi.getAcademicYears.url(bid), {
-      method: Allapi.getAcademicYears.method,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    try {
+      const response = await fetch(Allapi.getAcademicYears.url(bid), {
+        method: Allapi.getAcademicYears.method,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch academic years");
-    }
-
-    const res = await response.json();
-    if (res.success) {
-      const years = res.data;
-      const present_Acad = years.find((year) => year._id == acid);
-      const yearSuffix = present_Acad.year.slice(-2);
-
-      console.log("present academic is", yearSuffix);
-      const studentCountResponse = await fetch(
-        Allapi.getStudentCountByAcademicYear.url(acid),
-        {
-          method: Allapi.getStudentCountByAcademicYear.method,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (!studentCountResponse.ok) {
-        throw new Error("Failed to fetch student count for the academic year");
+      if (!response.ok) {
+        throw new Error("Failed to fetch academic years");
       }
 
-      const studentCountData = await studentCountResponse.json();
-      if (studentCountData.success) {
-        // Get the current count from the API
-        let currentCount = studentCountData.count;
-        
-        console.log("API returned student count:", currentCount);
-        
-        // Create a localStorage key specific to this academic year
-        const localStorageKey = `student_count_${acid}`;
-        
-        // Check for existing stored count
-        const storedCount = localStorage.getItem(localStorageKey);
-        
-        // Only use the stored count if this isn't a fresh visit
-        // (in case someone else added students in another session)
-        if (storedCount) {
-          const parsedStoredCount = parseInt(storedCount, 10);
-          console.log("Found stored count in localStorage:", parsedStoredCount);
-          
-          // If our stored count is higher, use it (we've added students locally)
-          // Otherwise, use the API count (someone else may have added students)
-          if (!isNaN(parsedStoredCount) && parsedStoredCount > currentCount) {
-            console.log("Using stored count instead of API count");
-            currentCount = parsedStoredCount;
-          } else {
-            // If API count is higher or equal, update our localStorage
-            localStorage.setItem(localStorageKey, String(currentCount));
-            console.log("Updated localStorage with newer API count");
+      const res = await response.json();
+      if (res.success) {
+        const years = res.data;
+        const present_Acad = years.find((year) => year._id === acid);
+
+        if (!present_Acad) {
+          throw new Error("Academic year not found");
+        }
+
+        const yearSuffix = present_Acad.year.slice(-2);
+
+        const studentCountResponse = await fetch(
+          Allapi.getStudentCountByAcademicYear.url(acid),
+          {
+            method: Allapi.getStudentCountByAcademicYear.method,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
-        } else {
-          // First visit - initialize localStorage with API count
-          localStorage.setItem(localStorageKey, String(currentCount));
-          console.log("Initialized localStorage with API count");
+        );
+
+        if (!studentCountResponse.ok) {
+          throw new Error("Failed to fetch student count");
         }
-        
-        // Store the values in state
-        setstdcount(currentCount);
-        setysuffix(yearSuffix);
-        
-        console.log("Year Suffix from academic year:", yearSuffix);
-        console.log("Final current student count:", currentCount);
-        
-        // Generate the next student ID
-        const studentId = generateNextStudentId(currentCount, yearSuffix);
-        console.log("Initial student ID:", studentId);
-        
-        // Make sure academic_id is set
-        setFormData(prev => ({
-          ...prev,
-          academic_id: acid
-        }));
-      } else {
-        throw new Error("Failed to retrieve student count data");
+
+        const studentCountData = await studentCountResponse.json();
+
+        if (studentCountData.success) {
+          // Get the current count from the API
+          let currentCount = studentCountData.count;
+          
+          console.log("API returned student count:", currentCount);
+          
+          // Create a localStorage key specific to this academic year
+          const localStorageKey = `student_count_${acid}`;
+          
+          // Check for existing stored count
+          const storedCount = localStorage.getItem(localStorageKey);
+          
+          // Only use the stored count if this isn't a fresh visit
+          // (in case someone else added students in another session)
+          if (storedCount) {
+            const parsedStoredCount = parseInt(storedCount, 10);
+            console.log("Found stored count in localStorage:", parsedStoredCount);
+            
+            // If our stored count is higher, use it (we've added students locally)
+            // Otherwise, use the API count (someone else may have added students)
+            if (!isNaN(parsedStoredCount) && parsedStoredCount > currentCount) {
+              console.log("Using stored count instead of API count");
+              currentCount = parsedStoredCount;
+            } else {
+              // If API count is higher or equal, update our localStorage
+              localStorage.setItem(localStorageKey, String(currentCount));
+              console.log("Updated localStorage with newer API count");
+            }
+          } else {
+            // First visit - initialize localStorage with API count
+            localStorage.setItem(localStorageKey, String(currentCount));
+            console.log("Initialized localStorage with API count");
+          }
+          
+          // Store the values in state
+          setstdcount(currentCount);
+          setysuffix(yearSuffix);
+          
+          console.log("Year Suffix from academic year:", yearSuffix);
+          console.log("Final current student count:", currentCount);
+          
+          // Generate the ID without incrementing yet
+          const nextCount = currentCount + 1;
+          const paddedCount = String(nextCount).padStart(4, '0');
+          const studentId = `28${paddedCount}`;
+          
+          console.log("Generated Student ID:", studentId);
+          
+          // Update the form data
+          setFormData(prev => ({
+            ...prev,
+            idNo: studentId,
+            academic_id: acid
+          }));
+        } else {
+          throw new Error("Failed to retrieve student count data");
+        }
       }
+    } catch (error) {
+      console.error("Error in curracad:", error);
+      toast.error(error.message);
     }
   };
 
@@ -246,41 +235,75 @@ const AddStudents = () => {
     }
   };
 
+  const fetchClasses = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(Allapi.getClasses.url(acid), {
+        method: Allapi.getClasses.method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setClasses(result.data);
+      } else {
+        toast.error(result.message || "Failed to fetch classes");
+      }
+    } catch (error) {
+      toast.error("Error fetching classes");
+    }
+  };
+
+  useEffect(() => {
+    const initializeData = async () => {
+      if (branchdet?._id && acid) {
+        try {
+          setIsLoading(true);
+          await curracad(branchdet._id);
+          await fetchFeeTypes(acid);
+          await fetchClasses();
+        } catch (error) {
+          console.error("Error initializing data:", error);
+          toast.error("Failed to load initial data");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initializeData();
+  }, [branchdet, acid]);
+
   useEffect(() => {
     if (acid) {
       fetchFeeTypes(acid);
     }
   }, [acid]);
+
   useEffect(() => {
-    if (branchdet && branchdet._id && acid) {
-      curracad(branchdet._id);
-    }
+    const updatedFees = formData.feeDetails.map((fee) => {
+      const concession = fee.concession || 0;
+      const finalAmount =
+        concession === 0
+          ? fee.amount
+          : fee.amount - (fee.amount * concession) / 100;
 
-    const fetchClasses = async () => {
-      const token = localStorage.getItem("token");
-      try {
-        const response = await fetch(Allapi.getClasses.url(acid), {
-          method: Allapi.getClasses.method,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+      return {
+        ...fee,
+        concession,
+        finalAmount,
+        terms: findObjectByKey(feeTypes, "type", fee.name),
+      };
+    });
 
-        const result = await response.json();
-        if (result.success) {
-          setClasses(result.data);
-          console.log("classes are", classes);
-        } else {
-          toast.error(result.message || "Failed to fetch classes");
-        }
-      } catch (error) {
-        toast.error("Error fetching classes");
-      }
-    };
-
-    if (acid) fetchClasses();
-  }, [branchdet]);
+    setFormData((prev) => ({
+      ...prev,
+      feeDetails: updatedFees,
+    }));
+  }, [formData.section.id]);
 
   useEffect(() => {
     const fetchSections = async (className, curr_acad) => {
@@ -307,59 +330,45 @@ const AddStudents = () => {
       }
     };
     if (classname != null && acid) {
-      console.log("classname is", classname);
-      console.log("acid is", acid);
       fetchSections(classname, acid);
     }
   }, [branchdet, classname, acid]);
 
   useEffect(() => {
     if (curr_town) {
-      console.log("Fetching buses for town:", curr_town);
       fetchbusdetails(curr_town);
     }
   }, [curr_town]);
 
-  // Set halts when both towns and curr_town are available
   useEffect(() => {
     if (!curr_town || !towns.length) {
       return;
     }
-    
-    console.log("Finding town in towns array:", curr_town);
+
     const selectedTown = towns.find(town => town.townName === curr_town);
-    
+
     if (!selectedTown) {
-      console.warn(`Town '${curr_town}' not found in towns array:`, towns);
       return;
     }
-    
-    console.log("Selected town details:", selectedTown);
-    
-    // Update halts array
+
     if (Array.isArray(selectedTown.halts)) {
       setHalts(selectedTown.halts);
-      console.log("Halts updated to:", selectedTown.halts);
     } else {
-      console.warn("Halts array is not valid:", selectedTown.halts);
       setHalts([]);
     }
-    
-    // Update transport amount in form data
+
     if (selectedTown.amount) {
       setFormData(prev => ({
-          ...prev,
-          transportDetails: {
-            ...prev.transportDetails,
+        ...prev,
+        transportDetails: {
+          ...prev.transportDetails,
           amount: selectedTown.amount
         }
-        }));
-      console.log("Transport amount updated to:", selectedTown.amount);
+      }));
     }
   }, [curr_town, towns]);
 
   const fetchTransportDetails = async () => {
-    console.log("Fetching towns for academic year:", acid);
     const token = localStorage.getItem("token");
 
     try {
@@ -370,35 +379,32 @@ const AddStudents = () => {
           "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch towns: ${response.status} ${response.statusText}`);
       }
-      
+
       const townsData = await response.json();
-      
+
       if (!townsData.success) {
         toast.error(townsData.message || "Failed to fetch towns");
         return;
       }
-      
+
       setTowns(townsData.data || []);
-      console.log("Fetched towns:", townsData.data);
     } catch (error) {
       console.error("Error fetching towns:", error);
       toast.error(`Error fetching transport details: ${error.message}`);
     }
   };
-  
+
   const fetchbusdetails = async (townname) => {
     if (!townname) {
-      console.warn("Town name is empty, cannot fetch buses");
       return;
     }
-    
+
     const token = localStorage.getItem("token");
-    console.log("Fetching buses for town:", townname, "academic year:", acid);
-    
+
     try {
       const bus_response = await fetch(Allapi.getByPlaceBus.url(acid), {
         method: Allapi.getByPlaceBus.method,
@@ -414,15 +420,14 @@ const AddStudents = () => {
       }
 
       const busesData = await bus_response.json();
-      
+
       if (!busesData.success) {
         toast.error(busesData.message || "Failed to fetch buses");
         setBuses([]);
         return;
       }
-      
+
       setBuses(busesData.data || []);
-      console.log("Fetched buses:", busesData.data);
     } catch (error) {
       console.error("Error fetching buses:", error);
       toast.error(`Error fetching buses: ${error.message}`);
@@ -451,53 +456,30 @@ const AddStudents = () => {
   };
 
   function findObjectByKey(array, key, value) {
-    console.log("Array is", array);
-    console.log("key is", key);
-    console.log("value is", value);
-
-    const foundObject = array.find((obj) => {
-      // console.log("Checking object:", obj);
-      return obj[key] === value; // Ensure the callback returns the condition
-    });
-
-    console.log("foundobj", foundObject);
-
+    const foundObject = array.find((obj) => obj[key] === value);
     return foundObject ? foundObject.terms : undefined;
   }
+
   const handleClassChange = (e) => {
     const selectedClass = classes.find((cls) => cls.name === e.target.value);
 
-    console.log("selected class is ", selectedClass);
-    // console.log("selected class name", selectedClass.name);
     setFormData((prev) => ({
       ...prev,
-      class: { name: selectedClass.name, id: selectedClass._id }, // Set both class name and id
-      section: "", // Reset section if class changes
+      class: { name: selectedClass.name, id: selectedClass._id },
+      section: "",
       feeDetails: [],
     }));
-    console.log("form data in classchange is", formData);
     setClassname(selectedClass.name);
-    console.log("classname current is", classname);
-    console.log("fee types", feeTypes);
   };
 
   const handleSectionChange = async (e) => {
     const selectedSection = sections.find((sec) => sec.name === e.target.value);
-    console.log("selected section is", selectedSection);
     setFormData((prev) => ({
       ...prev,
       section: { name: selectedSection.name, id: selectedSection._id },
     }));
 
-    // {selectedSection.fees && selectedSection.fees.map((fee,index)=>{
-    //   setfees((prev)=>({
-    //     ...prev,
-
-    //   }))
-    // })}
     if (selectedSection.fees) {
-      console.log("current sec fees are", selectedSection.fees);
-
       setFormData((prev) => ({
         ...prev,
         feeDetails: selectedSection.fees.map((fees) => ({
@@ -506,8 +488,6 @@ const AddStudents = () => {
         })),
       }));
     }
-    console.log("form fee", formData.feeDetails);
-    console.log(" curr fees are ", Fees);
   };
 
   const handleHostelChange = (e) => {
@@ -533,15 +513,12 @@ const AddStudents = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // For name and surname fields, capitalize the first letter
+
     if (name === 'childId') {
-      console.log("Updating childId to:", value);
       setFormData({
         ...formData,
         childId: value
       });
-      console.log("Updated formData childId:", formData.childId);
     }
     else if (name === 'name' || name === 'surname') {
       setFormData({
@@ -549,15 +526,13 @@ const AddStudents = () => {
         [name]: capitalizeFirstLetter(value),
       });
     }
-    // For nested address fields
     else if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      
-      // Handle town selection specifically
+
       if (parent === 'transportDetails' && child === 'town') {
-        setcurr_town(value); // Update current town state to trigger useEffect
+        setcurr_town(value);
       }
-      
+
       setFormData({
         ...formData,
         [parent]: {
@@ -565,8 +540,7 @@ const AddStudents = () => {
           [child]: value,
         },
       });
-    } 
-    // For all other fields
+    }
     else {
       setFormData({
         ...formData,
@@ -576,7 +550,6 @@ const AddStudents = () => {
   };
 
   function addTfee() {
-    console.log("form dta ", formData);
     if (formData.transport == true && formData.transportDetails.amount != 0) {
       const checkTfee = formData.feeDetails.some(
         (fee) => fee.name === "Transport-fee"
@@ -600,14 +573,11 @@ const AddStudents = () => {
       }
     }
   }
-  function addfee() {
-    console.log("adding hostel");
-    console.log("current fees are", Fees);
 
+  function addfee() {
     const checkfee = formData.feeDetails.some(
       (fee) => fee.name === "hostel-fee"
     );
-    console.log("checkfee is", checkfee);
     if (!checkfee) {
       setFormData((prev) => ({
         ...prev,
@@ -624,12 +594,10 @@ const AddStudents = () => {
       }));
       sethosteladd(true);
 
-      console.log("fee form data hostel", formData);
       Fees.push({
         name: "hostel-fee",
         amount: formData.hostelDetails.hostelFee,
       });
-      console.log("all fees are", Fees);
     } else {
       toast.error("Hostel Fee added already");
     }
@@ -642,10 +610,8 @@ const AddStudents = () => {
     );
 
   const handlePrint = () => {
-    // Get the table to print
     const printContents = document.querySelector("table").outerHTML;
 
-    // Add CSS for table formatting
     const style = `
       <style>
         .maintitle {
@@ -687,10 +653,8 @@ const AddStudents = () => {
       </style>
     `;
 
-    // Open a new window for printing
     const printWindow = window.open("", "_blank");
 
-    // Write contents to the new window
     printWindow.document.write(`
       <html>
         <head>
@@ -723,11 +687,10 @@ const AddStudents = () => {
       </html>
     `);
 
-    // Print the window content
-    printWindow.document.close(); // Close document for additional changes
-    printWindow.focus(); // Ensure focus on the print window
-    printWindow.print(); // Trigger print dialog
-    printWindow.close(); // Close the print window after printing
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
   const handleSubmit = async (e) => {
@@ -735,193 +698,151 @@ const AddStudents = () => {
     console.log("Submitting form data:", formData);
 
     // Validate required fields
-    if (!formData.name || formData.name.trim() === "") {
-      toast.error("Student name is required.");
-      return;
-    }
-    if (!formData.surname || formData.surname.trim() === "") {
-      toast.error("Surname is required.");
-      return;
-    }
-    if (!formData.gender) {
-      toast.error("Gender is required.");
-      return;
-    }
-    if (!formData.class) {
-      toast.error("Class is required.");
-      return;
-    }
-    if (!formData.section) {
-      toast.error("Section is required.");
-      return;
-    }
+      if (!formData.name || formData.name.trim() === "") {
+        toast.error("Student name is required.");
+        return;
+      }
+      if (!formData.surname || formData.surname.trim() === "") {
+        toast.error("Surname is required.");
+        return;
+      }
+      if (!formData.gender) {
+        toast.error("Gender is required.");
+        return;
+      }
+      if (!formData.class) {
+        toast.error("Class is required.");
+        return;
+      }
+      if (!formData.section) {
+        toast.error("Section is required.");
+        return;
+      }
 
     // Check valid date of birth if provided
-    if (formData.dob) {
-      const dobDate = new Date(formData.dob);
-      if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
-        toast.error("Please enter a valid date of birth.");
-        return;
+      if (formData.dob) {
+        const dobDate = new Date(formData.dob);
+        if (isNaN(dobDate.getTime()) || dobDate > new Date()) {
+          toast.error("Please enter a valid date of birth.");
+          return;
+        }
       }
-    }
 
     // Admission number validation - only if provided
-    if (formData.admissionNo && formData.admissionNo.length >= 10) {
-      toast.error("Admission number must be less than 10 characters.");
-      return;
-    }
+      if (formData.admissionNo && formData.admissionNo.length >= 10) {
+        toast.error("Admission number must be less than 10 characters.");
+        return;
+      }
 
     // Aadhar validation - required field
-    if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
-      toast.error("Student Aadhar number is required and must be 12 digits");
-      return;
-    }
-    
+      if (!formData.aadharNo || !/^\d{12}$/.test(formData.aadharNo)) {
+        toast.error("Student Aadhar number is required and must be 12 digits");
+        return;
+      }
+
     // Student AAPR validation - only if provided
-    if (formData.studentAAPR && !/^\d{12}$/.test(formData.studentAAPR)) {
-      toast.error("Student AAPR number must be 12 digits");
-      return;
-    }
+      if (formData.studentAAPR && !/^\d{12}$/.test(formData.studentAAPR)) {
+        toast.error("Student AAPR number must be 12 digits");
+        return;
+      }
 
     // Contact number validations
-    if (!formData.whatsappNo || !/^\d{10}$/.test(formData.whatsappNo)) {
-      toast.error("Valid WhatsApp number is required (10 digits).");
-      return;
-    }
+      if (!formData.whatsappNo || !/^\d{10}$/.test(formData.whatsappNo)) {
+        toast.error("Valid WhatsApp number is required (10 digits).");
+        return;
+      }
 
     // Emergency contact validation - only if provided
-    if (formData.emergencyContact && !/^\d{10}$/.test(formData.emergencyContact)) {
-      toast.error("Emergency contact must be 10 digits if provided.");
-      return;
-    }
-
-    // Address validations - street and city required, door number optional
-    if (!formData.address.street || formData.address.street.trim() === "") {
-      toast.error("Street in address is required.");
-      return;
-    }
-    
-    if (!formData.address.city || formData.address.city.trim() === "") {
-      toast.error("City in address is required.");
-      return;
-    }
-
-    if (formData.address.pincode && !/^\d{6}$/.test(formData.address.pincode)) {
-      toast.error("Valid pincode is required (6 digits).");
-      return;
-    }
-
-    // Family Aadhar validations - only if provided
-    if (formData.fatherAadhar && !/^\d{12}$/.test(formData.fatherAadhar)) {
-      toast.error("Father's Aadhar number must be 12 digits if provided.");
-      return;
-    }
-    
-    if (formData.motherAadhar && !/^\d{12}$/.test(formData.motherAadhar)) {
-      toast.error("Mother's Aadhar number must be 12 digits if provided.");
-      return;
-    }
+      if (formData.emergencyContact && !/^\d{10}$/.test(formData.emergencyContact)) {
+        toast.error("Emergency contact must be 10 digits if provided.");
+        return;
+      }
 
     // Transport validations
-    if (formData.transport) {
+      if (formData.transport) {
       // Check if town is selected
-      if (!formData.transportDetails.town || formData.transportDetails.town.trim() === "") {
-        toast.error("Town is required for transport details.");
-        return;
-      }
-      
+        if (!formData.transportDetails.town || formData.transportDetails.town.trim() === "") {
+          toast.error("Town is required for transport details.");
+          return;
+        }
+
       // Check if bus is selected
-      if (!formData.transportDetails.bus || formData.transportDetails.bus.trim() === "") {
-        toast.error("Bus is required for transport details.");
-        return;
-      }
-      
+        if (!formData.transportDetails.bus || formData.transportDetails.bus.trim() === "") {
+          toast.error("Bus is required for transport details.");
+          return;
+        }
+
       // Check if halt is selected
-      if (!formData.transportDetails.halt || formData.transportDetails.halt.trim() === "") {
-        toast.error("Halt is required for transport details.");
-        return;
-      }
-      
+        if (!formData.transportDetails.halt || formData.transportDetails.halt.trim() === "") {
+          toast.error("Halt is required for transport details.");
+          return;
+        }
+
       // Validate amount is present and valid
-      if (!formData.transportDetails.amount || isNaN(formData.transportDetails.amount) || formData.transportDetails.amount <= 0) {
-        toast.error("Valid transport amount is required.");
-        return;
-      }
-      
+        if (!formData.transportDetails.amount || isNaN(formData.transportDetails.amount) || formData.transportDetails.amount <= 0) {
+          toast.error("Valid transport amount is required.");
+          return;
+        }
+
       // Validate transport fee is added to fee details
-      const transportFeeAdded = formData.feeDetails.some(fee => fee.name === "Transport-fee");
-      if (!transportFeeAdded) {
-        toast.error("Please add transport fee by clicking the 'Add Transport Fee' button.");
-        return;
-      }
+        const transportFeeAdded = formData.feeDetails.some(fee => fee.name === "Transport-fee");
+        if (!transportFeeAdded) {
+          toast.error("Please add transport fee by clicking the 'Add Transport Fee' button.");
+          return;
+        }
     } else {
       // If transport not required, ensure transportDetails is not present in submission
       const dataToSubmit = { ...formData };
       delete dataToSubmit.transportDetails;
       setFormData(dataToSubmit);
-    }
+      }
 
     // Check hostel details
-    if (formData.hostel) {
+      if (formData.hostel) {
       // Validate hostel details
-      if (
-        !formData.hostelDetails.hostelFee ||
-        isNaN(formData.hostelDetails.hostelFee) ||
-        formData.hostelDetails.hostelFee <= 0
-      ) {
-        toast.error("Valid hostel fee is required.");
-        return;
-      }
-      if (
-        !formData.hostelDetails.terms ||
-        formData.hostelDetails.terms.trim() === ""
-      ) {
-        toast.error("Terms for hostel details are required.");
-        return;
-      }
-      
+        if (
+          !formData.hostelDetails.hostelFee ||
+          isNaN(formData.hostelDetails.hostelFee) ||
+          formData.hostelDetails.hostelFee <= 0
+        ) {
+          toast.error("Valid hostel fee is required.");
+          return;
+        }
+        if (
+          !formData.hostelDetails.terms ||
+          formData.hostelDetails.terms.trim() === ""
+        ) {
+          toast.error("Terms for hostel details are required.");
+          return;
+        }
+
       // Validate hostel fee is added to fee details
-      const hostelFeeAdded = formData.feeDetails.some(fee => fee.name === "hostel-fee");
-      if (!hostelFeeAdded) {
-        toast.error("Please add hostel fee by clicking the 'Add Hostel Fee' button.");
-        return;
-      }
+        const hostelFeeAdded = formData.feeDetails.some(fee => fee.name === "hostel-fee");
+        if (!hostelFeeAdded) {
+          toast.error("Please add hostel fee by clicking the 'Add Hostel Fee' button.");
+          return;
+        }
     } else {
       // If hostel not required, ensure hostelDetails is not present in submission
       const dataToSubmit = { ...formData };
       delete dataToSubmit.hostelDetails;
       setFormData(dataToSubmit);
-    }
+      }
 
     // Check if feeDetails array is valid
-    if (
-      !formData.feeDetails ||
-      !Array.isArray(formData.feeDetails) ||
-      formData.feeDetails.length === 0
-    ) {
-      toast.error("At least one fee detail must be provided.");
-      return;
-    }
+      if (
+        !formData.feeDetails ||
+        !Array.isArray(formData.feeDetails) ||
+        formData.feeDetails.length === 0
+      ) {
+        toast.error("At least one fee detail must be provided.");
+        return;
+      }
 
     // Add function to prepare data for submission
     const prepareFormDataForSubmission = () => {
       // Create a copy of formData to modify
       const dataToSubmit = { ...formData };
-      
-      // Ensure address.pincode is always set (even to empty string)
-      // This maintains compatibility with the backend schema
-      if (!dataToSubmit.address.pincode) {
-        dataToSubmit.address.pincode = "";
-      }
-      
-      // Ensure photo field exists but can be empty
-      if (!dataToSubmit.photo) {
-        dataToSubmit.photo = "";
-      }
-      
-      // Explicitly ensure childId is included
-      console.log("Child ID before submission:", dataToSubmit.childId);
-      
       return dataToSubmit;
     };
 
@@ -931,7 +852,8 @@ const AddStudents = () => {
       const dataToSubmit = prepareFormDataForSubmission();
       console.log("Submitting data to API:", dataToSubmit);
       console.log("Child ID being submitted:", dataToSubmit.childId);
-      
+      console.log("data to submit", dataToSubmit);
+
       // Make API request with prepared data
       const res = await fetch(Allapi.addStudent.url, {
         method: Allapi.addStudent.method,
@@ -941,12 +863,12 @@ const AddStudents = () => {
         },
         body: JSON.stringify(dataToSubmit),
       });
-      
+
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`API error: ${res.status} ${res.statusText} - ${errorText}`);
       }
-      
+
       const fres = await res.json();
 
       if (fres.success) {
@@ -973,7 +895,7 @@ const AddStudents = () => {
         const nextId = generateNextStudentId(newCount, ysuffix);
         console.log("Next student ID:", nextId);
 
-        // Reset form data and photo preview
+        // Reset form data
         setFormData({
           idNo: nextId, // Use the generated ID
           admissionNo: "",
@@ -1002,7 +924,6 @@ const AddStudents = () => {
             doorNo: "",
             street: "",
             city: "",
-            pincode: "",
           },
           transport: false,
           transportDetails: {
@@ -1030,22 +951,19 @@ const AddStudents = () => {
 
   const handleTownChange = (e) => {
     const selectedTown = e.target.value;
-    
-    // Update form data
+
     setFormData(prevData => ({
       ...prevData,
       transportDetails: {
         ...prevData.transportDetails,
         town: selectedTown,
-        bus: "", // Reset bus when town changes
-        halt: "" // Reset halt when town changes
+        bus: "",
+        halt: ""
       }
     }));
-    
-    // Set current town to trigger useEffect for fetching buses
+
     setcurr_town(selectedTown);
-    
-    // Clear buses and halts if no town is selected
+
     if (!selectedTown) {
       setBuses([]);
       setHalts([]);
@@ -1073,6 +991,14 @@ const AddStudents = () => {
       }
     }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-xl font-semibold">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 text-black rounded-lg shadow-md max-w-4xl mx-auto">
@@ -1382,14 +1308,6 @@ const AddStudents = () => {
               onChange={handleChange}
               className="input-field border-2 border-black text-black bg-white"
             />
-            <input
-              type="text"
-              name="address.pincode"
-              placeholder="Pincode"
-              value={formData.address.pincode}
-              onChange={handleChange}
-              className="input-field border-2 border-black text-black bg-white"
-            />
           </div>
         </div>
 
@@ -1439,8 +1357,8 @@ const AddStudents = () => {
                         {bus.busNo}
                       </option>
                     )) : (
-                    <option disabled>No buses available</option>
-                  )}
+                      <option disabled>No buses available</option>
+                    )}
                 </select>
               </div>
               <div>
@@ -1625,7 +1543,6 @@ const AddStudents = () => {
                 </td>
                 <td className="px-6 py-4 text-md text-black">
                   {calculateTotalFee().toFixed(2)}
-                  {console.log("fee", formData)}
                 </td>
               </tr>
             </tfoot>

@@ -5,20 +5,30 @@ const bcrypt = require("bcryptjs");
 const Trash = require("../models/trash");
 const bus = require("../models/Bus");
 
+//add student
 // Add a new student
 exports.addStudent = async (req, res) => {
   try {
     const { idNo, aadharNo, name, childId } = req.body;
     console.log("aadhar no", aadharNo);
     console.log("childId received:", childId);
-    
-    // Check if a student with the same idNo already exists
+    console.log("req.body", req.body);
+
+    // Check if a student with the same aadharNo already exists
     const existingStudent = await Student.findOne({ aadharNo });
     if (existingStudent) {
       return res.status(400).json({
         success: false,
         message: `Aadhar number already exists-* `,
       });
+    }
+
+    // ✅ Fix: Replace empty string in bus with undefined
+    if (
+      req.body.transportDetails &&
+      req.body.transportDetails.bus === ''
+    ) {
+      req.body.transportDetails.bus = undefined;
     }
 
     // Create new student
@@ -45,8 +55,8 @@ exports.addStudent = async (req, res) => {
       data: {
         idNo: savedStudent.idNo,
         name: savedStudent.name,
-        childId: savedStudent.childId
-      }
+        childId: savedStudent.childId,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -56,6 +66,7 @@ exports.addStudent = async (req, res) => {
     });
   }
 };
+
 
 // Get students based on section ID
 exports.getStudentsBySection = async (req, res) => {
@@ -92,7 +103,7 @@ exports.updateStudent = async (req, res) => {
   try {
     const { sid } = req.params; // Get the student ID from URL parameters
     const updatedData = req.body; // Get the data to update from the request body
-    
+
     console.log("Updating student with childId:", updatedData.childId);
 
     // Find student by ID and update the data
@@ -277,7 +288,7 @@ exports.getStudentIdByBranch = async (req, res) => {
   try {
     const { branchId, studentId } = req.params;
     const students = await Student.find
-      ({ branch });
+      ({ branchId });
     if (!students || students.length === 0) {
       return res.status(200).json({
         success: true,
