@@ -1,4 +1,3 @@
-
 import API_URL from '../config/api';
 
 const backapi = API_URL.replace('/api', '');
@@ -77,6 +76,14 @@ const Allapi = {
   },
   getStudentCountByAcademicYear: {
     url: (academicId) => `${backapi}/api/academic/allstudents/${academicId}`,
+    method: "GET",
+  },
+  getLatestStudentId: {
+    url: `${backapi}/api/students/get-last-student`,
+    method: "GET",
+  },
+  getNextStudentId: {
+    url: (academicId) => `${backapi}/api/students/get-next-id/${academicId}`,
     method: "GET",
   },
   addClass: {

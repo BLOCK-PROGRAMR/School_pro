@@ -96,7 +96,19 @@ exports.getStudentsBySection = async (req, res) => {
   }
 };
 
-
+//get stduent lastest id:
+exports.getLatestStudentId = async (req, res) => {
+  try {
+    const latestStudent = await Student.findOne().sort({ _id: -1 }).select('_id'); // Sort by _id in descending order and select only the _id field
+    if (!latestStudent) {
+      return res.status(404).json({ message: "No students found" });
+    }
+    res.status(200).json({ studentId: latestStudent._id });
+  } catch (error) {
+    console.error("Error fetching latest student ID: ", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 // Edit student information
 exports.updateStudent = async (req, res) => {
@@ -338,6 +350,41 @@ exports.getStudentByIdNo = async (req, res) => {
       success: false,
       message: "Error fetching student",
       error: error.message,
+    });
+  }
+};
+
+// Get next student ID
+exports.getNextStudentId = async (req, res) => {
+  try {
+    const { academicId } = req.params;
+
+    // Find the latest student in the given academic year
+    const latestStudent = await Student.findOne({ academic_id: academicId })
+      .sort({ idNo: -1 })
+      .select('idNo');
+
+    let nextIdNo;
+
+    if (!latestStudent) {
+      // If no students exist, start with 1
+      nextIdNo = '280001';
+    } else {
+      // Extract the numeric part and increment
+      const currentId = parseInt(latestStudent.idNo);
+      nextIdNo = String(currentId + 1).padStart(6, '0');
+    }
+
+    res.status(200).json({
+      success: true,
+      nextId: nextIdNo
+    });
+  } catch (error) {
+    console.error("Error generating next student ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error generating next student ID",
+      error: error.message
     });
   }
 };
